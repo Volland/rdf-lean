@@ -1,0 +1,12 @@
+# A small pet ontology and its data, for lake exe leanrdf-demo.
+<http://example.org/Dog> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Mammal> .
+<http://example.org/Cat> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Mammal> .
+<http://example.org/Mammal> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Animal> .
+<http://example.org/hasPet> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/Person> .
+<http://example.org/hasPet> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/Animal> .
+<http://example.org/hasDog> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://example.org/hasPet> .
+<http://example.org/hasDog> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/Dog> .
+<http://example.org/alice> <http://example.org/hasDog> <http://example.org/rex> .
+<http://example.org/bob> <http://example.org/hasPet> <http://example.org/tom> .
+<http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Cat> .
+<http://example.org/rex> <http://www.w3.org/2000/01/rdf-schema#label> "Rex"@en .

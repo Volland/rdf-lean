@@ -1,0 +1,3 @@
+# Is tom an animal, and a resource?
+<http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Animal> .
+<http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Resource> .

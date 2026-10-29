@@ -2,6 +2,7 @@ import LeanRDFElpi.Encode
 import LeanRDFElpi.Codegen
 import LeanRDFElpi.Saturate
 import LeanRDFElpi.Certify
+import LeanRDFElpi.Demo
 
 /-!
 # LeanRDFElpi

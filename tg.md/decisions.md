@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo]
 ---
 # Decisions
 
@@ -304,7 +304,7 @@ LeanRDF v0.x has graphs only; datasets return together with N-Quads and named-gr
 
 **Decision.** Exit codes: `0` entailed and checked, `1` not derived, `2` certificate rejected (a bug on the untrusted side), `3` input or parse error. The certificate is pruned to nodes reachable from the goals. A small ontology and three queries live in `elpi/examples/`.
 
-**Consequences.** The demo's output is exactly as strong as what is proven.
+**Consequences.** The demo's output is exactly as strong as what is proven. As built, `Demo.verdict` (the checker) is the only source of exit codes `0` and `2`, a failed Elpi run also exits `2`, and the logic lives in `LeanRDF.Demo.run` so tests drive it without processes.
 
 - motivated_by:: [[decisions#Graph queries with instance mappings]]
 - motivated_by:: [[decisions#Own certificate format with a Datalog export]]

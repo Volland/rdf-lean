@@ -1,0 +1,2 @@
+# Is tom a dog? Not derivable from the data (which does not make it false).
+<http://example.org/tom> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Dog> .

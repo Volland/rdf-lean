@@ -185,13 +185,13 @@ private theorem cmp_head {I : SimpleInterp} {A : BlankNode → I.Dom} {σ : Subs
   rw [hn]
   exact (holds_iri_iff I A _ _ _).2 (hax n)
 
-theorem cmpType_sound : cmpType.Sound := fun I hI _ _ hg _ =>
+theorem cmpType_sound : cmpType.Sound := fun _ hI _ _ hg _ =>
   cmp_head (hg (.containerMembership "ppp") (.head _)) fun n => (hI.member_axioms n).1
 
-theorem cmpDomain_sound : cmpDomain.Sound := fun I hI _ _ hg _ =>
+theorem cmpDomain_sound : cmpDomain.Sound := fun _ hI _ _ hg _ =>
   cmp_head (hg (.containerMembership "ppp") (.head _)) fun n => (hI.member_axioms n).2.1
 
-theorem cmpRange_sound : cmpRange.Sound := fun I hI _ _ hg _ =>
+theorem cmpRange_sound : cmpRange.Sound := fun _ hI _ _ hg _ =>
   cmp_head (hg (.containerMembership "ppp") (.head _)) fun n => (hI.member_axioms n).2.2
 
 /-- The other RDFS patterns are sound. -/

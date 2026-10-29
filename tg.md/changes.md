@@ -67,7 +67,7 @@ Extends `rdfs-entailment`. Comes after [[changes#add-certificates]] and before t
 
 M6: `lake exe leanrdf-demo` per [[decisions#Demo never claims non-entailment]], with an example ontology and queries.
 
-- status:: proposed
+- status:: archived
 
 ## add-turtle
 

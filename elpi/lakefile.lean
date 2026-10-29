@@ -26,3 +26,7 @@ input_dir elpiDriver where
 
 lean_lib BridgeTests where
   globs := #[.andSubmodules `BridgeTests]
+
+/-- The demo: `lake exe leanrdf-demo DATA.nt QUERY.nt [--cert OUT.json] [--datalog OUT.json]`. -/
+lean_exe «leanrdf-demo» where
+  root := `DemoMain
