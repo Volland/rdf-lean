@@ -219,6 +219,20 @@ def parseTriples (src : String) : Except ParseError (Array Triple) :=
     let (line, col) := position chars pos
     .error { line, col, msg }
 
+/-- Parse one term in N-Triples syntax, in any position (an IRI, a blank node or a literal),
+with nothing after it. Certificates use this for generalized triples. -/
+def parseTerm (src : String) : Except ParseError Term :=
+  let chars := src.toList.toArray
+  let p : P Term := do
+    let t ← object
+    if (← peek?).isSome then fail "unexpected text after term"
+    return t
+  match p.run chars |>.run 0 with
+  | .ok (t, _) => .ok t
+  | .error (pos, msg) =>
+    let (line, col) := position chars pos
+    .error { line, col, msg }
+
 -- @tg: implements:: [[openspec:ntriples#W3C conformance]]
 /-- Parse an N-Triples document (RDF 1.1 N-Triples §7, §8) into a graph. -/
 def parse (src : String) : Except ParseError Graph :=

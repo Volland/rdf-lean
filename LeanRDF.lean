@@ -8,6 +8,9 @@ import LeanRDF.Parse.NTriples.Parser
 import LeanRDF.Parse.NTriples.Serializer
 import LeanRDF.Semantics.Entails
 import LeanRDF.Entailment.Soundness
+import LeanRDF.Cert.Check
+import LeanRDF.Cert.Json
+import LeanRDF.Cert.Datalog
 
 /-!
 # LeanRDF

@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates]
 ---
 # Decisions
 
@@ -56,7 +56,7 @@ LeanRDF defines its own certificate: nodes with ids, a rule name and premise ids
 
 **Decision.** Own format and checker in core Lean. Terms serialize as `<iri>`, `_:b`, `"lex"^^<dt>`, `"lex"@lang`, reusing the N-Triples parser. A separate exporter encodes triples as `triple(s,p,o)` and the rules as Datalog for the CertifyingDatalog binary, used as an independent test, not a trust dependency. Rejected: depending on CertifyingDatalog and bridging its Datalog semantics to `Derives`.
 
-**Consequences.** Checking is one pass with one match per node. The project has no Mathlib anywhere, which removes the handoff's exception for `LeanRDF.Cert`.
+**Consequences.** Checking is one pass with one match per node. The project has no Mathlib anywhere, which removes the handoff's exception for `LeanRDF.Cert`. As built: `check_sound` gives `Derives`, `checkQuery_sound` gives RDFS entailment, and Boolean forms (`checkB`, `checkQueryB`) let tests obtain both with `native_decide`, because `Except` has no decidable equality.
 
 - motivated_by:: [[constraints#CertifyingDatalog needs Mathlib]] {weight: primary}
 - motivated_by:: [[decisions#Dependency-free core package]]
@@ -244,7 +244,7 @@ An entailment query is a graph `h`; its certificate adds a mapping `μ` of `h`'s
 
 **Context.** The handoff's theorem covers one triple. Real queries are graphs with existential blank nodes, and later SPARQL basic graph patterns need the same shape.
 
-**Decision.** `Derives.sound_graph : (∀ t ∈ h, Derives rdfsRules g (μ.apply t)) → g.RDFSEntails h`, from one extra lemma: `I ⊨ μ(h)` implies `I ⊨ h` with assignment `[I+A] ∘ μ`. The checker verifies that `μ` covers every blank node of `h`. Finding `μ` is an untrusted join over the closure. The single-triple theorem is the case `h = {t}`.
+**Decision.** `Derives.sound_graph : (∀ t ∈ h, Derives rdfsRules g (μ.apply t)) → g.RDFSEntails h`, from one extra lemma: `I ⊨ μ(h)` implies `I ⊨ h` with assignment `[I+A] ∘ μ`. Unmapped blank nodes map to themselves, which is still an instance mapping, so the checker needs no coverage check. Finding `μ` is an untrusted join over the closure. The single-triple theorem is the case `h = {t}`.
 
 **Consequences.** The demo answers real queries, and `LeanSPARQL` gets its entry point.
 

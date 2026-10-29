@@ -53,7 +53,7 @@ M5: certificate format and JSON, `check` and `check_sound`, the CertifyingDatalo
 
 Capability `certificates`.
 
-- status:: proposed
+- status:: archived
 
 ## add-rdfs-full
 
