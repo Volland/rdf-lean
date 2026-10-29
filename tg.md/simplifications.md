@@ -22,7 +22,7 @@ Soundness is unaffected, since a statement over all interpretations in `Type` is
 
 D is exactly `{xsd:string, rdf:langString}`, and their value spaces are abstract fields `strVal` and `langVal` of the interpretation, not an XSD implementation.
 
-Other datatypes are unrecognized, so their literals are interpreted only through `IL`. Value-space reasoning (`"01"^^xsd:integer` equals `"1"^^xsd:integer`) is out of scope.
+Other datatypes are unrecognized, so their literals are interpreted only through `IL`. Value-space reasoning (`"01"^^xsd:integer` equals `"1"^^xsd:integer`) is out of scope. Because the values are fields, every embedding of them is allowed, a larger class than the spec's, which only strengthens soundness. "I(aaa) is the datatype identified by aaa" (§7.1) is not expressed. The value space of `rdf:langString` is the pairs with lowercased tags, the only reading under which §8 and §9 agree.
 
 - source:: RDF 1.1 Semantics §7 and §8
 - impact:: scope

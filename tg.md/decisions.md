@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment]
 ---
 # Decisions
 
@@ -122,6 +122,31 @@ An interpretation has one carrier `Dom : Type` with `IR` and `IP` as predicates 
 
 - motivated_by:: [[constraints#RDF interpretations recognize two datatypes]] {weight: primary}
 - motivated_by:: [[constraints#RDFS interpretation conditions]] {weight: primary}
+
+## Readings of the condition tables
+
+Where the RDF 1.1 Semantics tables leave room, LeanRDF reads them one fixed way and records it here, so a reader checking the transcription knows what to expect.
+
+**Context.** Some table rows are compressed: "transitive and reflexive on IP", "rdf:_1, rdf:_2, …", and two descriptions of the `rdf:langString` class.
+
+**Decision.** Transitive everywhere and reflexive on `IP` (and on `IC`). Container membership properties are `rdf:_(n+1)` for every `n`, so `rdf:_0` gets no axioms. The `rdf:langString` value space is the pairs with lowercased tags. Blank-node mappings are total into `IR`. RDF and RDFS conditions are Prop structures over a `DInterp`, one field per row.
+
+**Consequences.** Each field cites one row; a disagreement with the spec is a one-field fix.
+
+- motivated_by:: [[constraints#RDF interpretations recognize two datatypes]] {weight: primary}
+- motivated_by:: [[constraints#RDFS interpretation conditions]] {weight: primary}
+
+## Small-model family for vacuity
+
+All vacuity countermodels come from one parametric RDFS interpretation over `Term`, in which `rdfs:subClassOf` is inclusion of class extensions; each countermodel only chooses empty classes or properties.
+
+**Context.** Countermodels must satisfy every RDFS condition, including the infinite `rdf:_n` axioms. A canonical-closure model would amount to a completeness proof.
+
+**Decision.** Every element is a resource and a property. Every class contains everything except `xsd:string`, `rdf:langString` and the custom classes. Non-vocabulary properties relate everything except the custom properties. `rdfs:subPropertyOf` is reflexivity plus everything below `rdfs:member` plus the `isDefinedBy` axiom, and domains and ranges are defined against an over-approximation of the extensions. Custom classes must avoid `universalClasses`, the classes the axioms force to be total.
+
+**Consequences.** The model existence theorem, three non-entailments and their RDFS conditions are kernel proofs in `Tests/Semantics/`. A new axiom whose object is a new class must be added to `universalClasses`.
+
+- motivated_by:: [[decisions#Semantics tested against vacuity]] {weight: primary}
 
 ## Horn rules matched by the checker
 

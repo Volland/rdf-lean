@@ -37,7 +37,7 @@ M3: `SimpleInterp`, `RDFInterp`, `RDFSInterp` and `RDFSCore`; `Rule` with guards
 
 Capabilities `rdf-semantics` and `rdfs-entailment`. See [[decisions#Semantics tested against vacuity]].
 
-- status:: proposed
+- status:: archived
 
 ## add-elpi-bridge
 

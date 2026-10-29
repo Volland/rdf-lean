@@ -9,3 +9,9 @@ import Tests.Core.Axioms
 import Tests.NTriples.Parse
 import Tests.NTriples.Serialize
 import Tests.NTriples.W3C
+import Tests.Semantics.SmallModel
+import Tests.Semantics.Basics
+import Tests.Semantics.Vacuity
+import Tests.Semantics.HandProofs
+import Tests.Entailment.Rules
+import Tests.Entailment.Axioms

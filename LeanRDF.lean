@@ -6,6 +6,8 @@ import LeanRDF.Core.Graph
 import LeanRDF.Core.Iso
 import LeanRDF.Parse.NTriples.Parser
 import LeanRDF.Parse.NTriples.Serializer
+import LeanRDF.Semantics.Entails
+import LeanRDF.Entailment.Soundness
 
 /-!
 # LeanRDF
