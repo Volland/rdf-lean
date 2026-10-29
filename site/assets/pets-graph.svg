@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 400" role="img" aria-labelledby="t d" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <title id="t">The pet ontology as a graph</title>
+  <desc id="d">Nodes are IRIs; arrows are triples. Solid arrows are stated in the data; dashed arrows are derived by RDFS rules: bob is a Person by the domain of hasPet, and tom is a Mammal because Cat is a subclass of Mammal.</desc>
+  <defs>
+    <marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#23307a"/></marker>
+    <marker id="d2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#159c86"/></marker>
+  </defs>
+  <rect width="820" height="400" rx="14" fill="#fbfbf8"/>
+  <g font-size="14" text-anchor="middle">
+    <g fill="#fff" stroke="#23307a" stroke-width="1.5">
+      <rect x="40" y="40" width="110" height="38" rx="19"/>
+      <rect x="40" y="170" width="110" height="38" rx="19"/>
+      <rect x="40" y="310" width="110" height="38" rx="19"/>
+      <rect x="330" y="310" width="110" height="38" rx="19"/>
+      <rect x="330" y="170" width="110" height="38" rx="19"/>
+      <rect x="620" y="170" width="120" height="38" rx="19"/>
+      <rect x="620" y="40" width="120" height="38" rx="19"/>
+    </g>
+    <g fill="#1c1d20">
+      <text x="95" y="64">ex:bob</text>
+      <text x="95" y="194">ex:hasPet</text>
+      <text x="95" y="334">ex:Person</text>
+      <text x="385" y="334">ex:tom</text>
+      <text x="385" y="194">ex:Cat</text>
+      <text x="680" y="194">ex:Mammal</text>
+      <text x="680" y="64">ex:Animal</text>
+    </g>
+  </g>
+  <g fill="none" stroke="#23307a" stroke-width="1.6" marker-end="url(#s)">
+    <path d="M150 59 C 260 59, 330 250, 370 306"/>
+    <line x1="95" y1="208" x2="95" y2="306"/>
+    <line x1="385" y1="310" x2="385" y2="212"/>
+    <line x1="440" y1="189" x2="616" y2="189"/>
+    <line x1="680" y1="170" x2="680" y2="82"/>
+  </g>
+  <g font-size="12" fill="#23307a">
+    <text x="250" y="118">ex:hasPet</text>
+    <text x="102" y="262">rdfs:domain</text>
+    <text x="392" y="262">rdf:type</text>
+    <text x="470" y="180">rdfs:subClassOf</text>
+    <text x="688" y="130">rdfs:subClassOf</text>
+  </g>
+  <g fill="none" stroke="#159c86" stroke-width="1.6" stroke-dasharray="6 5" marker-end="url(#d2)">
+    <path d="M60 78 C 0 140, 0 260, 55 306"/>
+    <path d="M440 330 C 600 330, 680 280, 680 212"/>
+  </g>
+  <g font-size="12" fill="#159c86" font-weight="600">
+    <text x="34" y="140">rdf:type (rdfs2)</text>
+    <text x="520" y="356">rdf:type (rdfs9)</text>
+  </g>
+  <g font-size="12" fill="#5d6068">
+    <line x1="560" y1="370" x2="590" y2="370" stroke="#23307a" stroke-width="1.6"/><text x="598" y="374">stated</text>
+    <line x1="660" y1="370" x2="690" y2="370" stroke="#159c86" stroke-width="1.6" stroke-dasharray="6 5"/><text x="698" y="374">derived</text>
+  </g>
+</svg>

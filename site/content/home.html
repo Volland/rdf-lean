@@ -1,0 +1,71 @@
+<div class="home">
+<section class="hero">
+<div>
+<h1>RDF semantics you can prove</h1>
+<p class="lead">LeanRDF is a Lean 4 library with a native RDF 1.1 data model and the W3C model theory of RDF and RDFS. Elpi (λProlog) searches for derivations; a verified Lean checker turns them into theorems of the form <code>g.RDFSEntails q</code>.</p>
+<div class="btns">
+<a class="btn" href="{{BASE}}/book/">Read the book</a>
+<a class="btn alt" href="{{BASE}}/examples/">See examples</a>
+<a class="btn alt" href="https://github.com/Volland/rdf-lean">GitHub</a>
+</div>
+</div>
+<img src="{{BASE}}/assets/logo.svg" alt="LeanRDF logo: an entailment turnstile whose bars end in graph nodes">
+</section>
+
+<section>
+<h2>Elpi finds, Lean checks</h2>
+<p>Search is large, fast-changing code; proofs should not depend on it. LeanRDF splits the work: the untrusted side computes the RDFS closure and a proof certificate, the trusted side checks the certificate against rules that are proven sound against the semantics. A wrong search can only produce a rejected certificate, never a wrong answer.</p>
+<figure><img src="{{BASE}}/assets/pipeline.svg" alt="Pipeline: Turtle or N-Triples to Graph, Elpi saturation and certificate (untrusted), verified checker and the theorem g entails q (trusted)"></figure>
+</section>
+
+<section>
+<h2>What is in the box</h2>
+<div class="grid">
+<div class="card"><h3>A native RDF model</h3><p>IRIs, blank nodes, literals that cannot be ill-formed, generalized triples and graphs used through membership lemmas only. No FFI, no dependencies.</p></div>
+<div class="card"><h3>N-Triples and Turtle</h3><p>Native parsers with line and column in every error, a canonical serializer, RFC 3986 IRI resolution. All W3C syntax and evaluation tests pass.</p></div>
+<div class="card"><h3>The model theory</h3><p>Simple, D-, RDF and RDFS interpretations transcribed from RDF 1.1 Semantics, one field per condition, with four entailment relations.</p></div>
+<div class="card"><h3>67 rules, all proven sound</h3><p>Every RDFS 1.1 pattern, GrdfD1, the container rules and the axiomatic triples, as data with guards, each with a soundness proof.</p></div>
+<div class="card"><h3>Certificates and a verified checker</h3><p>Proof DAGs in JSON. <code>check_sound</code> gives <code>Derives</code>; <code>checkQuery_sound</code> gives RDFS entailment. Exports to CertifyingDatalog.</p></div>
+<div class="card"><h3>Not vacuous, by proof</h3><p>A concrete RDFS model and countermodels for non-entailments, checked by the kernel, show the semantics is neither empty nor trivial.</p></div>
+</div>
+</section>
+
+<section>
+<h2>Numbers</h2>
+<div class="stats">
+<div class="stat"><b>313 / 313</b><span>W3C Turtle tests</span></div>
+<div class="stat"><b>70 / 70</b><span>W3C N-Triples tests</span></div>
+<div class="stat"><b>67</b><span>rules proven sound</span></div>
+<div class="stat"><b>0</b><span><code>sorry</code> or new axioms</span></div>
+<div class="stat"><b>3</b><span>standard axioms used: <code>propext</code>, <code>Quot.sound</code>, <code>Classical.choice</code></span></div>
+</div>
+</section>
+
+<section>
+<h2>A first taste</h2>
+<p>Run the demo on the example pet ontology: is there a person with a pet that is a mammal?</p>
+<pre><code>$ cd elpi
+$ lake exe leanrdf-demo examples/pets.nt examples/query-mammal-owner.nt
+LeanRDF: 11 data triples, 3 query triples
+Elpi closure under 67 rules: 201 triples
+Query instance: _:owner ↦ &lt;http://example.org/bob&gt;
+Query instance: _:pet ↦ &lt;http://example.org/tom&gt;
+Certificate: 6 nodes, goals [1, 4, 5]
+  ...
+  [4] &lt;…/bob&gt; rdf:type &lt;…/Person&gt;  (rdfs2 [2, 1])
+  [5] &lt;…/tom&gt; rdf:type &lt;…/Mammal&gt;  (rdfs9 [0, 3])
+Verdict: ENTAILED. The certificate was accepted by the verified checker (compiled).</code></pre>
+<p>And in Lean, the same pipeline ends in a theorem:</p>
+<pre><code class="language-lean"><span class="k">theorem</span> g_entails_q : g.RDFSEntails q :=
+  checkQueryB_sound (c := cert) (<span class="k">by</span> <span class="k">native_decide</span>)</code></pre>
+</section>
+
+<section>
+<h2>Start here</h2>
+<div class="grid">
+<div class="card"><h3><a href="{{BASE}}/book/why/">The book</a></h3><p>Ten short chapters: from triples to interpretations, rules, countermodels, Elpi and certificates.</p></div>
+<div class="card"><h3><a href="{{BASE}}/examples/">Examples</a></h3><p>Worked, tested Lean snippets: build graphs, parse Turtle, derive, certify, find a countermodel.</p></div>
+<div class="card"><h3><a href="{{BASE}}/reference/">Reference</a></h3><p>The modules and the main definitions and theorems, with where to find them.</p></div>
+</div>
+</section>
+</div>

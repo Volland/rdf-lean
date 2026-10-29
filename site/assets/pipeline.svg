@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 230" role="img" aria-labelledby="t d" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <title id="t">The LeanRDF pipeline</title>
+  <desc id="d">Turtle or N-Triples is parsed into a Graph. Elpi saturates it under the rules generated from Lean and certifies a query; this side is untrusted. The verified Lean checker accepts the certificate, which yields the proposition g RDFS-entails q.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#5d6068"/></marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="230" rx="14" fill="#fbfbf8"/>
+  <rect x="300" y="18" width="330" height="194" rx="12" fill="#fff6e0" stroke="#e8b84a" stroke-dasharray="6 5"/>
+  <text x="465" y="40" text-anchor="middle" font-size="14" fill="#9a6b00" font-weight="600">untrusted search</text>
+  <rect x="650" y="18" width="296" height="194" rx="12" fill="#e7f6f2" stroke="#3fb39d"/>
+  <text x="798" y="40" text-anchor="middle" font-size="14" fill="#11735f" font-weight="600">trusted: kernel + checker + semantics</text>
+  <g font-size="15">
+    <rect x="16" y="88" width="120" height="60" rx="10" fill="#fff" stroke="#c9cad0"/>
+    <text x="76" y="113" text-anchor="middle" font-weight="600" fill="#1c1d20">Turtle</text>
+    <text x="76" y="133" text-anchor="middle" fill="#5d6068">N-Triples</text>
+    <rect x="164" y="88" width="112" height="60" rx="10" fill="#fff" stroke="#23307a" stroke-width="1.5"/>
+    <text x="220" y="113" text-anchor="middle" font-weight="600" fill="#23307a">Graph</text>
+    <text x="220" y="133" text-anchor="middle" fill="#5d6068">g, q</text>
+    <rect x="318" y="70" width="140" height="96" rx="10" fill="#fff" stroke="#c9cad0"/>
+    <text x="388" y="96" text-anchor="middle" font-weight="600" fill="#1c1d20">Elpi saturation</text>
+    <text x="388" y="118" text-anchor="middle" fill="#5d6068" font-size="13">clauses generated</text>
+    <text x="388" y="136" text-anchor="middle" fill="#5d6068" font-size="13">from the Lean rules</text>
+    <text x="388" y="154" text-anchor="middle" fill="#5d6068" font-size="13">semi-naive rounds</text>
+    <rect x="486" y="88" width="128" height="60" rx="10" fill="#fff" stroke="#c9cad0"/>
+    <text x="550" y="113" text-anchor="middle" font-weight="600" fill="#1c1d20">Certificate</text>
+    <text x="550" y="133" text-anchor="middle" fill="#5d6068" font-size="13">proof DAG + μ</text>
+    <rect x="668" y="88" width="120" height="60" rx="10" fill="#fff" stroke="#3fb39d" stroke-width="1.5"/>
+    <text x="728" y="113" text-anchor="middle" font-weight="600" fill="#11735f">checkQuery</text>
+    <text x="728" y="133" text-anchor="middle" fill="#5d6068" font-size="13">verified checker</text>
+    <rect x="814" y="88" width="120" height="60" rx="10" fill="#23307a"/>
+    <text x="874" y="114" text-anchor="middle" font-weight="700" fill="#fff" font-size="17">g ⊨ q</text>
+    <text x="874" y="134" text-anchor="middle" fill="#cfd6ff" font-size="12">RDFSEntails</text>
+  </g>
+  <g stroke="#5d6068" stroke-width="1.6" marker-end="url(#a)">
+    <line x1="136" y1="118" x2="160" y2="118"/>
+    <line x1="276" y1="118" x2="314" y2="118"/>
+    <line x1="458" y1="118" x2="482" y2="118"/>
+    <line x1="614" y1="118" x2="664" y2="118"/>
+    <line x1="788" y1="118" x2="810" y2="118"/>
+  </g>
+  <text x="639" y="106" text-anchor="middle" font-size="12" fill="#5d6068">JSON</text>
+  <text x="798" y="190" text-anchor="middle" font-size="12" fill="#11735f">check_sound · checkQuery_sound</text>
+</svg>

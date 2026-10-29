@@ -1,5 +1,9 @@
 # LeanRDF
 
+<img src="site/assets/logo.svg" alt="LeanRDF logo" width="72" align="right">
+
+**Website, book and examples: https://volland.github.io/rdf-lean/**
+
 A Lean 4 library with a native RDF 1.1 data model and formal entailment semantics, where Elpi (λProlog, through [lean-elpi](https://github.com/Volland/lean-elpi)) searches for derivations and a verified Lean checker decides.
 
 - `leanrdf` (this directory, no dependencies): RDF terms and graphs, N-Triples, the RDF 1.1 model theory (simple, RDF and RDFS interpretations), the RDFS rules with their soundness proofs, certificates and the verified checker.
@@ -20,6 +24,10 @@ The demo saturates the data in Elpi, builds a certificate for the query, checks 
 lake build && lake test                 # the core package (Lean 4.35.0)
 cd elpi && lake build && lake test      # the Elpi bridge, end-to-end tests and the demo
 ```
+
+## Website
+
+The site in `site/` (`python3 site/build.py` writes `_site/`) has a ten-chapter book on RDF semantics in Lean 4, worked examples and a module reference; the Pages workflow publishes it on every push that changes `site/`.
 
 ## Where to read
 

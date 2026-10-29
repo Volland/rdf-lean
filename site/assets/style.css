@@ -1,0 +1,54 @@
+:root{--bg:#fbfbf8;--fg:#1c1d20;--muted:#5d6068;--accent:#23307a;--accent2:#159c86;--card:#fff;--line:#e3e3dc;--code:#f3f3ee;--brand:#1c1d20;--kw:#23307a;--str:#11735f;--com:#8a8d94}
+@media (prefers-color-scheme:dark){:root{--bg:#13141a;--fg:#e8e8ea;--muted:#a0a3ab;--accent:#a9b6ff;--accent2:#5fdcc4;--card:#1b1d24;--line:#2b2e37;--code:#1d2030;--brand:#e8e8ea;--kw:#a9b6ff;--str:#5fdcc4;--com:#7d808a}}
+*{box-sizing:border-box}
+html{font-size:100%;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:1.0625rem/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+.top{border-bottom:1px solid var(--line);background:var(--card)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:58px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.3rem;color:var(--brand);text-decoration:none}
+.brand span{color:var(--accent2);margin-left:-10px}
+nav a{margin-left:16px;color:var(--fg);text-decoration:none}
+nav a:first-child{margin-left:0}
+nav a:hover,nav a[aria-current]{color:var(--accent2)}
+a{color:var(--accent)}
+@media (prefers-color-scheme:dark){a{color:var(--accent)}}
+main{padding-top:24px;padding-bottom:48px}
+.prose{max-width:780px}
+h1{font-size:2rem;line-height:1.2;margin:.6em 0 .4em}
+h2{font-size:1.45rem;margin:1.8em 0 .4em}
+h3{font-size:1.15rem;margin:1.4em 0 .3em}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;line-height:1.45;font-size:.9rem}
+code{font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--code);padding:.1em .3em;border-radius:4px}
+pre code{background:none;padding:0}
+.k{color:var(--kw);font-weight:600}.s{color:var(--str)}.c{color:var(--com);font-style:italic}
+blockquote{margin:1em 0;padding:.2em 1em;border-left:4px solid var(--accent2);background:var(--code);border-radius:0 8px 8px 0}
+table{border-collapse:collapse;width:100%;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+figure{margin:1.4em 0}
+figure img{width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fbfbf8}
+figcaption{color:var(--muted);font-size:.92rem;margin-top:6px}
+.toc{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:10px 16px;margin-bottom:20px;font-size:.95rem}
+.toc ol{margin:.4em 0 0;padding-left:1.3em}
+.toc a[aria-current]{font-weight:700}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:40px;padding-top:16px;border-top:1px solid var(--line)}
+.chapters li{margin:0 0 14px}
+.hero{padding:36px 0 8px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+.hero img{width:150px;height:150px}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.hero img{width:96px;height:96px;order:-1}}
+.hero h1{font-size:2.5rem;margin-top:0}
+.lead{font-size:1.2rem;color:var(--muted);max-width:720px}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
+.btn{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600}
+@media (prefers-color-scheme:dark){.btn{color:#10131c}}
+.btn.alt{background:none;color:var(--accent);border:1px solid var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:24px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h3{margin-top:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font-size:1.5rem;color:var(--accent2)}
+.stat span{color:var(--muted);font-size:.92rem}
+.home section{margin:44px 0}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:.95rem;padding:16px 0 32px}
+footer a{color:var(--muted)}

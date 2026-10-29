@@ -274,6 +274,18 @@ The repository holds two Lake packages: `leanrdf` at the root with no dependenci
 - motivated_by:: [[constraints#lean-elpi has no dependencies]]
 - motivated_by:: [[constraints#Lean toolchain 4.35]]
 
+## Static site from a standard-library generator
+
+The documentation site (home, a ten-chapter book, examples, reference) is Markdown in `site/content/`, built by `site/build.py` with the Python standard library and published to GitHub Pages by a workflow.
+
+**Context.** The library needs an introduction to RDF semantics in Lean that people can read without a checkout. lean-elpi already uses a small standard-library generator; `docs/` here holds design files, not site output.
+
+**Decision.** Reuse lean-elpi's generator design with a Lean highlighter, write output to the ignored `_site/`, and deploy it with `actions/deploy-pages` on pushes that touch `site/`. The logo is an SVG entailment turnstile whose bars end in graph nodes. Book examples are adapted from the test suite, and demo output is copied from a real run.
+
+**Consequences.** No build dependencies and no committed output. A change to the library's API must be reflected in the book by hand.
+
+- motivated_by:: [[decisions#Dependency-free core package]] {weight: secondary}
+
 ## Semantics tested against vacuity
 
 M3 cannot be archived without kernel-checked evidence that the semantics is not vacuous: a model exists, some non-entailments hold, and each rule's entailment has a hand proof.
