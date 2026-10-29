@@ -1,6 +1,13 @@
+import LeanRDF.Core.Term
+import LeanRDF.Core.Vocab
+import LeanRDF.Core.Literal
+import LeanRDF.Core.Triple
+import LeanRDF.Core.Graph
+import LeanRDF.Core.Iso
+
 /-!
 # LeanRDF
 
-Umbrella module. Core, Parse, Semantics, Entailment and Cert are added milestone by milestone
-(see `tg.md/changes.md`).
+Umbrella module. Core is the RDF 1.1 data model; Parse, Semantics, Entailment and Cert are
+added milestone by milestone (see `tg.md/changes.md`).
 -/

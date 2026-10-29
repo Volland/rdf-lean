@@ -5,7 +5,7 @@ date: 2026-10-29
 ---
 # Changes
 
-The OpenSpec changes that build LeanRDF, one per milestone, in order. Each lives in `openspec/changes/<name>/` and is archived, and committed, when its acceptance criteria pass.
+The OpenSpec changes that build LeanRDF, one per milestone, in order. Each lives in `openspec/changes/<name>/` (`openspec/changes/archive/` once done) and is archived, and committed, when its acceptance criteria pass.
 
 Do not start a change before the one it depends on is archived; the Elpi bridge depends on stable `Rule` definitions.
 
@@ -19,9 +19,9 @@ Task 0 and the empty skeleton: [[integration-contract]], both Lake packages buil
 
 M1: terms, literals, generalized triples with `WellFormed`, the opaque graph with its membership lemmas, blank-node isomorphism as a definition, and the `rdf:`, `rdfs:`, `xsd:` vocabulary.
 
-Capability `rdf-core`. Unit tests for term equality, triples and graph operations; no `sorry`.
+Capability `rdf-core`. Unit tests for term equality, triples and graph operations; no `sorry`. `Literal` is declared in `Core/Term.lean` because `Term` contains it; its operations are in `Core/Literal.lean`.
 
-- status:: proposed
+- status:: archived
 
 ## add-ntriples
 

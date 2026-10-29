@@ -3,6 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
+openspec: [rdf-core]
 ---
 # Decisions
 

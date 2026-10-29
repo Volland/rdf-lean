@@ -100,6 +100,13 @@ CertifyingDatalog requires mathlib4. Its DAG input is a list of atom-keyed verti
 - source:: Lean 4.35.0 core, `String.hash`
 - constrains:: [[decisions#Axiom-clean library]] {strength: must}
 
+## String toLower is opaque to decide
+
+`String.toLower` is defined by well-founded recursion, so kernel `decide` cannot evaluate it; facts about lowercased tags are checked with `#guard` or proved symbolically.
+
+- source:: Lean 4.35.0 core, `String.map` and `String.mapAux`; observed in `Tests/Core/Literal.lean`
+- constrains:: [[decisions#Literals are typed or language-tagged]] {strength: should}
+
 ## Lake requires per package
 
 A Lake `require` applies to a whole package, so every library of a package makes its downstream users fetch and build all of the package's dependencies.
