@@ -94,6 +94,20 @@ Plain lean-elpi programs run in a fixed depth-first order with a fuel budget; on
 - source:: `Elpi/LF/Strategy.lean` and `defaultFuel` in `Elpi/Runtime/Api.lean`, lean-elpi v0.3.3
 - constrains:: [[decisions#Forward-chaining saturation in Elpi]] {strength: must}
 
+## cmp_term orders only numbers and strings
+
+lean-elpi's `cmp_term` compares with `<`, which accepts numbers and strings only; on compound terms it fails with "Wrong arguments to <", so `std.set` and `std.map` need string or number keys.
+
+- source:: `lib/elpi/std.elpi` of lean-elpi v0.3.3; observed with a prototype on 2026-10-29
+- constrains:: [[decisions#Forward-chaining saturation in Elpi]] {strength: must}
+
+## Derived Elpi names follow the Lean names
+
+`deriving Elpi` names a kind after the lowercased type name and an inductive's constructors by their bare names, so `LeanRDF.Term` would become the kind `term`, which lean-elpi already uses for Lean expressions.
+
+- source:: `tests/Interop/Params.lean` and `openspec/specs/lean-interop/spec.md` of lean-elpi v0.3.3
+- constrains:: [[decisions#Hand-written Elpi term encoding]] {strength: must}
+
 ## LF proof terms are trees
 
 lean-elpi's LF layer records proof terms and exports them as fully explicit constructor applications for the kernel, with no sharing between equal subderivations.

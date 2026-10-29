@@ -41,11 +41,11 @@ Capabilities `rdf-semantics` and `rdfs-entailment`. See [[decisions#Semantics te
 
 ## add-elpi-bridge
 
-M4: `deriving Elpi` encodings, generated `step` clauses, the `saturate.elpi` driver and closure readout; subclass and domain/range golden cases.
+M4: a hand-written Elpi term encoding, generated `step` clauses, the `saturate.elpi` driver and closure readout; subclass and domain/range golden cases.
 
 Capability `elpi-bridge`, in the `leanrdf-elpi` package.
 
-- status:: proposed
+- status:: archived
 
 ## add-certificates
 

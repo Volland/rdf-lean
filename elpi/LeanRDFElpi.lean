@@ -1,8 +1,10 @@
-import LeanRDF
-import Elpi
+import LeanRDFElpi.Encode
+import LeanRDFElpi.Codegen
+import LeanRDFElpi.Saturate
 
 /-!
 # LeanRDFElpi
 
-The untrusted search side: Elpi saturation and certificate production (milestone M4 onward).
+The untrusted search side: RDF terms in Elpi, rule clauses generated from the proven rule list,
+and forward-chaining saturation that reads its closure back into Lean.
 -/

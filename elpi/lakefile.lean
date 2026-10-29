@@ -15,7 +15,14 @@ require «lean-elpi» from git "https://github.com/Volland/lean-elpi" @ "v0.3.3"
 -- Local development against a sibling checkout instead of the pinned release:
 -- require «lean-elpi» from "../../lean-elpi"
 
-@[default_target] lean_lib LeanRDFElpi
+/-- The Elpi sources that `LeanRDFElpi.Saturate` embeds with `include_str`; Lake does not see
+them as inputs of the module, so without this an edit leaves a stale library. -/
+input_dir elpiDriver where
+  path := "LeanRDFElpi/elpi"
+  text := true
+
+@[default_target] lean_lib LeanRDFElpi where
+  needs := #[elpiDriver]
 
 lean_lib BridgeTests where
   globs := #[.andSubmodules `BridgeTests]

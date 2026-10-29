@@ -1,0 +1,82 @@
+% Forward-chaining saturation for LeanRDF: the untrusted search.
+%
+% Facts and derived triples are `rdf.known P S O` clauses, added with `=>`, indexed on the
+% predicate; the triples of the last round are also `rdf.delta P S O`. The rule clauses
+% `rdf.step Name Premises Head` are generated from the Lean rule list, one per rule and
+% premise position: that premise comes from the last round (semi-naive evaluation). A run
+% ends when a round adds nothing; the rules invent no terms, so it always ends. The result
+% lists every triple once, with its rule and premises, premises before conclusions.
+
+kind rdfterm type.
+type rdf.iri string -> rdfterm.
+type rdf.bnode string -> rdfterm.
+type rdf.typed string -> string -> rdfterm.
+type rdf.lang string -> string -> rdfterm.
+
+kind rdftriple type.
+type rdf.t rdfterm -> rdfterm -> rdfterm -> rdftriple.
+
+kind rdfentry type.
+type rdf.entry rdftriple -> string -> list rdftriple -> rdfentry.
+
+:index (2 2 2)
+pred rdf.known o:rdfterm, o:rdfterm, o:rdfterm.
+:index (2 2 2)
+pred rdf.delta o:rdfterm, o:rdfterm, o:rdfterm.
+pred rdf.step o:string, o:list rdftriple, o:rdftriple.
+
+pred rdf.known-clause i:rdftriple, o:prop.
+rdf.known-clause (rdf.t S P O) (rdf.known P S O).
+
+pred rdf.delta-clause i:rdftriple, o:prop.
+rdf.delta-clause (rdf.t S P O) (rdf.delta P S O).
+
+% The set of triples seen so far is keyed by the printed triple.
+pred rdf.key i:rdftriple, o:string.
+rdf.key T K :- term_to_string T K.
+
+pred rdf.seen i:rdftriple, i:std.set string.
+rdf.seen T S :- rdf.key T K, std.set.mem K S.
+
+pred rdf.see i:rdftriple, i:std.set string, o:std.set string.
+rdf.see T S S1 :- rdf.key T K, std.set.add K S S1.
+
+pred rdf.dedupe i:list rdftriple, i:std.set string, i:list rdftriple, o:list rdftriple,
+  o:std.set string.
+rdf.dedupe [] S Acc Out S :- std.rev Acc Out.
+rdf.dedupe [T|Ts] S Acc Out S1 :- rdf.seen T S, !, rdf.dedupe Ts S Acc Out S1.
+rdf.dedupe [T|Ts] S Acc Out S2 :- rdf.see T S S1, rdf.dedupe Ts S1 [T|Acc] Out S2.
+
+pred rdf.fact-entry i:rdftriple, o:rdfentry.
+rdf.fact-entry T (rdf.entry T "fact" []).
+
+% New entries of a round, in order, without triples already seen.
+pred rdf.fresh i:list prop, i:std.set string, i:list rdfentry, o:list rdfentry,
+  o:std.set string.
+rdf.fresh [] S Acc Out S :- std.rev Acc Out.
+rdf.fresh [rdf.step _ _ H | Ss] S Acc Out S1 :- rdf.seen H S, !, rdf.fresh Ss S Acc Out S1.
+rdf.fresh [rdf.step N Ps H | Ss] S Acc Out S2 :-
+  rdf.see H S S1, rdf.fresh Ss S1 [rdf.entry H N Ps | Acc] Out S2.
+
+pred rdf.entry-triple i:rdfentry, o:rdftriple.
+rdf.entry-triple (rdf.entry T _ _) T.
+
+pred rdf.loop i:list rdftriple, i:std.set string, i:list rdfentry, o:list rdfentry.
+rdf.loop [] _ Acc Acc :- !.
+rdf.loop Delta Seen Acc Out :-
+  std.map Delta rdf.delta-clause D,
+  (D => std.findall (rdf.step _ _ _) Sols),
+  rdf.fresh Sols Seen [] New Seen1,
+  std.map New rdf.entry-triple NewTs,
+  std.map NewTs rdf.known-clause K,
+  std.append Acc New Acc1,
+  K => rdf.loop NewTs Seen1 Acc1 Out.
+
+% rdf.saturate Facts Entries: the closure of Facts under the step clauses.
+pred rdf.saturate i:list rdftriple, o:list rdfentry.
+rdf.saturate Facts Out :-
+  std.set.make cmp_term S0,
+  rdf.dedupe Facts S0 [] Uniq S1,
+  std.map Uniq rdf.fact-entry E0,
+  std.map Uniq rdf.known-clause K0,
+  K0 => rdf.loop Uniq S1 E0 Out.

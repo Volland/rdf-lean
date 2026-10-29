@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge]
 ---
 # Decisions
 
@@ -44,7 +44,7 @@ The Elpi side computes the closure by semi-naive forward chaining, recording eac
 
 **Decision.** A fixed driver `saturate.elpi` applies all rules until no new triple appears, keyed by triple, with value = rule name plus premise triples. The API is `saturate : Graph → Closure` plus a goal lookup, replacing the handoff's "first derivation of the goal". Rejected: visited-set backward search (no sharing, re-searches per query) and iterative deepening (exponential in chain length, complete only up to the bound).
 
-**Consequences.** Termination holds by construction: the rules invent no terms, so the closure has at most |terms|³ triples. The map is already a proof DAG with sharing, which makes certificate extraction a readout.
+**Consequences.** Termination holds by construction: the rules invent no terms, so the closure has at most |terms|³ triples. The readout is already a proof DAG with sharing. As built, known triples are hypothetical `rdf.known` clauses, the seen set is a `std.set` of printed triples, and rounds are semi-naive.
 
 - motivated_by:: [[constraints#lean-elpi has no tabling]] {weight: primary}
 
@@ -167,11 +167,24 @@ The Lean `List Rule` is the single source of truth: a Lean function emits one El
 
 **Context.** A hand-written `rdfs.elpi` duplicates the proven rules; drift is never unsound but shows up as certificates the checker rejects.
 
-**Decision.** `Rule → String` generates clauses asserted at load time; `saturate.elpi` is hand-written and rule-independent. Terms cross through `deriving Elpi` on `IRI`, `Literal`, `Term` and `Triple`, which lean-elpi supports for nested structures and `Option`. Rejected: hand-written rules, and a generic rule interpreter in Elpi (loses first-argument indexing).
+**Decision.** `stepClauses : Rule → Except String (List String)` generates clauses asserted at load time; `saturate.elpi` is hand-written and rule-independent. Terms cross through a hand-written encoding ([[decisions#Hand-written Elpi term encoding]]). Rejected: hand-written rules, and a generic rule interpreter in Elpi (loses indexing).
 
 **Consequences.** New rules, including OWL RL later, are a Lean change only. The generator is untrusted like the rest of the Elpi side.
 
 - motivated_by:: [[decisions#Horn rules matched by the checker]]
+- motivated_by:: [[decisions#Elpi finds, Lean checks]]
+
+## Hand-written Elpi term encoding
+
+RDF terms cross to Elpi through a hand-written encoder and decoder with `rdf.`-prefixed constructors, not through `deriving Elpi`.
+
+**Context.** The interview assumed `deriving Elpi` on `IRI`, `Literal`, `Term` and `Triple`. Derived names follow the Lean names, so the kind would be `term`, which lean-elpi uses for Lean expressions, and the constructors would be bare `iri`, `bnode`, `lit`.
+
+**Decision.** `encodeTerm`/`decodeTerm` over `rdf.iri S`, `rdf.bnode L`, `rdf.typed Lex Dt`, `rdf.lang Lex Tag`, and `rdf.t S P O` for triples, declared in `saturate.elpi`. Literals are flattened into the term kind. Decoding is untrusted.
+
+**Consequences.** About 30 lines instead of four `deriving` clauses, and no name clashes. The certificate checker never sees Elpi terms.
+
+- motivated_by:: [[constraints#Derived Elpi names follow the Lean names]] {weight: primary}
 - motivated_by:: [[decisions#Elpi finds, Lean checks]]
 
 ## Axiom-clean library
