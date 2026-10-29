@@ -91,10 +91,10 @@ theorem rdfs11_sound : rdfs11.Sound := by
   cases same hy hy'
   exact Holds.intro I hx rfl hz (hI.subClass_trans _ _ _ h1 h2)
 
-/-- Every rule of `rdfsRules` is sound. -/
-theorem rdfsRules_sound : ∀ r ∈ rdfsRules, r.Sound := by
+/-- The basic rules (M3) are sound. -/
+theorem rdfsBasicRules_sound : ∀ r ∈ rdfsBasicRules, r.Sound := by
   intro r hr
-  simp only [rdfsRules, List.mem_cons, List.not_mem_nil, or_false] at hr
+  simp only [rdfsBasicRules, List.mem_cons, List.not_mem_nil, or_false] at hr
   rcases hr with rfl | rfl | rfl | rfl | rfl | rfl
   · exact rdfs2_sound
   · exact rdfs3_sound
@@ -102,6 +102,132 @@ theorem rdfsRules_sound : ∀ r ∈ rdfsRules, r.Sound := by
   · exact rdfs7_sound
   · exact rdfs9_sound
   · exact rdfs11_sound
+
+/-- The single premise of a one-premise rule. -/
+private theorem prem {I : SimpleInterp} {A : BlankNode → I.Dom} {σ : Subst} {b : TPat}
+    (hb : ∀ b' ∈ [b], I.Holds A (b'.apply σ)) : I.Holds A (b.apply σ) := hb b (.head _)
+
+theorem rdfD2_sound : rdfD2.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨_, a, _, -, ha, -, h⟩ := holds_any (prem hb)
+  exact Holds.intro I ha rfl rfl (hI.property _ (I.IEXT_wt _ _ _ h).1)
+
+theorem rdfs4a_sound : rdfs4a.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, _, _, hx, -, -, h⟩ := holds_any (prem hb)
+  exact Holds.intro I hx rfl rfl (hI.resource _ (I.IEXT_wt _ _ _ h).2.1)
+
+theorem rdfs4b_sound : rdfs4b.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨_, _, y, -, -, hy, h⟩ := holds_any (prem hb)
+  exact Holds.intro I hy rfl rfl (hI.resource _ (I.IEXT_wt _ _ _ h).2.2)
+
+/-- Unpack a true `x rdf:type C` for a fixed class IRI `C`. -/
+private theorem holds_type {I : SimpleInterp} {A : BlankNode → I.Dom} {s : Term} {c : IRI}
+    (h : I.Holds A ⟨s, .iri rdf.type, .iri c⟩) :
+    ∃ x, I.denote A s = some x ∧ I.InClass x (I.IS c) := by
+  obtain ⟨x, o, hx, ho, h⟩ := holds_iri h
+  simp only [denote_iri, Option.some.injEq] at ho
+  subst ho
+  exact ⟨x, hx, h⟩
+
+theorem rdfs6_sound : rdfs6.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, hx, h⟩ := holds_type (prem hb)
+  exact Holds.intro I hx rfl hx (hI.prop_refl x h)
+
+theorem rdfs8_sound : rdfs8.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, hx, h⟩ := holds_type (prem hb)
+  exact Holds.intro I hx rfl rfl (hI.class_resource x h)
+
+theorem rdfs10_sound : rdfs10.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, hx, h⟩ := holds_type (prem hb)
+  exact Holds.intro I hx rfl hx (hI.subClass_refl x h)
+
+theorem rdfs12_sound : rdfs12.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, hx, h⟩ := holds_type (prem hb)
+  exact Holds.intro I hx rfl rfl (hI.cmp x h)
+
+theorem rdfs13_sound : rdfs13.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, hx, h⟩ := holds_type (prem hb)
+  exact Holds.intro I hx rfl rfl (hI.datatype_literal x h)
+
+theorem grdfD1String_sound : grdfD1String.Sound := by
+  intro I hI A σ hg hb
+  obtain ⟨s, hs⟩ := hg (.stringLiteral "lll") (.head _)
+  obtain ⟨_, _, o, -, -, ho, -⟩ := holds_any (prem hb)
+  have ho' : I.denote A (σ "lll") = some o := ho
+  rw [hs, denote_lit] at ho'
+  refine Holds.intro I (s := o) ?_ rfl rfl (hI.string_lit s o ho')
+  show I.denote A (σ "lll") = some o
+  rw [hs, denote_lit]; exact ho'
+
+theorem grdfD1Lang_sound : grdfD1Lang.Sound := by
+  intro I hI A σ hg hb
+  obtain ⟨s, t, hs⟩ := hg (.langLiteral "lll") (.head _)
+  obtain ⟨_, _, o, -, -, ho, -⟩ := holds_any (prem hb)
+  have ho' : I.denote A (σ "lll") = some o := ho
+  rw [hs, denote_lit] at ho'
+  refine Holds.intro I (s := o) ?_ rfl rfl (hI.lang_lit s t o ho')
+  show I.denote A (σ "lll") = some o
+  rw [hs, denote_lit]; exact ho'
+
+/-- The head of a container-membership rule is the axiom for `rdf:_n`. -/
+private theorem cmp_head {I : SimpleInterp} {A : BlankNode → I.Dom} {σ : Subst} {p o : IRI}
+    (hg : ∃ n, σ "ppp" = .iri (rdf.member (n + 1)))
+    (hax : ∀ n, I.HoldsIRI (rdf.member (n + 1), p, o)) :
+    I.Holds A ⟨σ "ppp", .iri p, .iri o⟩ := by
+  obtain ⟨n, hn⟩ := hg
+  rw [hn]
+  exact (holds_iri_iff I A _ _ _).2 (hax n)
+
+theorem cmpType_sound : cmpType.Sound := fun I hI _ _ hg _ =>
+  cmp_head (hg (.containerMembership "ppp") (.head _)) fun n => (hI.member_axioms n).1
+
+theorem cmpDomain_sound : cmpDomain.Sound := fun I hI _ _ hg _ =>
+  cmp_head (hg (.containerMembership "ppp") (.head _)) fun n => (hI.member_axioms n).2.1
+
+theorem cmpRange_sound : cmpRange.Sound := fun I hI _ _ hg _ =>
+  cmp_head (hg (.containerMembership "ppp") (.head _)) fun n => (hI.member_axioms n).2.2
+
+/-- The other RDFS patterns are sound. -/
+theorem rdfsExtraRules_sound : ∀ r ∈ rdfsExtraRules, r.Sound := by
+  intro r hr
+  simp only [rdfsExtraRules, List.mem_cons, List.not_mem_nil, or_false] at hr
+  rcases hr with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact rdfD2_sound
+  · exact rdfs4a_sound
+  · exact rdfs4b_sound
+  · exact rdfs6_sound
+  · exact rdfs8_sound
+  · exact rdfs10_sound
+  · exact rdfs12_sound
+  · exact rdfs13_sound
+  · exact grdfD1String_sound
+  · exact grdfD1Lang_sound
+  · exact cmpType_sound
+  · exact cmpDomain_sound
+  · exact cmpRange_sound
+
+/-- Every axiomatic-triple rule is sound: its head is an axiom of every RDFS interpretation. -/
+theorem axiomRules_sound : ∀ r ∈ axiomRules, r.Sound := by
+  intro r hr
+  obtain ⟨a, ha, rfl⟩ := List.mem_map.1 hr
+  intro I hI A _ _ _
+  exact (holds_iri_iff I A _ _ _).2 (hI.axioms a ha)
+
+/-- Every rule of `rdfsRules` is sound. -/
+theorem rdfsRules_sound : ∀ r ∈ rdfsRules, r.Sound := by
+  intro r hr
+  rcases List.mem_append.1 hr with hr | hr
+  · rcases List.mem_append.1 hr with hr | hr
+    · exact rdfsBasicRules_sound r hr
+    · exact rdfsExtraRules_sound r hr
+  · exact axiomRules_sound r hr
 
 /-- A derivation by sound rules is true under any blank-node mapping that makes the graph true. -/
 theorem Derives.holds {rules : List Rule} {g : Graph} {t : Triple} (hr : ∀ r ∈ rules, r.Sound)
@@ -120,7 +246,7 @@ theorem Derives.sound {g : Graph} {t : Triple} (h : Derives rdfsRules g t) :
   refine ⟨A, hA, fun u hu => ?_⟩
   rw [Graph.mem_singleton] at hu
   subst hu
-  exact Derives.holds rdfsRules_sound I.toSimpleInterp hI.2.toCore A hg h
+  exact Derives.holds rdfsRules_sound I.toSimpleInterp hI.toCore A hg h
 
 /-- The value a blank node takes under an instance mapping: the denotation of its image, or an
 arbitrary resource if that does not denote. -/
@@ -170,6 +296,6 @@ theorem Derives.sound_graph {g q : Graph} (μ : BlankNode → Term)
   refine ⟨instAssign I.toSimpleInterp A μ,
     instAssign_IR I.toSimpleInterp (fun _ hx => hI.1.IP_IR hx) A hA μ, fun t ht => ?_⟩
   exact holds_of_instantiate I.toSimpleInterp A μ
-    (Derives.holds rdfsRules_sound I.toSimpleInterp hI.2.toCore A hg (h t ht))
+    (Derives.holds rdfsRules_sound I.toSimpleInterp hI.toCore A hg (h t ht))
 
 end LeanRDF

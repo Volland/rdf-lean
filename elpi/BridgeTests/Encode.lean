@@ -20,12 +20,12 @@ private def terms : List Term :=
 #guard (decodeTerm (.lit (.str "not a term"))).toOption.isNone
 
 -- @tg: verifies:: [[openspec:elpi-bridge#Rule clauses#One clause per premise]] {level: unit}
-#guard RDFS.rdfsRules.all fun r => (stepClauses r).toOption.map (·.length) == some r.body.length
+#guard RDFS.rdfsRules.all fun r => (stepClauses r).toOption.map (·.length) == some (max 1 r.body.length)
 
 -- @tg: verifies:: [[openspec:elpi-bridge#Rule clauses#Generated clauses load]] {level: unit}
 #guard (program RDFS.rdfsRules).toOption.isSome
 
-/- Rules the bridge cannot run yet are refused with a reason. -/
+/- A rule without premises must be ground; otherwise it is refused with a reason. -/
 #guard (stepClauses { name := "axiom", body := [], head := ⟨.var "x", .var "x", .var "x"⟩ }).toOption.isNone
 
 end LeanRDF.BridgeTests.Encode

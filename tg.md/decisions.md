@@ -118,7 +118,7 @@ An interpretation has one carrier `Dom : Type` with `IR` and `IP` as predicates 
 
 **Decision.** Full structures, citing each condition, including the axiomatic triples as `∀ n` conditions and the two required datatypes through abstract value fields `strVal` and `langVal`. `RDFSCore` holds the conditions the proven rules use; `RDFSInterp → RDFSCore` lifts `Derives.sound`. Each rule added later pulls its conditions into the core.
 
-**Consequences.** The semantics names what it covers honestly, and the proofs stay small. D-entailment beyond the two datatypes is a recorded simplification.
+**Consequences.** The semantics names what it covers honestly, and the proofs stay small. D-entailment beyond the two datatypes is a recorded simplification. Since `add-rdfs-full` the core also holds the RDF condition on `IP`, the axioms and the literal-value consequences of §7.1, so it is derived from `IsRDFS` (`DInterp.IsRDFS.toCore`) rather than from the RDFS conditions alone.
 
 - motivated_by:: [[constraints#RDF interpretations recognize two datatypes]] {weight: primary}
 - motivated_by:: [[constraints#RDFS interpretation conditions]] {weight: primary}
@@ -154,7 +154,7 @@ A `Rule` has a name, body and head triple patterns, and decidable guards; rules 
 
 **Context.** The checker must reject wrong instances without searching. Some RDFS 1.1 patterns need side conditions: `rdfs1` and `GrdfD1` need `ddd ∈ D`, and the axiomatic triples for `rdf:_n` need an IRI test.
 
-**Decision.** `Pat := var n | const t`; `Rule := {name, body : List (Pat × Pat × Pat), head, guards : List Guard}` with `Guard` a small closed inductive of decidable predicates, each with a semantic lemma. Guards exist from M3 but are empty for the six rules. `check` matches each body pattern against its premise's conclusion, fails on inconsistent bindings, evaluates guards, and compares `σ(head)` with the node's conclusion. Every RDFS 1.1 pattern is Horn: `rdfD1` is replaced by `GrdfD1` over generalized RDF.
+**Decision.** `Pat := var n | const t`; `Rule := {name, body : List (Pat × Pat × Pat), head, guards : List Guard}` with `Guard` a small closed inductive of decidable predicates, each with a semantic lemma. Guards exist from M3; `add-rdfs-full` gives them three constructors (container membership IRI, `xsd:string` literal, language-tagged literal), each decided by `Guard.check` and proven by `Guard.check_sound`. Axiomatic triples are rules without premises. `check` matches each body pattern against its premise's conclusion, fails on inconsistent bindings, evaluates guards, and compares `σ(head)` with the node's conclusion. Every RDFS 1.1 pattern is Horn: `rdfD1` is replaced by `GrdfD1` over generalized RDF.
 
 **Consequences.** `check_sound` rests on one matching lemma, `match p t = some σ → σ.apply p = t`. Adding the remaining RDFS rules in `add-rdfs-full` changes no format.
 

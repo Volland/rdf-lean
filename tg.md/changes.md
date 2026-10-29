@@ -61,7 +61,7 @@ The remaining RDFS 1.1 patterns (`rdfs1`, `rdfD2`, `GrdfD1`, `rdfs4a` to `rdfs13
 
 Extends `rdfs-entailment`. Comes after [[changes#add-certificates]] and before the demo, so the demo shows a full closure.
 
-- status:: proposed
+- status:: archived
 
 ## add-demo
 

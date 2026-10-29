@@ -38,9 +38,9 @@ Core stores IRIs as unvalidated strings; the parser enforces the N-Triples `IRIR
 
 ## Container axioms only for occurring rdf:_n
 
-The closure adds the axiomatic triples for `rdf:_n` only for those `rdf:_n` IRIs that occur in the input graph or query (planned for `add-rdfs-full`).
+The closure adds the axiomatic triples for `rdf:_n` only for `rdf:_n` IRIs that occur as a predicate in the input graph (rules `rdfs-axiom-cmp-*`, guard `containerMembership`).
 
-The semantics keeps the infinite `∀ n` conditions; only the derivation side is finite, which loses completeness and not soundness.
+The semantics keeps the infinite `∀ n` conditions; only the derivation side is finite, which loses completeness and not soundness. IRIs `rdf:_n` occurring only as subject or object get no axioms.
 
 - source:: RDF 1.1 Semantics §8 and §9 (axiomatic triples)
 - impact:: incompleteness

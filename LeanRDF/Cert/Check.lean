@@ -80,8 +80,9 @@ def checkNode (rules : List Rule) (g : Graph) (done : Array Triple) (n : Node) :
         match matchBody [] r.body ps with
         | none => .error s!"node {n.id}: premises do not match the body of {r.name}"
         | some σ =>
-          if r.head.apply σ.toSubst = n.conclusion then .ok n.conclusion
-          else .error s!"node {n.id}: conclusion is not the instance of the head of {r.name}"
+          if r.guards.all (·.check σ.toSubst) ∧ r.head.apply σ.toSubst = n.conclusion then
+            .ok n.conclusion
+          else .error s!"node {n.id}: a guard fails or the conclusion is not the head of {r.name}"
 
 /-- An accepted node is derivable when every earlier accepted node is. -/
 theorem checkNode_sound {rules : List Rule} {g : Graph} {done : Array Triple} {n : Node}
@@ -104,9 +105,11 @@ theorem checkNode_sound {rules : List Rule} {g : Graph} {done : Array Triple} {n
   · cases h
   rename_i σ hσ
   split at h
-  · rename_i hhead
+  · rename_i hok
+    obtain ⟨hguards, hhead⟩ := hok
     cases h
-    have d := Derives.apply r σ.toSubst (List.mem_of_find?_eq_some hr) (fun gd _ => nomatch gd)
+    have d := Derives.apply r σ.toSubst (List.mem_of_find?_eq_some hr)
+      (fun gd hgd => Guard.check_sound (List.all_eq_true.1 hguards gd hgd))
       (fun b hb => by
         obtain ⟨p, hp, hfit⟩ := (matchBody_spec hσ).2 b hb
         rw [hfit.apply]

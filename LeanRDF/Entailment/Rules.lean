@@ -1,16 +1,18 @@
 import LeanRDF.Entailment.Rule
 import LeanRDF.Core.Vocab
+import LeanRDF.Semantics.Axioms
 
 /-!
 # The RDFS rule set
 
-The RDFS entailment patterns of RDF 1.1 Semantics §9.2.1 proven sound so far, as `Rule` values.
+The RDFS entailment patterns of RDF 1.1 Semantics §9.2.1, rdfD2 and GrdfD1 (§8.1.1, §9.2.1) and
+the axiomatic triples, as `Rule` values; all are proven sound in `LeanRDF.Entailment.Soundness`.
 Pattern variables use the names of the specification's table.
 -/
 
 namespace LeanRDF.RDFS
 
-open Vocab
+open Vocab Semantics
 
 private def v (n : String) : Pat := .var n
 private def c (i : IRI) : Pat := .const (.iri i)
@@ -55,8 +57,92 @@ def rdfs11 : Rule :=
     body := [⟨v "xxx", c rdfs.subClassOf, v "yyy"⟩, ⟨v "yyy", c rdfs.subClassOf, v "zzz"⟩]
     head := ⟨v "xxx", c rdfs.subClassOf, v "zzz"⟩ }
 
+/-- rdfD2 (RDF 1.1 Semantics §8.1.1): `xxx aaa yyy .` ⇒ `aaa rdf:type rdf:Property .` -/
+def rdfD2 : Rule :=
+  { name := "rdfD2", body := [⟨v "xxx", v "aaa", v "yyy"⟩], head := ⟨v "aaa", c rdf.type, c rdf.Property⟩ }
+
+/-- rdfs4a (RDF 1.1 Semantics §9.2.1): `xxx aaa yyy .` ⇒ `xxx rdf:type rdfs:Resource .` -/
+def rdfs4a : Rule :=
+  { name := "rdfs4a", body := [⟨v "xxx", v "aaa", v "yyy"⟩], head := ⟨v "xxx", c rdf.type, c rdfs.Resource⟩ }
+
+/-- rdfs4b (RDF 1.1 Semantics §9.2.1): `xxx aaa yyy .` ⇒ `yyy rdf:type rdfs:Resource .` -/
+def rdfs4b : Rule :=
+  { name := "rdfs4b", body := [⟨v "xxx", v "aaa", v "yyy"⟩], head := ⟨v "yyy", c rdf.type, c rdfs.Resource⟩ }
+
+/-- rdfs6 (RDF 1.1 Semantics §9.2.1): `xxx rdf:type rdf:Property .` ⇒ `xxx rdfs:subPropertyOf xxx .` -/
+def rdfs6 : Rule :=
+  { name := "rdfs6", body := [⟨v "xxx", c rdf.type, c rdf.Property⟩]
+    head := ⟨v "xxx", c rdfs.subPropertyOf, v "xxx"⟩ }
+
+/-- rdfs8 (RDF 1.1 Semantics §9.2.1): `xxx rdf:type rdfs:Class .` ⇒ `xxx rdfs:subClassOf rdfs:Resource .` -/
+def rdfs8 : Rule :=
+  { name := "rdfs8", body := [⟨v "xxx", c rdf.type, c rdfs.Class⟩]
+    head := ⟨v "xxx", c rdfs.subClassOf, c rdfs.Resource⟩ }
+
+/-- rdfs10 (RDF 1.1 Semantics §9.2.1): `xxx rdf:type rdfs:Class .` ⇒ `xxx rdfs:subClassOf xxx .` -/
+def rdfs10 : Rule :=
+  { name := "rdfs10", body := [⟨v "xxx", c rdf.type, c rdfs.Class⟩]
+    head := ⟨v "xxx", c rdfs.subClassOf, v "xxx"⟩ }
+
+/-- rdfs12 (RDF 1.1 Semantics §9.2.1): `xxx rdf:type rdfs:ContainerMembershipProperty .`
+⇒ `xxx rdfs:subPropertyOf rdfs:member .` -/
+def rdfs12 : Rule :=
+  { name := "rdfs12", body := [⟨v "xxx", c rdf.type, c rdfs.ContainerMembershipProperty⟩]
+    head := ⟨v "xxx", c rdfs.subPropertyOf, c rdfs.member⟩ }
+
+/-- rdfs13 (RDF 1.1 Semantics §9.2.1): `xxx rdf:type rdfs:Datatype .`
+⇒ `xxx rdfs:subClassOf rdfs:Literal .` -/
+def rdfs13 : Rule :=
+  { name := "rdfs13", body := [⟨v "xxx", c rdf.type, c rdfs.Datatype⟩]
+    head := ⟨v "xxx", c rdfs.subClassOf, c rdfs.Literal⟩ }
+
+/-- GrdfD1 for `xsd:string` (RDF 1.1 Semantics §9.2.1, generalized form of rdfD1):
+`xxx aaa "sss"^^xsd:string .` ⇒ `"sss"^^xsd:string rdf:type xsd:string .` -/
+def grdfD1String : Rule :=
+  { name := "GrdfD1-string", body := [⟨v "xxx", v "aaa", v "lll"⟩]
+    head := ⟨v "lll", c rdf.type, c xsd.string⟩, guards := [.stringLiteral "lll"] }
+
+/-- GrdfD1 for `rdf:langString`: `xxx aaa "sss"@ttt .` ⇒ `"sss"@ttt rdf:type rdf:langString .` -/
+def grdfD1Lang : Rule :=
+  { name := "GrdfD1-langString", body := [⟨v "xxx", v "aaa", v "lll"⟩]
+    head := ⟨v "lll", c rdf.type, c rdf.langString⟩, guards := [.langLiteral "lll"] }
+
+/-- The RDFS axiom `rdf:_n rdf:type rdfs:ContainerMembershipProperty .` for an `rdf:_n` used as
+a predicate. -/
+def cmpType : Rule :=
+  { name := "rdfs-axiom-cmp-type", body := [⟨v "xxx", v "ppp", v "yyy"⟩]
+    head := ⟨v "ppp", c rdf.type, c rdfs.ContainerMembershipProperty⟩,
+    guards := [.containerMembership "ppp"] }
+
+/-- The RDFS axiom `rdf:_n rdfs:domain rdfs:Resource .` for an `rdf:_n` used as a predicate. -/
+def cmpDomain : Rule :=
+  { name := "rdfs-axiom-cmp-domain", body := [⟨v "xxx", v "ppp", v "yyy"⟩]
+    head := ⟨v "ppp", c rdfs.domain, c rdfs.Resource⟩, guards := [.containerMembership "ppp"] }
+
+/-- The RDFS axiom `rdf:_n rdfs:range rdfs:Resource .` for an `rdf:_n` used as a predicate. -/
+def cmpRange : Rule :=
+  { name := "rdfs-axiom-cmp-range", body := [⟨v "xxx", v "ppp", v "yyy"⟩]
+    head := ⟨v "ppp", c rdfs.range, c rdfs.Resource⟩, guards := [.containerMembership "ppp"] }
+
+/-- An axiomatic triple as a rule without premises, named after the triple. -/
+def axiomRule (a : IRI × IRI × IRI) : Rule :=
+  { name := s!"axiom <{a.1.val}> <{a.2.1.val}> <{a.2.2.val}>", body := []
+    head := ⟨c a.1, c a.2.1, c a.2.2⟩ }
+
+/-- The RDF and RDFS axiomatic triples without `rdf:_n`, and rdfs1 for D, as rules. -/
+def axiomRules : List Rule := (rdfAxioms ++ rdfsAxioms ++ datatypeAxioms).map axiomRule
+
+/-- The six rules of milestone M3: rdfs2, rdfs3, rdfs5, rdfs7, rdfs9 and rdfs11. -/
+def rdfsBasicRules : List Rule := [rdfs2, rdfs3, rdfs5, rdfs7, rdfs9, rdfs11]
+
+/-- The other RDFS 1.1 patterns: rdfD2, rdfs4a/4b, 6, 8, 10, 12, 13, GrdfD1 for both datatypes
+and the container membership axioms. -/
+def rdfsExtraRules : List Rule :=
+  [rdfD2, rdfs4a, rdfs4b, rdfs6, rdfs8, rdfs10, rdfs12, rdfs13, grdfD1String, grdfD1Lang,
+    cmpType, cmpDomain, cmpRange]
+
 -- @tg: implements:: [[openspec:rdfs-entailment#RDFS rule set]]
-/-- The RDFS rules proven sound: rdfs2, rdfs3, rdfs5, rdfs7, rdfs9 and rdfs11. -/
-def rdfsRules : List Rule := [rdfs2, rdfs3, rdfs5, rdfs7, rdfs9, rdfs11]
+/-- Every RDFS rule proven sound: the basic rules, the other patterns and the axioms. -/
+def rdfsRules : List Rule := rdfsBasicRules ++ rdfsExtraRules ++ axiomRules
 
 end LeanRDF.RDFS

@@ -16,10 +16,16 @@ example : ∀ r ∈ rdfsRules, r.RangeRestricted := by decide
 example : Rule.UniqueNames rdfsRules := by decide
 
 -- @tg: verifies:: [[openspec:rdfs-entailment#RDFS rule set#The six proven rules]] {level: unit}
-#guard rdfsRules.map (·.name) == ["rdfs2", "rdfs3", "rdfs5", "rdfs7", "rdfs9", "rdfs11"]
+#guard rdfsBasicRules.map (·.name) == ["rdfs2", "rdfs3", "rdfs5", "rdfs7", "rdfs9", "rdfs11"]
 
-/- Guards are empty in M3, and rdfs7 has a variable in predicate position. -/
-example : ∀ r ∈ rdfsRules, r.guards = [] := by decide
+-- @tg: verifies:: [[openspec:rdfs-entailment#RDFS rule set#The full rule set]] {level: unit}
+#guard rdfsExtraRules.map (·.name) == ["rdfD2", "rdfs4a", "rdfs4b", "rdfs6", "rdfs8", "rdfs10", "rdfs12",
+    "rdfs13", "GrdfD1-string", "GrdfD1-langString", "rdfs-axiom-cmp-type", "rdfs-axiom-cmp-domain",
+    "rdfs-axiom-cmp-range"] &&
+  axiomRules.length == 48 && rdfsRules.length == 67
+
+/- The basic rules have no guards, and rdfs7 has a variable in predicate position. -/
+example : ∀ r ∈ rdfsBasicRules, r.guards = [] := by decide
 example : rdfs7.head.p = .var "bbb" := rfl
 
 private def g : Graph := Graph.ofList [T (ex "A") rdfs.subClassOf (ex "B"), T (ex "x") rdf.type (ex "A")]
@@ -29,7 +35,7 @@ private def σ9 : Subst := fun n =>
 
 -- @tg: verifies:: [[openspec:rdfs-entailment#Derivation relation#A rule instance derives its head]] {level: unit}
 theorem x_type_B : Derives rdfsRules g (T (ex "x") rdf.type (ex "B")) := by
-  have d := Derives.apply (rules := rdfsRules) (g := g) rdfs9 σ9 (by simp [rdfsRules])
+  have d := Derives.apply (rules := rdfsRules) (g := g) rdfs9 σ9 (by simp [rdfsRules, rdfsBasicRules])
     (by simp [rdfs9]) (fun b hb => by
       simp only [rdfs9, List.mem_cons, List.not_mem_nil, or_false] at hb
       rcases hb with rfl | rfl <;> exact .fact (by rw [g, Graph.mem_ofList]; decide))

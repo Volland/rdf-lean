@@ -1,7 +1,7 @@
 import LeanRDFElpi
 
 /-! Scenarios of `elpi-bridge › Saturation`, `Golden closures` and `Reflection`: hand-computed
-RDFS closures under `rdfsRules`. -/
+RDFS closures under the six basic rules (`rdfsBasicRules`). -/
 
 namespace LeanRDF.BridgeTests.Saturate
 
@@ -15,7 +15,7 @@ private def T (s p o : Term) : Triple := ⟨s, p, o⟩
 
 /-- The closure of `facts`, or the empty array if saturation failed. -/
 private def close (facts : List Triple) : Closure :=
-  (saturate RDFS.rdfsRules (Graph.ofList facts)).toOption.getD #[]
+  (saturate RDFS.rdfsBasicRules (Graph.ofList facts)).toOption.getD #[]
 
 /-- The closure has exactly the expected triples. -/
 private def closesTo (facts expected : List Triple) : Bool :=

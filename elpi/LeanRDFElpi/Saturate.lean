@@ -41,9 +41,20 @@ def program (rules : List Rule) : Except String Elpi.CompiledProgram := do
       p ← (p.assert cl).mapError fun e => s!"rule {r.name}: {e.toString}\n{cl}"
   return p
 
-/-- Saturate a graph: run `rdf.saturate` with the graph's triples (in `Graph.toList` order). -/
+/-- The container membership IRIs `rdf:_n` among the terms of a graph. -/
+def containerIRIs (g : Graph) : List IRI :=
+  let iris := g.toList.flatMap fun t => [t.s, t.p, t.o].filterMap fun
+    | .iri i => if (containerIndex? i).isSome then some i else none
+    | _ => none
+  iris.eraseDups
+
+/-- Saturate a graph: assert `rdf.is-cmp` for its container membership IRIs, then run
+`rdf.saturate` with its triples (in `Graph.toList` order). -/
 def saturateWith (p : Elpi.CompiledProgram) (g : Graph) (fuel : Nat := Elpi.defaultFuel) :
     Except String Closure := do
+  let mut p := p
+  for i in containerIRIs g do
+    p ← (p.assert s!"rdf.is-cmp {termSrc (.iri i)}.").mapError (·.toString)
   let facts : List Elpi.Term := g.toList.map encodeTriple
   let q : Elpi.Query := { pred := Elpi.constIdOf "rdf.saturate", args := #[some (Elpi.toElpi facts), none] }
   match (Elpi.solveQuery (α := Elpi.Term) p q fuel).head? with

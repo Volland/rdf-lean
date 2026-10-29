@@ -45,4 +45,9 @@ def rdfsAxioms : List (IRI × IRI × IRI) :=
     (rdfs.isDefinedBy, rdfs.subPropertyOf, rdfs.seeAlso),
     (rdfs.Datatype, rdfs.subClassOf, rdfs.Class) ]
 
+/-- The rdfs1 triples for `D = {xsd:string, rdf:langString}` (RDF 1.1 Semantics §9.2.1): every
+recognized datatype IRI is an `rdfs:Datatype`. -/
+def datatypeAxioms : List (IRI × IRI × IRI) :=
+  [(xsd.string, rdf.type, rdfs.Datatype), (rdf.langString, rdf.type, rdfs.Datatype)]
+
 end LeanRDF.Semantics

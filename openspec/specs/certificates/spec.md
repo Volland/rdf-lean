@@ -13,7 +13,7 @@ A certificate SHALL consist of a version, nodes (an id, a conclusion triple, a r
 - **THEN** each parses to itself
 
 ### Requirement: Checker
-`check`, `checkCert` and `checkQuery` SHALL accept a certificate only when node `i` has id `i`, every `fact` node has no premises and a conclusion in the graph, every other node names a rule of the rule list whose body matches its premises (earlier nodes only, in body order) and whose instantiated head equals its conclusion, and, for `checkQuery`, every query triple instantiated by the mapping is an accepted conclusion.
+`check`, `checkCert` and `checkQuery` SHALL accept a certificate only when node `i` has id `i`, every `fact` node has no premises and a conclusion in the graph, every other node names a rule of the rule list whose body matches its premises (earlier nodes only, in body order), whose guards check under the match, and whose instantiated head equals its conclusion, and, for `checkQuery`, every query triple instantiated by the mapping is an accepted conclusion.
 
 #### Scenario: A valid certificate is accepted
 - **WHEN** a certificate of `ex:x rdf:type ex:C` by rdfs11 and rdfs9 is checked against its graph
