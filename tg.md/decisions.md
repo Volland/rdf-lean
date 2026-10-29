@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle]
 ---
 # Decisions
 
@@ -207,7 +207,7 @@ M2 is a native N-Triples parser and serializer, tested on the W3C `rdf-n-triples
 
 **Decision.** Vendor the W3C N-Triples suite under `Tests/data/` and run all positive and negative syntax tests. Round-trip stability means `parse ∘ serialize ∘ parse = parse` as graphs compared by membership, with blank-node labels preserved. M7 uses the `rdf-turtle` suite the same way.
 
-**Consequences.** The critical path to the demo stays short; Turtle can reuse the N-Triples terminals.
+**Consequences.** The critical path to the demo stays short; Turtle reuses the N-Triples terminals. As built (M7), the Turtle parser passes all 313 W3C Turtle tests, resolves relative IRIs by RFC 3986 §5.2, keeps numeric lexical forms as written, and names generated blank nodes `genidN` away from document labels.
 
 - motivated_by:: [[decisions#Dependency-free core package]]
 

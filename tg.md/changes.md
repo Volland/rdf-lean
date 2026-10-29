@@ -75,4 +75,4 @@ M7: native Turtle parser on the W3C `rdf-turtle` suite.
 
 Capability `turtle`. See [[decisions#N-Triples first, native Turtle later]].
 
-- status:: proposed
+- status:: archived

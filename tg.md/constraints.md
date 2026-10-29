@@ -66,6 +66,20 @@ N-Triples documents follow the `ntriplesDoc` grammar of RDF 1.1 N-Triples §7: a
 - constrains:: [[decisions#N-Triples first, native Turtle later]] {strength: must}
 - constrains:: [[decisions#Canonical N-Triples output]] {strength: must}
 
+## Turtle grammar
+
+Turtle documents follow the `turtleDoc` grammar of RDF 1.1 Turtle §6.5 and the parsing rules of §7: prefixes, base, abbreviated lists, `a`, property lists, collections, long strings and numeric shorthands.
+
+- source:: RDF 1.1 Turtle (W3C Recommendation, 25 February 2014) §6.5, §7
+- constrains:: [[decisions#N-Triples first, native Turtle later]] {strength: must}
+
+## RFC 3986 reference resolution
+
+Relative IRI references in Turtle resolve against the base by RFC 3986 §5.2, including dot-segment removal.
+
+- source:: RFC 3986 §5.2–§5.4; RDF 1.1 Turtle §6.3
+- constrains:: [[decisions#N-Triples first, native Turtle later]] {strength: must}
+
 ## W3C tests reject colons in blank-node labels
 
 The W3C N-Triples suite marks `_::a` and `_:abc:def` as negative syntax tests, although production [158s] of the 2014 grammar lets `PN_CHARS_U` contain `:`. LeanRDF follows the tests.

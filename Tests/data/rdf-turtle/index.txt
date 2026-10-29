@@ -1,0 +1,313 @@
+eval IRI_subject.ttl IRI_spo.nt
+eval IRI_with_four_digit_numeric_escape.ttl IRI_spo.nt
+eval IRI_with_eight_digit_numeric_escape.ttl IRI_spo.nt
+eval IRI_with_all_punctuation.ttl IRI_with_all_punctuation.nt
+eval bareword_a_predicate.ttl bareword_a_predicate.nt
+eval old_style_prefix.ttl IRI_spo.nt
+eval SPARQL_style_prefix.ttl IRI_spo.nt
+eval prefixed_IRI_predicate.ttl IRI_spo.nt
+eval prefixed_IRI_object.ttl IRI_spo.nt
+eval prefix_only_IRI.ttl IRI_spo.nt
+eval prefix_with_PN_CHARS_BASE_character_boundaries.ttl IRI_spo.nt
+eval prefix_with_non_leading_extras.ttl IRI_spo.nt
+eval localName_with_assigned_nfc_bmp_PN_CHARS_BASE_character_boundaries.ttl localName_with_assigned_nfc_bmp_PN_CHARS_BASE_character_boundaries.nt
+eval localName_with_assigned_nfc_PN_CHARS_BASE_character_boundaries.ttl localName_with_assigned_nfc_PN_CHARS_BASE_character_boundaries.nt
+eval localName_with_nfc_PN_CHARS_BASE_character_boundaries.ttl localName_with_nfc_PN_CHARS_BASE_character_boundaries.nt
+eval default_namespace_IRI.ttl IRI_spo.nt
+eval prefix_reassigned_and_used.ttl prefix_reassigned_and_used.nt
+eval reserved_escaped_localName.ttl reserved_escaped_localName.nt
+eval percent_escaped_localName.ttl percent_escaped_localName.nt
+eval HYPHEN_MINUS_in_localName.ttl HYPHEN_MINUS_in_localName.nt
+eval underscore_in_localName.ttl underscore_in_localName.nt
+eval localname_with_COLON.ttl localname_with_COLON.nt
+eval localName_with_leading_underscore.ttl localName_with_leading_underscore.nt
+eval localName_with_leading_digit.ttl localName_with_leading_digit.nt
+eval localName_with_non_leading_extras.ttl localName_with_non_leading_extras.nt
+eval old_style_base.ttl IRI_spo.nt
+eval SPARQL_style_base.ttl IRI_spo.nt
+eval labeled_blank_node_subject.ttl labeled_blank_node_subject.nt
+eval labeled_blank_node_object.ttl labeled_blank_node_object.nt
+eval labeled_blank_node_with_PN_CHARS_BASE_character_boundaries.ttl labeled_blank_node_object.nt
+eval labeled_blank_node_with_leading_underscore.ttl labeled_blank_node_object.nt
+eval labeled_blank_node_with_leading_digit.ttl labeled_blank_node_object.nt
+eval labeled_blank_node_with_non_leading_extras.ttl labeled_blank_node_object.nt
+eval anonymous_blank_node_subject.ttl labeled_blank_node_subject.nt
+eval anonymous_blank_node_object.ttl labeled_blank_node_object.nt
+eval sole_blankNodePropertyList.ttl labeled_blank_node_subject.nt
+eval blankNodePropertyList_as_subject.ttl blankNodePropertyList_as_subject.nt
+eval blankNodePropertyList_as_object.ttl blankNodePropertyList_as_object.nt
+eval blankNodePropertyList_as_object_containing_objectList.ttl blankNodePropertyList_as_object_containing_objectList.nt
+eval blankNodePropertyList_as_object_containing_objectList_of_two_objects.ttl blankNodePropertyList_as_object_containing_objectList_of_two_objects.nt
+eval blankNodePropertyList_with_multiple_triples.ttl blankNodePropertyList_with_multiple_triples.nt
+eval nested_blankNodePropertyLists.ttl nested_blankNodePropertyLists.nt
+eval blankNodePropertyList_containing_collection.ttl blankNodePropertyList_containing_collection.nt
+eval collection_subject.ttl collection_subject.nt
+eval collection_object.ttl collection_object.nt
+eval empty_collection.ttl empty_collection.nt
+eval nested_collection.ttl nested_collection.nt
+eval first.ttl first.nt
+eval last.ttl last.nt
+eval LITERAL1.ttl LITERAL1.nt
+eval LITERAL1_ascii_boundaries.ttl LITERAL1_ascii_boundaries.nt
+eval LITERAL1_with_UTF8_boundaries.ttl LITERAL_with_UTF8_boundaries.nt
+eval LITERAL1_all_controls.ttl LITERAL1_all_controls.nt
+eval LITERAL1_all_punctuation.ttl LITERAL1_all_punctuation.nt
+eval LITERAL_LONG1.ttl LITERAL1.nt
+eval LITERAL_LONG1_ascii_boundaries.ttl LITERAL_LONG1_ascii_boundaries.nt
+eval LITERAL_LONG1_with_UTF8_boundaries.ttl LITERAL_with_UTF8_boundaries.nt
+eval LITERAL_LONG1_with_1_squote.ttl LITERAL_LONG1_with_1_squote.nt
+eval LITERAL_LONG1_with_2_squotes.ttl LITERAL_LONG1_with_2_squotes.nt
+eval LITERAL2.ttl LITERAL1.nt
+eval LITERAL2_ascii_boundaries.ttl LITERAL2_ascii_boundaries.nt
+eval LITERAL2_with_UTF8_boundaries.ttl LITERAL_with_UTF8_boundaries.nt
+eval LITERAL_LONG2.ttl LITERAL1.nt
+eval LITERAL_LONG2_ascii_boundaries.ttl LITERAL_LONG2_ascii_boundaries.nt
+eval LITERAL_LONG2_with_UTF8_boundaries.ttl LITERAL_with_UTF8_boundaries.nt
+eval LITERAL_LONG2_with_1_squote.ttl LITERAL_LONG2_with_1_squote.nt
+eval LITERAL_LONG2_with_2_squotes.ttl LITERAL_LONG2_with_2_squotes.nt
+eval literal_with_CHARACTER_TABULATION.ttl literal_with_CHARACTER_TABULATION.nt
+eval literal_with_BACKSPACE.ttl literal_with_BACKSPACE.nt
+eval literal_with_LINE_FEED.ttl literal_with_LINE_FEED.nt
+eval literal_with_CARRIAGE_RETURN.ttl literal_with_CARRIAGE_RETURN.nt
+eval literal_with_FORM_FEED.ttl literal_with_FORM_FEED.nt
+eval literal_with_REVERSE_SOLIDUS.ttl literal_with_REVERSE_SOLIDUS.nt
+eval literal_with_escaped_CHARACTER_TABULATION.ttl literal_with_CHARACTER_TABULATION.nt
+eval literal_with_escaped_BACKSPACE.ttl literal_with_BACKSPACE.nt
+eval literal_with_escaped_LINE_FEED.ttl literal_with_LINE_FEED.nt
+eval literal_with_escaped_CARRIAGE_RETURN.ttl literal_with_CARRIAGE_RETURN.nt
+eval literal_with_escaped_FORM_FEED.ttl literal_with_FORM_FEED.nt
+eval literal_with_numeric_escape4.ttl literal_with_numeric_escape4.nt
+eval literal_with_numeric_escape8.ttl literal_with_numeric_escape4.nt
+eval IRIREF_datatype.ttl IRIREF_datatype.nt
+eval prefixed_name_datatype.ttl IRIREF_datatype.nt
+eval bareword_integer.ttl IRIREF_datatype.nt
+eval bareword_decimal.ttl bareword_decimal.nt
+eval bareword_double.ttl bareword_double.nt
+eval double_lower_case_e.ttl double_lower_case_e.nt
+eval negative_numeric.ttl negative_numeric.nt
+eval positive_numeric.ttl positive_numeric.nt
+eval numeric_with_leading_0.ttl numeric_with_leading_0.nt
+eval literal_true.ttl literal_true.nt
+eval literal_false.ttl literal_false.nt
+eval langtagged_non_LONG.ttl langtagged_non_LONG.nt
+eval langtagged_LONG.ttl langtagged_non_LONG.nt
+eval lantag_with_subtag.ttl lantag_with_subtag.nt
+eval objectList_with_two_objects.ttl objectList_with_two_objects.nt
+eval predicateObjectList_with_two_objectLists.ttl predicateObjectList_with_two_objectLists.nt
+eval predicateObjectList_with_blankNodePropertyList_as_object.ttl predicateObjectList_with_blankNodePropertyList_as_object.nt
+eval repeated_semis_at_end.ttl predicateObjectList_with_two_objectLists.nt
+eval repeated_semis_not_at_end.ttl repeated_semis_not_at_end.nt
+positive turtle-syntax-file-01.ttl
+positive turtle-syntax-file-02.ttl
+positive turtle-syntax-file-03.ttl
+positive turtle-syntax-uri-01.ttl
+positive turtle-syntax-uri-02.ttl
+positive turtle-syntax-uri-03.ttl
+positive turtle-syntax-uri-04.ttl
+positive turtle-syntax-base-01.ttl
+positive turtle-syntax-base-02.ttl
+positive turtle-syntax-base-03.ttl
+positive turtle-syntax-base-04.ttl
+positive turtle-syntax-prefix-01.ttl
+positive turtle-syntax-prefix-02.ttl
+positive turtle-syntax-prefix-03.ttl
+positive turtle-syntax-prefix-04.ttl
+positive turtle-syntax-prefix-05.ttl
+positive turtle-syntax-prefix-06.ttl
+positive turtle-syntax-prefix-07.ttl
+positive turtle-syntax-prefix-08.ttl
+positive turtle-syntax-prefix-09.ttl
+positive turtle-syntax-string-01.ttl
+positive turtle-syntax-string-02.ttl
+positive turtle-syntax-string-03.ttl
+positive turtle-syntax-string-04.ttl
+positive turtle-syntax-string-05.ttl
+positive turtle-syntax-string-06.ttl
+positive turtle-syntax-string-07.ttl
+positive turtle-syntax-string-08.ttl
+positive turtle-syntax-string-09.ttl
+positive turtle-syntax-string-10.ttl
+positive turtle-syntax-string-11.ttl
+positive turtle-syntax-str-esc-01.ttl
+positive turtle-syntax-str-esc-02.ttl
+positive turtle-syntax-str-esc-03.ttl
+positive turtle-syntax-pname-esc-01.ttl
+positive turtle-syntax-pname-esc-02.ttl
+positive turtle-syntax-pname-esc-03.ttl
+positive turtle-syntax-bnode-01.ttl
+positive turtle-syntax-bnode-02.ttl
+positive turtle-syntax-bnode-03.ttl
+positive turtle-syntax-bnode-04.ttl
+positive turtle-syntax-bnode-05.ttl
+positive turtle-syntax-bnode-06.ttl
+positive turtle-syntax-bnode-07.ttl
+positive turtle-syntax-bnode-08.ttl
+positive turtle-syntax-bnode-09.ttl
+positive turtle-syntax-bnode-10.ttl
+positive turtle-syntax-number-01.ttl
+positive turtle-syntax-number-02.ttl
+positive turtle-syntax-number-03.ttl
+positive turtle-syntax-number-04.ttl
+positive turtle-syntax-number-05.ttl
+positive turtle-syntax-number-06.ttl
+positive turtle-syntax-number-07.ttl
+positive turtle-syntax-number-08.ttl
+positive turtle-syntax-number-09.ttl
+positive turtle-syntax-number-10.ttl
+positive turtle-syntax-number-11.ttl
+positive turtle-syntax-number-12.ttl
+positive turtle-syntax-number-13.ttl
+positive turtle-syntax-datatypes-01.ttl
+positive turtle-syntax-datatypes-02.ttl
+positive turtle-syntax-kw-01.ttl
+positive turtle-syntax-kw-02.ttl
+positive turtle-syntax-kw-03.ttl
+positive turtle-syntax-struct-01.ttl
+positive turtle-syntax-struct-02.ttl
+positive turtle-syntax-struct-03.ttl
+positive turtle-syntax-struct-04.ttl
+positive turtle-syntax-struct-05.ttl
+eval turtle-eval-lists-01.ttl turtle-eval-lists-01.nt
+eval turtle-eval-lists-02.ttl turtle-eval-lists-02.nt
+eval turtle-eval-lists-03.ttl turtle-eval-lists-03.nt
+eval turtle-eval-lists-04.ttl turtle-eval-lists-04.nt
+eval turtle-eval-lists-05.ttl turtle-eval-lists-05.nt
+eval turtle-eval-lists-06.ttl turtle-eval-lists-06.nt
+negative turtle-syntax-bad-uri-01.ttl
+negative turtle-syntax-bad-uri-02.ttl
+negative turtle-syntax-bad-uri-03.ttl
+negative turtle-syntax-bad-uri-04.ttl
+negative turtle-syntax-bad-uri-05.ttl
+negative turtle-syntax-bad-uri-escape-01.ttl
+negative turtle-syntax-bad-uri-escape-02.ttl
+negative turtle-syntax-bad-uri-escape-03.ttl
+negative turtle-syntax-bad-uri-escape-04.ttl
+negative turtle-syntax-bad-prefix-01.ttl
+negative turtle-syntax-bad-prefix-02.ttl
+negative turtle-syntax-bad-prefix-03.ttl
+negative turtle-syntax-bad-prefix-04.ttl
+negative turtle-syntax-bad-prefix-05.ttl
+negative turtle-syntax-bad-base-01.ttl
+negative turtle-syntax-bad-base-02.ttl
+negative turtle-syntax-bad-base-03.ttl
+negative turtle-syntax-bad-bnode-01.ttl
+negative turtle-syntax-bad-bnode-02.ttl
+negative turtle-syntax-bad-struct-01.ttl
+negative turtle-syntax-bad-struct-02.ttl
+negative turtle-syntax-bad-struct-03.ttl
+negative turtle-syntax-bad-struct-04.ttl
+negative turtle-syntax-bad-struct-05.ttl
+negative turtle-syntax-bad-struct-06.ttl
+negative turtle-syntax-bad-struct-07.ttl
+negative turtle-syntax-bad-kw-01.ttl
+negative turtle-syntax-bad-kw-02.ttl
+negative turtle-syntax-bad-kw-03.ttl
+negative turtle-syntax-bad-kw-04.ttl
+negative turtle-syntax-bad-kw-05.ttl
+negative turtle-syntax-bad-n3-extras-01.ttl
+negative turtle-syntax-bad-n3-extras-02.ttl
+negative turtle-syntax-bad-n3-extras-03.ttl
+negative turtle-syntax-bad-n3-extras-04.ttl
+negative turtle-syntax-bad-n3-extras-05.ttl
+negative turtle-syntax-bad-n3-extras-06.ttl
+negative turtle-syntax-bad-n3-extras-07.ttl
+negative turtle-syntax-bad-n3-extras-08.ttl
+negative turtle-syntax-bad-n3-extras-09.ttl
+negative turtle-syntax-bad-n3-extras-10.ttl
+negative turtle-syntax-bad-n3-extras-11.ttl
+negative turtle-syntax-bad-n3-extras-12.ttl
+negative turtle-syntax-bad-n3-extras-13.ttl
+negative turtle-syntax-bad-numeric-escape-01.ttl
+negative turtle-syntax-bad-numeric-escape-02.ttl
+negative turtle-syntax-bad-numeric-escape-03.ttl
+negative turtle-syntax-bad-numeric-escape-04.ttl
+negative turtle-syntax-bad-numeric-escape-05.ttl
+negative turtle-syntax-bad-numeric-escape-06.ttl
+negative turtle-syntax-bad-numeric-escape-07.ttl
+negative turtle-syntax-bad-numeric-escape-08.ttl
+negative turtle-syntax-bad-numeric-escape-09.ttl
+negative turtle-syntax-bad-numeric-escape-10.ttl
+negative turtle-syntax-bad-struct-08.ttl
+negative turtle-syntax-bad-struct-09.ttl
+negative turtle-syntax-bad-struct-10.ttl
+negative turtle-syntax-bad-struct-11.ttl
+negative turtle-syntax-bad-struct-12.ttl
+negative turtle-syntax-bad-struct-13.ttl
+negative turtle-syntax-bad-struct-14.ttl
+negative turtle-syntax-bad-struct-15.ttl
+negative turtle-syntax-bad-struct-16.ttl
+negative turtle-syntax-bad-struct-17.ttl
+negative turtle-syntax-bad-lang-01.ttl
+negative turtle-syntax-bad-esc-01.ttl
+negative turtle-syntax-bad-esc-02.ttl
+negative turtle-syntax-bad-esc-03.ttl
+negative turtle-syntax-bad-esc-04.ttl
+negative turtle-syntax-bad-pname-01.ttl
+negative turtle-syntax-bad-pname-02.ttl
+negative turtle-syntax-bad-pname-03.ttl
+negative turtle-syntax-bad-string-01.ttl
+negative turtle-syntax-bad-string-02.ttl
+negative turtle-syntax-bad-string-03.ttl
+negative turtle-syntax-bad-string-04.ttl
+negative turtle-syntax-bad-string-05.ttl
+negative turtle-syntax-bad-string-06.ttl
+negative turtle-syntax-bad-string-07.ttl
+negative turtle-syntax-bad-num-01.ttl
+negative turtle-syntax-bad-num-02.ttl
+negative turtle-syntax-bad-num-03.ttl
+negative turtle-syntax-bad-num-04.ttl
+negative turtle-syntax-bad-num-05.ttl
+eval turtle-eval-struct-01.ttl turtle-eval-struct-01.nt
+eval turtle-eval-struct-02.ttl turtle-eval-struct-02.nt
+eval turtle-subm-01.ttl turtle-subm-01.nt
+eval turtle-subm-02.ttl turtle-subm-02.nt
+eval turtle-subm-03.ttl turtle-subm-03.nt
+eval turtle-subm-04.ttl turtle-subm-04.nt
+eval turtle-subm-05.ttl turtle-subm-05.nt
+eval turtle-subm-06.ttl turtle-subm-06.nt
+eval turtle-subm-07.ttl turtle-subm-07.nt
+eval turtle-subm-08.ttl turtle-subm-08.nt
+eval turtle-subm-09.ttl turtle-subm-09.nt
+eval turtle-subm-10.ttl turtle-subm-10.nt
+eval turtle-subm-11.ttl turtle-subm-11.nt
+eval turtle-subm-12.ttl turtle-subm-12.nt
+eval turtle-subm-13.ttl turtle-subm-13.nt
+eval turtle-subm-14.ttl turtle-subm-14.nt
+eval turtle-subm-15.ttl turtle-subm-15.nt
+eval turtle-subm-16.ttl turtle-subm-16.nt
+eval turtle-subm-17.ttl turtle-subm-17.nt
+eval turtle-subm-18.ttl turtle-subm-18.nt
+eval turtle-subm-19.ttl turtle-subm-19.nt
+eval turtle-subm-20.ttl turtle-subm-20.nt
+eval turtle-subm-21.ttl turtle-subm-21.nt
+eval turtle-subm-22.ttl turtle-subm-22.nt
+eval turtle-subm-23.ttl turtle-subm-23.nt
+eval turtle-subm-24.ttl turtle-subm-24.nt
+eval turtle-subm-25.ttl turtle-subm-25.nt
+eval turtle-subm-26.ttl turtle-subm-26.nt
+eval turtle-subm-27.ttl turtle-subm-27.nt
+eval comment_following_localName.ttl IRI_spo.nt
+eval number_sign_following_localName.ttl number_sign_following_localName.nt
+eval comment_following_PNAME_NS.ttl comment_following_PNAME_NS.nt
+eval number_sign_following_PNAME_NS.ttl number_sign_following_PNAME_NS.nt
+eval LITERAL_LONG2_with_REVERSE_SOLIDUS.ttl LITERAL_LONG2_with_REVERSE_SOLIDUS.nt
+negative turtle-syntax-bad-LITERAL2_with_langtag_and_datatype.ttl
+eval two_LITERAL_LONG2s.ttl two_LITERAL_LONG2s.nt
+eval langtagged_LONG_with_subtag.ttl langtagged_LONG_with_subtag.nt
+negative turtle-syntax-bad-blank-label-dot-end.ttl
+negative turtle-syntax-bad-number-dot-in-anon.ttl
+negative turtle-syntax-bad-ln-dash-start.ttl
+negative turtle-syntax-bad-ln-escape.ttl
+negative turtle-syntax-bad-ln-escape-start.ttl
+negative turtle-syntax-bad-ns-dot-end.ttl
+negative turtle-syntax-bad-ns-dot-start.ttl
+negative turtle-syntax-bad-missing-ns-dot-end.ttl
+negative turtle-syntax-bad-missing-ns-dot-start.ttl
+positive turtle-syntax-ln-dots.ttl
+positive turtle-syntax-ln-colons.ttl
+positive turtle-syntax-ns-dots.ttl
+positive turtle-syntax-blank-label.ttl
+eval IRI-resolution-01.ttl IRI-resolution-01.nt
+eval IRI-resolution-02.ttl IRI-resolution-02.nt
+eval IRI-resolution-07.ttl IRI-resolution-07.nt
+eval IRI-resolution-08.ttl IRI-resolution-08.nt
