@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core]
+openspec: [rdf-core, ntriples]
 ---
 # Decisions
 
@@ -172,6 +172,33 @@ M2 is a native N-Triples parser and serializer, tested on the W3C `rdf-n-triples
 **Consequences.** The critical path to the demo stays short; Turtle can reuse the N-Triples terminals.
 
 - motivated_by:: [[decisions#Dependency-free core package]]
+
+## Recursive-descent N-Triples parser
+
+The N-Triples parser is hand-written recursive descent over a character array, building terms only through the Core smart constructors, with line and column in every error.
+
+**Context.** M2 needs exact conformance to the W3C suite and errors a user can act on, with no dependencies.
+
+**Decision.** A `ReaderT (Array Char) (StateT Nat (Except (Nat × String)))` monad with `partial` loops (no proofs about the parser in v0.x). IRIs must be absolute, and escaped characters IRIREF forbids raw are rejected. Blank-node labels exclude `:` and give trailing dots back to the triple. The W3C suite is vendored with a generated index and runs on every `lake test`. Rejected: `Lean.Parsec` (no positions in errors) and parser-combinator packages (dependencies).
+
+**Consequences.** All 41 positive and 29 negative W3C tests pass. `parse` only ever yields well-formed triples.
+
+- motivated_by:: [[constraints#N-Triples grammar]] {weight: primary}
+- motivated_by:: [[constraints#W3C tests reject colons in blank-node labels]]
+- motivated_by:: [[decisions#Literals are typed or language-tagged]]
+
+## Canonical N-Triples output
+
+The serializer writes only canonical N-Triples and returns an error instead of output that would not re-parse; `Term.toNTriples` is the shared term syntax for certificates.
+
+**Context.** Round-trip stability (M2) and readable certificates (M5) both need one deterministic term syntax.
+
+**Decision.** `Graph.toNTriples` writes `Graph.toList` order, one ` .`-terminated line per triple, no UCHAR, ECHAR for exactly four characters and no `^^xsd:string`. It fails on non-well-formed triples, non-absolute IRIs, IRIs with forbidden characters, and invalid labels or tags. `Term.toNTriples` writes any term in any position, so generalized triples in certificates use the same syntax.
+
+**Consequences.** Parse, serialize, parse, serialize is a fixed point on the whole W3C corpus.
+
+- motivated_by:: [[constraints#N-Triples grammar]] {weight: primary}
+- motivated_by:: [[decisions#Opaque hash-set graph]]
 
 ## Graph queries with instance mappings
 

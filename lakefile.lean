@@ -13,5 +13,12 @@ package leanrdf where
 
 @[default_target] lean_lib LeanRDF
 
+/-- Test data read at build time (the W3C suites); Lake does not see files read by `#eval`, so
+without this a change to the data leaves stale test results. -/
+input_dir testData where
+  path := "Tests/data"
+  text := true
+
 lean_lib Tests where
   globs := #[.andSubmodules `Tests]
+  needs := #[testData]

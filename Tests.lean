@@ -6,3 +6,6 @@ import Tests.Core.Graph
 import Tests.Core.Iso
 import Tests.Core.Vocab
 import Tests.Core.Axioms
+import Tests.NTriples.Parse
+import Tests.NTriples.Serialize
+import Tests.NTriples.W3C

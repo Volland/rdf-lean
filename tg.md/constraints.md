@@ -58,6 +58,21 @@ An IRI in an RDF graph is a Unicode string conforming to RFC 3987, compared char
 - source:: RDF 1.1 Concepts §3.2 (IRIs)
 - constrains:: [[decisions#Literals are typed or language-tagged]] {strength: should}
 
+## N-Triples grammar
+
+N-Triples documents follow the `ntriplesDoc` grammar of RDF 1.1 N-Triples §7: absolute IRIs only, no prefixes or abbreviations; canonical output (§4) uses no UCHAR and ECHAR only for `"`, `\`, LF and CR.
+
+- source:: RDF 1.1 N-Triples (W3C Recommendation, 25 February 2014) §2, §4, §7
+- constrains:: [[decisions#N-Triples first, native Turtle later]] {strength: must}
+- constrains:: [[decisions#Canonical N-Triples output]] {strength: must}
+
+## W3C tests reject colons in blank-node labels
+
+The W3C N-Triples suite marks `_::a` and `_:abc:def` as negative syntax tests, although production [158s] of the 2014 grammar lets `PN_CHARS_U` contain `:`. LeanRDF follows the tests.
+
+- source:: w3c/rdf-tests `rdf/rdf11/rdf-n-triples`, `nt-syntax-bad-bnode-01` and `-02`, commit `d01b141` (2026-10-28)
+- constrains:: [[decisions#Recursive-descent N-Triples parser]] {strength: must}
+
 ## Lean toolchain 4.35
 
 lean-elpi v0.3.3 and CertifyingDatalog both pin `leanprover/lean4:v4.35.0`, so LeanRDF pins the same toolchain in both of its packages.

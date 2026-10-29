@@ -29,7 +29,7 @@ M2: native N-Triples parser and sorted serializer, passing the W3C `rdf-n-triple
 
 Capability `ntriples`. Depends on [[changes#add-rdf-core]].
 
-- status:: proposed
+- status:: archived
 
 ## add-rdfs-entailment
 
