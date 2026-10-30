@@ -5,6 +5,8 @@ Each line is `positive FILE`, `negative FILE` or `eval FILE RESULT`, in manifest
 Lean test runners never parse Turtle. Usage:
   python3 scripts/w3c-index.py Tests/data/rdf-n-triples
   python3 scripts/w3c-index.py Tests/data/rdf-turtle
+  python3 scripts/w3c-index.py Tests/data/rdf-n-quads
+  python3 scripts/w3c-index.py Tests/data/rdf-trig
 """
 import re
 import sys
@@ -20,10 +22,16 @@ kinds = {
     "rdft:TestTurtleNegativeSyntax": "negative",
     "rdft:TestTurtleEval": "eval",
     "rdft:TestTurtleNegativeEval": "negative",
+    "rdft:TestNQuadsPositiveSyntax": "positive",
+    "rdft:TestNQuadsNegativeSyntax": "negative",
+    "rdft:TestTrigPositiveSyntax": "positive",
+    "rdft:TestTrigNegativeSyntax": "negative",
+    "rdft:TestTrigEval": "eval",
+    "rdft:TestTrigNegativeEval": "negative",
 }
-entries = re.findall(r"^<#([^>]+)>\s+rdf:type\s+(\S+)\s*;(.*?)\n\s*\.\s*$", manifest, re.S | re.M)
+entries = re.findall(r"^<#([^>]+)>\s+(?:rdf:type|a)\s+(\S+)\s*;(.*?)\n\s*\.\s*$", manifest, re.S | re.M)
 if not entries:
-    entries = re.findall(r"^<#([^>]+)>\s+rdf:type\s+(\S+)\s*;(.*?)\.\s*$", manifest, re.S | re.M)
+    entries = re.findall(r"^<#([^>]+)>\s+(?:rdf:type|a)\s+(\S+)\s*;(.*?)\.\s*$", manifest, re.S | re.M)
 lines = []
 for name, kind, body in entries:
     action = re.search(r"mf:action\s+<([^>]+)>", body)

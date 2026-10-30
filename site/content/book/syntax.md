@@ -41,6 +41,22 @@ A few details matter for meaning:
 - **Numbers keep their lexical form.** `1E3` becomes `"1E3"^^xsd:double`, not `"1e3"`; `:s :p 1.` ends the statement after the integer `1`.
 - **Anonymous nodes** are named `genid1`, `genid2`, … and never collide with labels the document uses.
 
+## Datasets: N-Quads and TriG
+
+SPARQL and named graphs need more than one graph. An RDF dataset is a default graph and any number of named graphs, each named by an IRI or a blank node. In LeanRDF a `Dataset` is a set of `Quad`s, a triple with `g : Option Term` (`none` is the default graph), and like `Graph` it is used only through membership lemmas such as `mem_namedGraph : t ∈ d.namedGraph n ↔ Quad.ofTriple t (some n) ∈ d`.
+
+N-Quads adds an optional graph label to an N-Triples line; TriG adds graph blocks to Turtle and shares its parser:
+
+```lean
+#eval TriG.parse "
+  @prefix ex: <http://example.org/> .
+  ex:a ex:p ex:b .                       # default graph
+  GRAPH ex:g { ex:c ex:p ex:d }          # named graph ex:g
+  _:h { ex:e ex:p ex:f }" "http://example.org/"
+```
+
+RDF 1.1 gives datasets no model theory, so entailment stays a relation between graphs.
+
 ## Conformance
 
 Both parsers are tested against the W3C suites, vendored in `Tests/data/` and run on every `lake test`:
@@ -49,7 +65,9 @@ Both parsers are tested against the W3C suites, vendored in `Tests/data/` and ru
 |---|---|---|---|
 | RDF 1.1 N-Triples | 41 / 41 | 29 / 29 | (round trips) |
 | RDF 1.1 Turtle | 74 / 74 | 94 / 94 | 145 / 145 |
+| RDF 1.1 N-Quads | 53 / 53 | 34 / 34 | |
+| RDF 1.1 TriG | 99 / 99 | 115 / 115 | 143 / 143 |
 
-Evaluation tests compare the parsed graph with the expected N-Triples up to blank-node renaming.
+Evaluation tests compare the parsed graph (or dataset) with the expected N-Triples (or N-Quads) up to blank-node renaming.
 
 One deliberate choice: the 2014 grammar allows `:` inside blank-node labels, but the current W3C suite rejects `_:abc:def`. LeanRDF follows the tests and records the choice in its design notes.

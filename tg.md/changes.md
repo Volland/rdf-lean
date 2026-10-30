@@ -89,9 +89,9 @@ Capability `release`. Starts the roadmap of [[decisions#LeanRDF is the proof lay
 
 P1: `Quad` and `Dataset`, N-Quads and TriG with the W3C suites.
 
-Capability `datasets`. Supersedes [[decisions#No datasets in v0.x]] when applied.
+Capability `datasets`. See [[decisions#Datasets as sets of quads]] and [[decisions#TriG on the Turtle statement parser]], which supersede [[decisions#No datasets in v0.x]].
 
-- status:: proposed
+- status:: archived
 
 ## add-xsd-values
 

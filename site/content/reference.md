@@ -22,7 +22,10 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDF.Core.Iso` | `Graph.Iso`, `Iso.refl` |
 | `LeanRDF.Core.Vocab` | `rdf.*`, `rdfs.*`, `xsd.string`, `rdf.member n` |
 | `LeanRDF.Parse.NTriples.*` | `NTriples.parse`, `parseTriples`, `parseTerm`, `ParseError`, `Graph.toNTriples`, `Term.toNTriples` |
-| `LeanRDF.Parse.Turtle.*` | `Turtle.parse src base`, `parseTriples`, `resolve` |
+| `LeanRDF.Parse.Turtle.*` | `Turtle.parse src base`, `parseTriples`, `parseTriG`, `resolve` |
+| `LeanRDF.Core.Dataset` | `Quad`, `Dataset`, `defaultGraph`, `namedGraph`, `graphNames`, `unionGraph`, `ofGraph`, `mem_*` |
+| `LeanRDF.Parse.NQuads.*` | `NQuads.parse`, `NTriples.parseQuads`, `Dataset.toNQuads` |
+| `LeanRDF.Parse.TriG.Parser` | `TriG.parse src base` |
 | `LeanRDF.Semantics.Interpretation` | `SimpleInterp`, `denote`, `Holds`, `Satisfies`, `InClass`, `DInterp` |
 | `LeanRDF.Semantics.RDFS` | `RDFConditions`, `RDFSConditions`, `IsRDF`, `IsRDFS`, `RDFSCore`, `IsRDFS.toCore` |
 | `LeanRDF.Semantics.Entails` | `Graph.SimpleEntails`, `DEntails`, `RDFEntails`, `RDFSEntails` |

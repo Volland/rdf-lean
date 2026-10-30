@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets]
 ---
 # Decisions
 
@@ -359,3 +359,29 @@ LeanRDF is licensed `MIT OR Apache-2.0`, built and tested by CI in both packages
 
 - motivated_by:: [[decisions#Dependency-free core package]]
 - motivated_by:: [[decisions#Layers as packages in one repository]] {weight: secondary}
+
+## Datasets as sets of quads
+
+`Quad` is a triple with `g : Option Term`, and `Dataset` an opaque set of quads used through `mem_*` lemmas, like `Graph`. Default, named and union graphs are views of it.
+
+**Context.** SPARQL (`GRAPH`, `FROM NAMED`) and oxilite's per-ontology graphs need named graphs, which [[decisions#No datasets in v0.x]] left out.
+
+**Decision.** One hash set of quads, not a map from names to graphs: one lemma set, and N-Quads is quads already. An empty named graph is not represented, since no syntax here produces one. N-Quads shares the N-Triples statement parser, with the graph label allowed only in N-Quads mode. Datasets get no model theory, because RDF 1.1 defines none.
+
+**Consequences.** `Dataset.ofGraph` embeds every graph; entailment remains between graphs.
+
+- supersedes:: [[decisions#No datasets in v0.x]] {since: "add-datasets", reason: "SPARQL and oxilite need named graphs"}
+- motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]]
+- motivated_by:: [[decisions#Recursive-descent N-Triples parser]] {weight: secondary}
+
+## TriG on the Turtle statement parser
+
+TriG is parsed by the Turtle parser with a current graph in its state: Turtle statements emit quads into that graph, and TriG adds blocks, `GRAPH` and graph labels around them.
+
+**Context.** TriG §5 reuses Turtle's statements, terms, prefixes and IRI resolution; a second copy would drift.
+
+**Decision.** The parser state holds `graph : Option Term` and `quads`. `directive` is shared; `block` handles `{ … }`, `GRAPH label { … }`, `label { … }`, `[] { … }` and triples in the default graph. Generated blank nodes are renamed over graph names too. `@prefix` and `@base` are lexed as whole tokens, so `@prefix:` is the empty prefix (found by the W3C TriG suite, harmless for Turtle).
+
+**Consequences.** `Turtle.parse` is unchanged in behaviour (its 313 W3C tests still pass) and `TriG.parse` passes the 357 TriG tests.
+
+- motivated_by:: [[decisions#N-Triples first, native Turtle later]]

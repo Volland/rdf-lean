@@ -21,3 +21,8 @@ import Tests.Cert.Axioms
 import Tests.Turtle.Iso
 import Tests.Turtle.Parse
 import Tests.Turtle.W3C
+import Tests.Datasets.Iso
+import Tests.Datasets.Model
+import Tests.Datasets.NQuads
+import Tests.Datasets.TriG
+import Tests.Datasets.W3C

@@ -1,13 +1,14 @@
-import LeanRDF.Core.Graph
+import LeanRDF.Core.Dataset
 import LeanRDF.Core.Literal
 import LeanRDF.Parse.NTriples.Chars
 
 /-!
-# N-Triples parser
+# N-Triples and N-Quads parser
 
-A recursive-descent parser for the `ntriplesDoc` production of RDF 1.1 N-Triples §7. Terms are
-built with the Core smart constructors (§8.1), so the result is always a graph of well-formed
-triples. Errors carry the line and column where parsing stopped.
+A recursive-descent parser for the `ntriplesDoc` production of RDF 1.1 N-Triples §7, and, with
+an optional graph label after the object, for the `nquadsDoc` production of RDF 1.1 N-Quads §5.
+Terms are built with the Core smart constructors (§8.1), so the result is always a graph (or
+dataset) of well-formed triples. Errors carry the line and column where parsing stopped.
 -/
 
 namespace LeanRDF.NTriples
@@ -173,29 +174,40 @@ private def object : P Term := do
   | some '"' => return .lit (← literal)
   | _ => fail "expected an IRI, a blank node or a literal as object"
 
-/-- A `triple` (production [2]). -/
-private def triple : P Triple := do
+/-- A `graphLabel` (N-Quads production [6]): an IRI or a blank node. -/
+private def graphLabel : P Term := do
+  match ← peek? with
+  | some '<' => return .iri (← iriRef)
+  | some '_' => return .bnode (← blankNode)
+  | _ => fail "expected an IRI or a blank node as graph label"
+
+/-- A `triple` (N-Triples production [2]), or with `quads` a `statement` (N-Quads production
+[2]) whose graph label is optional. -/
+private def statement (quads : Bool) : P Quad := do
   let s ← subject; skipWS
   let p ← predicate; skipWS
   let o ← object; skipWS
+  let g ← if quads && (← peek?) != some '.' then some <$> graphLabel else pure none
+  skipWS
   expect '.'
-  return ⟨s, p, o⟩
+  return ⟨s, p, o, g⟩
 
-/-- `ntriplesDoc` (production [1]), with comments and blank lines. -/
-private partial def document (acc : Array Triple) : P (Array Triple) := do
+/-- `ntriplesDoc` (N-Triples production [1]) or `nquadsDoc` (N-Quads production [1]), with
+comments and blank lines. -/
+private partial def document (quads : Bool) (acc : Array Quad) : P (Array Quad) := do
   skipWS
   match ← peek? with
   | none => return acc
-  | some '#' => skipComment; document acc
-  | some '\n' | some '\r' => bump; document acc
+  | some '#' => skipComment; document quads acc
+  | some '\n' | some '\r' => bump; document quads acc
   | some _ =>
-    let t ← triple
+    let t ← statement quads
     skipWS
     match ← peek? with
     | none => return acc.push t
-    | some '#' => skipComment; document (acc.push t)
-    | some '\n' | some '\r' => bump; document (acc.push t)
-    | some _ => fail "expected end of line after triple"
+    | some '#' => skipComment; document quads (acc.push t)
+    | some '\n' | some '\r' => bump; document quads (acc.push t)
+    | some _ => fail "expected end of line after statement"
 
 private def position (chars : Array Char) (pos : Nat) : Nat × Nat := Id.run do
   let mut line := 1
@@ -213,8 +225,18 @@ private def position (chars : Array Char) (pos : Nat) : Nat × Nat := Id.run do
 order. -/
 def parseTriples (src : String) : Except ParseError (Array Triple) :=
   let chars := src.toList.toArray
-  match (document #[]).run chars |>.run 0 with
-  | .ok (ts, _) => .ok ts
+  match (document false #[]).run chars |>.run 0 with
+  | .ok (qs, _) => .ok (qs.map (·.triple))
+  | .error (pos, msg) =>
+    let (line, col) := position chars pos
+    .error { line, col, msg }
+
+-- @tg: implements:: [[openspec:datasets#N-Quads]]
+/-- Parse an N-Quads document (RDF 1.1 N-Quads §5) into its quads, in document order. -/
+def parseQuads (src : String) : Except ParseError (Array Quad) :=
+  let chars := src.toList.toArray
+  match (document true #[]).run chars |>.run 0 with
+  | .ok (qs, _) => .ok qs
   | .error (pos, msg) =>
     let (line, col) := position chars pos
     .error { line, col, msg }

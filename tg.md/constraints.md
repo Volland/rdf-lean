@@ -73,6 +73,22 @@ Turtle documents follow the `turtleDoc` grammar of RDF 1.1 Turtle §6.5 and the 
 - source:: RDF 1.1 Turtle (W3C Recommendation, 25 February 2014) §6.5, §7
 - constrains:: [[decisions#N-Triples first, native Turtle later]] {strength: must}
 
+## N-Quads grammar
+
+N-Quads documents follow the `nquadsDoc` grammar of RDF 1.1 N-Quads §5: N-Triples statements with an optional graph label, an IRI or a blank node, before the final dot.
+
+- source:: RDF 1.1 N-Quads (W3C Recommendation, 25 February 2014) §2, §5
+- constrains:: [[decisions#Datasets as sets of quads]] {strength: must}
+
+## TriG grammar
+
+TriG documents follow the `trigDoc` grammar of RDF 1.1 TriG §5 and the parsing rules of §6: Turtle statements in the default graph or in graph blocks.
+
+A block may be preceded by `GRAPH` and a label; directives appear only outside blocks, and the last `.` in a block is optional.
+
+- source:: RDF 1.1 TriG (W3C Recommendation, 25 February 2014) §5, §6
+- constrains:: [[decisions#TriG on the Turtle statement parser]] {strength: must}
+
 ## RFC 3986 reference resolution
 
 Relative IRI references in Turtle resolve against the base by RFC 3986 §5.2, including dot-segment removal.
