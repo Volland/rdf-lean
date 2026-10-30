@@ -12,7 +12,7 @@ The OWL 2 RDF-Based Semantics (W3C Recommendation, 2012) §5 extends D-interpret
 
 ### Only the conditions the rules need
 
-`OWLConditions` transcribes the §5 conditions for `owl:Thing`, `owl:Nothing`, `owl:sameAs`, `owl:equivalentClass`, `owl:equivalentProperty`, `owl:inverseOf`, the property characteristics (functional, inverse functional, symmetric, transitive), `owl:someValuesFrom`, `owl:allValuesFrom`, `owl:hasValue`, `owl:onProperty`, `owl:maxCardinality` and `owl:maxQualifiedCardinality` with `onClass`, and the class and property declarations, one field per condition. Leaving out the other conditions admits more interpretations. Entailment under these conditions therefore implies entailment under the full semantics, so the soundness proofs remain valid for full OWL 2 RDF-Based entailment. This is recorded as a soundness-neutral simplification.
+`OWLConds` transcribes the §5 conditions for `owl:Thing`, `owl:Nothing`, `owl:sameAs`, `owl:equivalentClass`, `owl:equivalentProperty`, `owl:inverseOf`, the property characteristics (functional, inverse functional, symmetric, transitive), `owl:someValuesFrom`, `owl:allValuesFrom`, `owl:hasValue`, `owl:onProperty`, `owl:maxCardinality` and `owl:maxQualifiedCardinality` with `onClass`, and the class and property declarations, one field per condition. Where the specification states an "iff", only the consequences the rules use are kept; for domains, ranges and equivalent properties these are rule-shaped (a domain extends to superclasses and is inherited by subproperties; mutual subproperties are equivalent) rather than the extensional reverse direction, which no small model with total properties satisfies. Leaving out the other conditions admits more interpretations. Entailment under these conditions therefore implies entailment under the full semantics, so the soundness proofs remain valid for full OWL 2 RDF-Based entailment. This is recorded as a soundness-neutral simplification.
 
 ### Cardinality via the literal term
 
@@ -35,11 +35,11 @@ The oxilite bridge takes a profile. `rdfs` uses `rdfsRules`; `owl` uses `owlRule
 
 ## Constraints
 
-- New: `OWL 2 RDF-Based Semantics` (W3C 2012, §5), binding `OWLConditions`.
+- New: `OWL 2 RDF-Based Semantics` (W3C 2012, §5), binding `OWLConds`.
 - New: `OWL 2 RL rules` (OWL 2 Profiles §4.3), binding the rule bodies and heads.
 - [[constraints#Lake requires per package]]: `leanrdf-owl` requires only the core.
 
 ## Risks / Trade-offs
 
 - **`eq-ref` makes every term `sameAs` itself**, which multiplies the closure. The bridge saturates only small graphs. Certificates use `eq-ref` only when a proof needs it.
-- **Non-vacuity needs a hand-built model**, because sameAs and the restriction conditions rule out the plain term model. A small finite model over `Fin n`, with every other IRI mapped to a junk element, keeps the proofs decidable.
+- **Non-vacuity needs a hand-built model**, because sameAs and the restriction conditions rule out the plain term model. The model extends the core's small RDFS models over `Term` with chosen extensions for the OWL vocabulary (sameAs and equivalentProperty as identity, empty characteristic classes), so the proofs reuse the RDFS conditions already proven there.

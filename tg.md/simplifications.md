@@ -47,3 +47,23 @@ The semantics keeps the infinite `∀ n` conditions; only the derivation side is
 - source:: RDF 1.1 Semantics §8 and §9 (axiomatic triples)
 - impact:: incompleteness
 - deviates_from:: [[constraints#RDF interpretations recognize two datatypes]]
+
+## A subset of the OWL 2 RDF-Based conditions
+
+`OWLConds` transcribes only the conditions the included rules need, and for some "iff" conditions only rule-shaped consequences of their reverse direction.
+
+Omitted are the conditions on vocabulary no included rule uses (lists, intersections, unions, keys, negative assertions, datatypes) and, for `rdfs:domain`, `rdfs:range`, `rdfs:subPropertyOf` and `owl:equivalentProperty`, the extensional reverse directions. Every field is a consequence of the full semantics, so more interpretations qualify and every soundness theorem holds for full OWL 2 RDF-Based entailment.
+
+- source:: OWL 2 RDF-Based Semantics §5
+- impact:: soundness-neutral
+- deviates_from:: [[constraints#OWL 2 RDF-Based Semantics]]
+
+## OWL 2 RL without list rules and inconsistency rules
+
+`owlRLRules` leaves out the OWL 2 RL rules whose premises run over an `rdf:List` (`prp-key`, `prp-spo2`, `cls-int1`, `cls-int2`, `cls-uni`, `cls-oo`, `scm-int`, `scm-uni`, `prp-adp`, `cax-adc`, `eq-diff2`, `eq-diff3`) and those that conclude `false`.
+
+A rule with a list premise has no fixed number of body patterns, which `Rule` needs. An inconsistency rule derives no triple. The datatype rules (`dt-*`) depend on value spaces the semantics does not interpret. Fewer rules lose completeness, never soundness.
+
+- source:: OWL 2 Profiles §4.3
+- impact:: incompleteness
+- deviates_from:: [[constraints#OWL 2 RL rules]]

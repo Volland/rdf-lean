@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# An OWL 2 RL sample: inverse, transitive and symmetric properties, a subproperty,
+# equivalent classes and an identity.
+ex:hasChild owl:inverseOf ex:hasParent .
+ex:hasAncestor a owl:TransitiveProperty .
+ex:hasParent rdfs:subPropertyOf ex:hasAncestor .
+ex:knows a owl:SymmetricProperty .
+ex:Person owl:equivalentClass ex:Human .
+ex:alice ex:hasChild ex:bob .
+ex:bob ex:hasChild ex:carol .
+ex:alice a ex:Person .
+ex:alice ex:knows ex:dave .
+ex:dave owl:sameAs ex:david .

@@ -16,6 +16,8 @@ package «leanrdf-elpi» where
 
 require leanrdf from ".."
 
+require «leanrdf-owl» from "../owl"
+
 require «lean-elpi» from git "https://github.com/Volland/lean-elpi" @ "v0.3.3"
 -- Local development against a sibling checkout instead of the pinned release:
 -- require «lean-elpi» from "../../lean-elpi"
@@ -43,6 +45,7 @@ lean_exe «leanrdf-demo» where
   root := `DemoMain
 
 /-- Certify oxilite's answers: `lake exe leanrdf-oxilite DATA PATTERN [--oxilite PATH]
-[--mode elpi|why|both] [--results FILE] [--why-dir DIR] [--record DIR]`. -/
+[--profile rdfs|owl] [--mode elpi|why|both] [--results FILE] [--why-dir DIR] [--record DIR]`, or
+its OWL 2 RL closure: `lake exe leanrdf-oxilite DATA --materialized [--inferred FILE]`. -/
 lean_exe «leanrdf-oxilite» where
   root := `OxiliteMain

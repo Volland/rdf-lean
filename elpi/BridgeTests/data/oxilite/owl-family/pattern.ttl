@@ -1,0 +1,2 @@
+@prefix ex: <http://example.org/> .
+_:child ex:hasParent _:parent .

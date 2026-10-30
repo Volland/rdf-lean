@@ -1,0 +1,95 @@
+oxilite inferences: 31, certified: 18
+[0] <http://example.org/Human> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[1] <http://example.org/Human> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Human>
+    oxilite: scm-sco (subclass transitivity)
+    elpi: certified
+[2] <http://example.org/Human> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Person>
+    oxilite: no rule template matched this conclusion
+    elpi: certified
+[3] <http://example.org/Person> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[4] <http://example.org/Person> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Human>
+    oxilite: no rule template matched this conclusion
+    elpi: certified
+[5] <http://example.org/Person> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/Person>
+    oxilite: scm-sco (subclass transitivity)
+    elpi: certified
+[6] <http://example.org/alice> <http://example.org/knows> <http://example.org/david>
+    oxilite: prp-symp (symmetric)
+    elpi: certified
+[7] <http://example.org/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Human>
+    oxilite: cax-sco (subclass)
+    elpi: certified
+[8] <http://example.org/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[9] <http://example.org/bob> <http://example.org/hasAncestor> <http://example.org/alice>
+    oxilite: prp-spo1 (subproperty)
+    elpi: certified
+[10] <http://example.org/bob> <http://example.org/hasParent> <http://example.org/alice>
+    oxilite: prp-inv (inverse)
+    elpi: certified
+[11] <http://example.org/bob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[12] <http://example.org/carol> <http://example.org/hasAncestor> <http://example.org/alice>
+    oxilite: prp-trp (transitive)
+    elpi: certified
+[13] <http://example.org/carol> <http://example.org/hasAncestor> <http://example.org/bob>
+    oxilite: prp-spo1 (subproperty)
+    elpi: certified
+[14] <http://example.org/carol> <http://example.org/hasParent> <http://example.org/bob>
+    oxilite: prp-inv (inverse)
+    elpi: certified
+[15] <http://example.org/carol> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[16] <http://example.org/dave> <http://example.org/knows> <http://example.org/alice>
+    oxilite: prp-symp (symmetric)
+    elpi: certified
+[17] <http://example.org/dave> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: eq-rep-s (sameAs subject)
+    elpi: not derived (no instance of the query is derived)
+[18] <http://example.org/dave> <http://www.w3.org/2002/07/owl#sameAs> <http://example.org/dave>
+    oxilite: eq-rep-s (sameAs subject)
+    elpi: certified
+[19] <http://example.org/david> <http://example.org/knows> <http://example.org/alice>
+    oxilite: prp-symp (symmetric)
+    elpi: certified
+[20] <http://example.org/david> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: eq-rep-s (sameAs subject)
+    elpi: not derived (no instance of the query is derived)
+[21] <http://example.org/david> <http://www.w3.org/2002/07/owl#sameAs> <http://example.org/dave>
+    oxilite: eq-rep-s (sameAs subject)
+    elpi: certified
+[22] <http://example.org/david> <http://www.w3.org/2002/07/owl#sameAs> <http://example.org/david>
+    oxilite: eq-rep-s (sameAs subject)
+    elpi: certified
+[23] <http://example.org/hasAncestor> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[24] <http://example.org/hasChild> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[25] <http://example.org/hasParent> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[26] <http://example.org/knows> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[27] <http://www.w3.org/2002/07/owl#Nothing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class>
+    oxilite: no rule template matched this conclusion
+    elpi: certified
+[28] <http://www.w3.org/2002/07/owl#Nothing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+[29] <http://www.w3.org/2002/07/owl#Thing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class>
+    oxilite: no rule template matched this conclusion
+    elpi: certified
+[30] <http://www.w3.org/2002/07/owl#Thing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing>
+    oxilite: no rule template matched this conclusion
+    elpi: not derived (no instance of the query is derived)
+

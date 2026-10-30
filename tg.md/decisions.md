@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl]
 ---
 # Decisions
 
@@ -441,3 +441,18 @@ SPARQL 1.1 queries are parsed by a hand-written recursive-descent parser, transl
 - motivated_by:: [[decisions#A proven reference evaluator for SPARQL]] {weight: primary}
 - motivated_by:: [[constraints#SPARQL grammar]]
 - motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]]
+
+## OWL 2 RL as sound rules over a subset of the RDF-Based conditions
+
+`leanrdf-owl` transcribes the OWL 2 RDF-Based Semantics conditions the OWL 2 RL rules need, encodes the fixed-arity OWL 2 RL/RDF rules as `Rule` values, and proves each sound, so `Derives owlRules g t` gives `g.OWLEntails {t}`.
+
+**Context.** oxilite materializes an OWL 2 RL closure, and its `why` trees name OWL 2 RL templates. Certifying them needs rules the checker knows and a semantics they are sound for.
+
+**Decision.** `OWLConds` keeps one field per condition, and where the semantics states an "iff" it keeps only the consequences the rules use: for `rdfs:domain`, `rdfs:range` and `owl:equivalentProperty` these are rule-shaped (a domain extends along `rdfs:subClassOf`; mutual subproperties are equivalent), not the extensional reverse direction. Every field follows from the full semantics, so soundness carries over to full OWL 2 RDF-Based entailment, and a concrete model (`OwlTests/Model.lean`) shows the fields are satisfiable together. The rules are 49 derivation rules plus the OWL axiomatic triples, on top of the 67 RDFS rules (`owlRules`, 127). Rules over `rdf:List` premises and the inconsistency rules are left out. The bridge takes `--profile owl` and certifies oxilite's materialized closure one triple at a time with `--materialized`.
+
+**Consequences.** On the recorded sample, oxilite's answers and 18 of its 31 materialized inferences are certified. The other 13 type a resource as `owl:Thing`, which OWL 2 RL has no rule for (oxilite's `why` names no template), so they are `not derived`.
+
+- motivated_by:: [[decisions#Two ways to certify oxilite's answers]] {weight: primary}
+- motivated_by:: [[constraints#OWL 2 RDF-Based Semantics]]
+- motivated_by:: [[constraints#OWL 2 RL rules]]
+- motivated_by:: [[decisions#Layers as packages in one repository]] {weight: secondary}

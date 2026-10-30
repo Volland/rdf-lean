@@ -1,0 +1,10 @@
+oxilite answers: 2
+[0] ?child = <http://example.org/bob>, ?parent = <http://example.org/alice>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+[1] ?child = <http://example.org/carol>, ?parent = <http://example.org/bob>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+

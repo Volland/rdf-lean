@@ -1,4 +1,4 @@
-# Build and test both Lake packages on every push and pull request, and run the demo once.
+# Build and test every Lake package on every push and pull request, and run the demo once.
 # The contract this workflow keeps is checked by scripts/check_release.py.
 name: CI
 
@@ -36,6 +36,17 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           lake-package-directory: sparql
+          build: true
+          test: true
+
+  owl:
+    name: leanrdf-owl (OWL 2 RL rules)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: owl
           build: true
           test: true
 

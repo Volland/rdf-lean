@@ -24,7 +24,7 @@ oxilite materializes OWL 2 RL inferences, and its `why` trees use OWL 2 RL templ
 
 **Roadmap:** P4. Depends on `add-oxilite-certify`.
 
-**Code:** `owl/lakefile.lean`, `owl/LeanRDFOwl/{Vocab,Semantics,Rules,Soundness,Vacuity}.lean`, `owl/OwlTests/*.lean`, `elpi/lakefile.lean`, `elpi/LeanRDFElpi/Oxilite/*.lean`, `elpi/BridgeTests/OxiliteOwl.lean` and fixtures.
+**Code:** `owl/lakefile.lean`, `owl/LeanRDFOwl/{Vocab,Semantics,Rules,Soundness}.lean`, `owl/OwlTests/*.lean`, `elpi/lakefile.lean`, `elpi/LeanRDFElpi/Oxilite/*.lean`, `elpi/BridgeTests/OxiliteOwl.lean` and fixtures.
 
 **Motivating decisions** (tg.md): [[decisions#LeanRDF is the proof layer for oxilite]], [[decisions#Semantics tested against vacuity]], [[decisions#Layered interpretations with a core]], [[decisions#Layers as packages in one repository]].
 

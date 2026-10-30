@@ -1,0 +1,32 @@
+[{"triple":
+  {"s": {"value": "http://example.org/carol", "termType": "NamedNode"},
+   "p": {"value": "http://example.org/hasParent", "termType": "NamedNode"},
+   "o": {"value": "http://example.org/bob", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "prp-inv (inverse)",
+  "producer": "owl2rl",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/bob", "termType": "NamedNode"},
+     "p": {"value": "http://example.org/hasChild", "termType": "NamedNode"},
+     "o": {"value": "http://example.org/carol", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.BavithG1/project/data.ttl",
+     "range":
+     {"start": {"line": 12, "character": 7},
+      "end": {"line": 12, "character": 18}}}},
+   {"triple":
+    {"s": {"value": "http://example.org/hasChild", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2002/07/owl#inverseOf",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/hasParent", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.BavithG1/project/data.ttl",
+     "range":
+     {"start": {"line": 6, "character": 12},
+      "end": {"line": 6, "character": 25}}}}]}]

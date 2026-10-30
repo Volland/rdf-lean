@@ -129,9 +129,9 @@ Capability `sparql-syntax`. Depends on [[changes#add-sparql-algebra]]. See [[dec
 
 P4: package `leanrdf-owl` with the OWL 2 RDF-Based conditions and the fixed-arity OWL 2 RL rules proven sound; OWL why trees and materialized inferences from oxilite certified.
 
-Capabilities `owl-rl` and `oxilite-bridge`. Depends on [[changes#add-oxilite-certify]].
+Capabilities `owl-rl` and `oxilite-bridge`. Depends on [[changes#add-oxilite-certify]]. See [[decisions#OWL 2 RL as sound rules over a subset of the RDF-Based conditions]].
 
-- status:: proposed
+- status:: archived
 
 ## add-shacl-core
 

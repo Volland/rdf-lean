@@ -229,3 +229,17 @@ A Lake `require` applies to a whole package, so every library of a package makes
 
 - source:: Lake DSL, Lean 4.35.0
 - constrains:: [[decisions#Dependency-free core package]] {strength: must}
+
+## OWL 2 RDF-Based Semantics
+
+OWL 2 interpretations extend RDFS interpretations with conditions on the OWL vocabulary: `owl:sameAs` is identity, equivalent classes and properties share extensions, characteristics and restrictions constrain property extensions.
+
+- source:: OWL 2 Web Ontology Language RDF-Based Semantics (W3C Recommendation, 11 December 2012) §5
+- constrains:: [[decisions#OWL 2 RL as sound rules over a subset of the RDF-Based conditions]] {strength: must}
+
+## OWL 2 RL rules
+
+OWL 2 RL/RDF is a set of first-order implications over triples, in tables for equality, properties, classes, class axioms, datatypes and the schema vocabulary; some have list premises or conclude `false`.
+
+- source:: OWL 2 Web Ontology Language Profiles (W3C Recommendation, 11 December 2012) §4.3, Tables 4 to 9
+- constrains:: [[decisions#OWL 2 RL as sound rules over a subset of the RDF-Based conditions]] {strength: must}

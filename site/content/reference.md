@@ -48,7 +48,7 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDFElpi.Certify` | `certify`, `entailmentCertificate` |
 | `LeanRDFElpi.Demo` | `run`, `verdict`; executable `leanrdf-demo` |
 
-| `LeanRDFElpi.Oxilite.*` | `parseResults`, `patternQuery`, `instantiate`, `WhyNode`, `certificateOfWhy`, `certifyByElpi`, `certifyByWhy`, `run`; `lake exe leanrdf-oxilite` |
+| `LeanRDFElpi.Oxilite.*` | `parseResults`, `patternQuery`, `instantiate`, `WhyNode`, `certificateOfWhy`, `certifyByElpi`, `certifyByWhy`, `Profile`, `run`, `runMaterialized`; `lake exe leanrdf-oxilite` |
 
 ## leanrdf-sparql
 
@@ -66,6 +66,17 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDFSparql.Results`, `Run` | `Answer`, `toJson`, `toXml`, `toCsv`, `toTsv`, `ofJson`, `ofXml`, `ofTsv`, `execute`, `runCommand`; `lake exe leanrdf-sparql` |
 | `LeanRDFSparql.Hash` | `md5`, `sha1`, `sha256`, `sha384`, `sha512` |
 | `LeanRDF.Text.Regex` (core) | `compile`, `isMatch`, `replace` |
+
+## leanrdf-owl
+
+`leanrdf-owl` (`owl/`) requires `leanrdf`; `leanrdf-elpi` requires it for the OWL profile.
+
+| Module | Main definitions |
+|---|---|
+| `LeanRDFOwl.Vocab` | the OWL IRIs (`Owl.sameAs`, `Owl.inverseOf`, …), `owlAxioms` |
+| `LeanRDFOwl.Semantics` | `OWLConds`, `OWLCore`, `DInterp.IsOWL`, `Graph.OWLEntails`, `sameAs_iff` |
+| `LeanRDFOwl.Rules` | the 49 OWL 2 RL rules, `owlRLDerivationRules`, `owlRLRules`, `owlRules` |
+| `LeanRDFOwl.Soundness` | one `*_sound` per rule, `owlRules_sound`, `Derives.owl_sound`, `Derives.owl_sound_graph` |
 
 ## Key theorems
 
@@ -88,6 +99,10 @@ theorem Xsd.parseDecimal_canonical (q : Rat) (s : String) (h : canonicalDecimal?
 theorem evalN_perm (n : Nat) (D : Dataset) (G : Graph) (P : Pattern) :
     Eval.evalN n D G P ~ Spec.evalN n D G P
 theorem runQuery_answer (D : Dataset) (q : Query) : Spec.Answer D q (Eval.runQuery D q)
+-- OWL 2 RL: every rule is sound for the OWL conditions
+theorem owlRules_sound : ∀ r ∈ owlRules, r.SoundIn OWLCore
+theorem Derives.owl_sound {g : Graph} {t : Triple} (h : Derives owlRules g t) :
+    g.OWLEntails (Graph.singleton t)
 
 theorem Xsd.compare_integer_iff (a b : Int) :
     ((XsdValue.integer a).compare? (.integer b) = some .lt ↔ a < b) ∧

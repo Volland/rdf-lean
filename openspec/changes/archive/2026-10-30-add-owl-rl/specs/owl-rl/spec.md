@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: OWL conditions
-`leanrdf-owl` SHALL define `OWLConditions` over an RDFS interpretation, transcribing the OWL 2 RDF-Based Semantics §5 conditions for the vocabulary that the included rules use, one field per condition, and `IsOWL` and `Graph.OWLEntails` from them. Every omitted condition SHALL be listed as a soundness-neutral simplification.
+`leanrdf-owl` SHALL define `OWLConds` over an RDFS interpretation, transcribing the OWL 2 RDF-Based Semantics §5 conditions for the vocabulary that the included rules use, one field per condition, and `IsOWL` and `Graph.OWLEntails` from them. Every omitted condition SHALL be listed as a soundness-neutral simplification.
 
 #### Scenario: sameAs is identity
 - **WHEN** an interpretation satisfies `IsOWL`

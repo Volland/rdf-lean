@@ -1,6 +1,7 @@
 import LeanRDFElpi.Certify
 import LeanRDFElpi.Oxilite.Pattern
 import LeanRDFElpi.Oxilite.Translate
+import LeanRDFOwl
 
 /-!
 # Certifying oxilite's answers
@@ -11,6 +12,9 @@ or from a certificate Elpi finds. "Certified" is printed only when the checker a
 oxilite is untrusted plumbing: every failure is an input error, and recorded outputs
 (`--results`, `--why-dir`) can replace the process calls.
 
+With `--profile owl`, oxilite materializes its OWL 2 RL closure and certificates are checked
+against `owlRules`. With `--materialized`, every triple of that closure is certified on its own.
+
 Exit codes: `0` every answer certified, `1` some answer not derived or untranslated and none
 rejected, `2` a certificate was rejected by the checker, `3` usage, input, process or parse error.
 -/
@@ -18,6 +22,23 @@ rejected, `2` a certificate was rejected by the checker, `3` usage, input, proce
 namespace LeanRDF.Oxilite
 
 open Cert Bridge Lean
+
+-- @tg: implements:: [[openspec:oxilite-bridge#OWL profile]]
+/-- Which rules certify, and which reasoning oxilite runs: RDFS at query time, or its OWL 2 RL
+closure (materialized) with the RDFS and OWL 2 RL rules. -/
+inductive Profile
+  | rdfs
+  | owl
+  deriving BEq, Repr
+
+def Profile.rules : Profile → List Rule
+  | .rdfs => RDFS.rdfsRules
+  | .owl => Owl.owlRules
+
+/-- The reasoning of oxilite's project file. -/
+def Profile.reasoning : Profile → String
+  | .rdfs => "rdfs"
+  | .owl => "owl2rl"
 
 /-- Which certificates to try. -/
 inductive Mode
@@ -125,23 +146,37 @@ def runCmd (cmd : String) (args : Array String) (cwd : Option System.FilePath :=
 
 /-- Write a scratch oxilite project (an `oxilite.toml` with RDFS reasoning and one graph holding
 the data) and a store with the data loaded in its default graph. -/
-def prepare (oxilite : String) (data : System.FilePath) (dir : System.FilePath) :
-    ExceptT String IO (System.FilePath × System.FilePath) := do
+def prepare (oxilite : String) (data : System.FilePath) (dir : System.FilePath)
+    (profile : Profile := .rdfs) : ExceptT String IO (System.FilePath × System.FilePath) := do
   let proj := dir / "project"
   IO.FS.createDirAll proj
   IO.FS.writeFile (proj / "data.ttl") (← IO.FS.readFile data)
   IO.FS.writeFile (proj / "oxilite.toml")
-    "reasoning = \"rdfs\"\n\n[[graph]]\niri = \"urn:leanrdf:data\"\nfiles = [\"data.ttl\"]\n"
+    s!"reasoning = \"{profile.reasoning}\"\n\n[[graph]]\niri = \"urn:leanrdf:data\"\nfiles = [\"data.ttl\"]\n"
   let store := dir / "store.db"
   if ← store.pathExists then IO.FS.removeFile store
-  discard <| runCmd oxilite #["load", "--location", store.toString, "--file", (proj / "data.ttl").toString]
+  let quiet := if profile == .owl then #["--no-system-graphs"] else #[]
+  discard <| runCmd oxilite (#["load", "--location", store.toString] ++ quiet ++
+    #["--file", (proj / "data.ttl").toString])
+  if profile == .owl then discard <| runCmd oxilite #["materialize", "--location", store.toString]
   return (proj, store)
 
 /-- oxilite's answers to a query under RDFS reasoning, as SPARQL results JSON. -/
-def queryResults (oxilite : String) (store : System.FilePath) (query : String) :
-    ExceptT String IO String :=
-  runCmd oxilite #["query", "--location", store.toString, "--reasoning", "rdfs",
-    "--query", query, "--results-format", "json"]
+def queryResults (oxilite : String) (store : System.FilePath) (query : String)
+    (profile : Profile := .rdfs) : ExceptT String IO String :=
+  runCmd oxilite (#["query", "--location", store.toString, "--reasoning", "rdfs"] ++
+    (if profile == .owl then #["--inferred"] else #[]) ++
+    #["--query", query, "--results-format", "json"])
+
+/-- Every triple of the store's default graph, with or without the materialized inferences. -/
+def storeTriples (oxilite : String) (store : System.FilePath) (inferred : Bool) :
+    ExceptT String IO Graph := do
+  let out ← runCmd oxilite (#["query", "--location", store.toString] ++
+    (if inferred then #["--inferred"] else #[]) ++
+    #["--query", "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }", "--results-format", "nt"])
+  match NTriples.parse out with
+  | .ok g => return g
+  | .error e => throw s!"oxilite triples: {e}"
 
 /-- The `why` trees of some triples, from one `oxilite mcp` session, as raw JSON texts. -/
 def whyTexts (oxilite : String) (proj : System.FilePath) (ts : List Triple) :
@@ -188,15 +223,21 @@ structure Args where
   pattern : System.FilePath
   oxilite : String := "oxilite"
   mode : Mode := .both
+  profile : Profile := .rdfs
+  materialized : Bool := false
+  inferred : Option System.FilePath := none
   results : Option System.FilePath := none
   whyDir : Option System.FilePath := none
   record : Option System.FilePath := none
 
 def usage : String :=
-  "usage: leanrdf-oxilite DATA PATTERN [--oxilite PATH] [--mode elpi|why|both] " ++
-  "[--results FILE] [--why-dir DIR] [--record DIR]"
+  "usage: leanrdf-oxilite DATA PATTERN [--oxilite PATH] [--profile rdfs|owl] " ++
+  "[--mode elpi|why|both] [--results FILE] [--why-dir DIR] [--record DIR]\n" ++
+  "       leanrdf-oxilite DATA --materialized [--oxilite PATH] [--inferred FILE] [--record DIR]"
 
 def parseArgs : List String → Option Args
+  | data :: "--materialized" :: rest =>
+    (go { data, pattern := "", profile := .owl, materialized := true } rest).filter (·.materialized)
   | data :: pattern :: rest => go { data, pattern } rest
   | _ => none
 where
@@ -206,6 +247,9 @@ where
     | "--mode" :: "elpi" :: rest => go { a with mode := .search } rest
     | "--mode" :: "why" :: rest => go { a with mode := .why } rest
     | "--mode" :: "both" :: rest => go { a with mode := .both } rest
+    | "--profile" :: "rdfs" :: rest => go { a with profile := .rdfs } rest
+    | "--profile" :: "owl" :: rest => go { a with profile := .owl } rest
+    | "--inferred" :: p :: rest => go { a with inferred := some p } rest
     | "--results" :: p :: rest => go { a with results := some p } rest
     | "--why-dir" :: p :: rest => go { a with whyDir := some p } rest
     | "--record" :: p :: rest => go { a with record := some p } rest
@@ -232,10 +276,10 @@ def run (rules : List Rule) (a : Args) : IO (UInt32 × String) := do
   let body (scratch : System.FilePath) : IO (Except String (UInt32 × String)) := (do
     let g ← readGraph a.data
     let q ← readGraph a.pattern
-    let (proj, store) ← if live then prepare a.oxilite a.data scratch else pure ("", "")
+    let (proj, store) ← if live then prepare a.oxilite a.data scratch a.profile else pure ("", "")
     let resText ← match a.results with
       | some p => (IO.FS.readFile p : IO String)
-      | none => queryResults a.oxilite store (patternQuery q)
+      | none => queryResults a.oxilite store (patternQuery q) a.profile
     let res ← match parseResults resText with
       | .ok r => pure r
       | .error e => throw s!"oxilite results: {e}"
@@ -267,6 +311,92 @@ def run (rules : List Rule) (a : Args) : IO (UInt32 × String) := do
     | .error e => throw s!"search failed: {e}" : ExceptT String IO (UInt32 × String)).run
   -- live runs keep oxilite's project and store in a temporary directory
   let r ← if live then IO.FS.withTempDir body else body "."
+  return match r with
+    | .ok out => out
+    | .error e => (3, s!"error: {e}")
+
+/-! ## Materialized inferences -/
+
+/-- One materialized inference: the triple and the rule oxilite names for it. -/
+structure Inference where
+  triple : Triple
+  rule : String
+  deriving Repr
+
+def Inference.line (i : Inference) : String :=
+  s!"{i.rule}\t{i.triple.s.toNTriples} {i.triple.p.toNTriples} {i.triple.o.toNTriples} ."
+
+/-- Read recorded inferences: one per line, the rule, a tab, and the triple in N-Triples. -/
+def parseInferences (src : String) : Except String (List Inference) :=
+  let lines := (src.splitOn "\n").filter fun l => l.any fun c => !c.isWhitespace
+  lines.mapM fun (line : String) =>
+    match line.splitOn "\t" with
+    | [rule, nt] => match NTriples.parse nt with
+      | .ok g => match g.toList with
+        | [t] => .ok { triple := t, rule }
+        | _ => .error s!"not one triple: {nt}"
+      | .error e => .error s!"{nt}: {e}"
+    | _ => .error s!"not 'rule<TAB>triple': {line}"
+
+/-- The rule at the root of a `why` tree, or what oxilite says instead. -/
+def rootRule (text : String) : String :=
+  match WhyNode.parse text with
+  | .ok w => w.rule.getD (w.note.getD w.status)
+  | .error _ => "?"
+
+/-- oxilite's materialized inferences over the data, each with the rule its `why` names. -/
+def materializedInferences (oxilite : String) (data dir : System.FilePath) :
+    ExceptT String IO (List Inference) := do
+  let (proj, store) ← prepare oxilite data dir .owl
+  let base ← storeTriples oxilite store false
+  let all ← storeTriples oxilite store true
+  let key (t : Triple) := t.s.toNTriples ++ " " ++ t.p.toNTriples ++ " " ++ t.o.toNTriples
+  let inf := (all.toList.filter fun t => !decide (t ∈ base)).mergeSort fun a b => key a ≤ key b
+  let ground := inf.filter fun t => isGround (Graph.singleton t)
+  let texts ← whyTexts oxilite proj ground
+  let rules := ground.zip (texts.map rootRule)
+  return inf.map fun t => { triple := t, rule := ((rules.find? (·.1 == t)).map (·.2)).getD "-" }
+
+/-- Certify each inference on its own with Elpi; blank-node inferences are not checked, since a
+fresh blank node of oxilite's names nothing in the data. -/
+def certifyInferences (rules : List Rule) (g : Graph) (infs : List Inference) :
+    Except String (List (Inference × Verdict)) := do
+  let closure ← saturate rules g
+  return infs.map fun i =>
+    let inst := Graph.singleton i.triple
+    (i, if isGround inst then certifyByElpi rules g closure inst
+        else .untranslated "the inference has a blank node")
+
+/-- The exit code of a materialized run, as for answers. -/
+def inferencesExitCode (vs : List (Inference × Verdict)) : UInt32 :=
+  if vs.any (·.2.isRejected) then 2 else if vs.all (·.2.isCertified) then 0 else 1
+
+def renderInferences (vs : List (Inference × Verdict)) : String := Id.run do
+  let n := (vs.filter (·.2.isCertified)).length
+  let mut out := s!"oxilite inferences: {vs.length}, certified: {n}\n"
+  for ((i, v), k) in vs.zipIdx do
+    out := out ++ s!"[{k}] {i.triple.s.toNTriples} {i.triple.p.toNTriples} {i.triple.o.toNTriples}\n"
+    out := out ++ s!"    oxilite: {i.rule}\n    elpi: {v.describe}\n"
+  return out
+
+-- @tg: implements:: [[openspec:oxilite-bridge#Materialized inferences]]
+/-- `DATA --materialized`: certify every inference of oxilite's OWL 2 RL closure, run live or
+read from `--inferred`. -/
+def runMaterialized (rules : List Rule) (a : Args) : IO (UInt32 × String) := do
+  let body (scratch : System.FilePath) : IO (Except String (UInt32 × String)) := (do
+    let g ← readGraph a.data
+    let infs ← match a.inferred with
+      | some p => match parseInferences (← (IO.FS.readFile p : IO String)) with
+        | .ok l => pure l
+        | .error e => throw s!"{p}: {e}"
+      | none => materializedInferences a.oxilite a.data scratch
+    if let some d := a.record then
+      IO.FS.createDirAll d
+      IO.FS.writeFile (d / "inferred.tsv") (String.join (infs.map (·.line ++ "\n")))
+    match certifyInferences rules g infs with
+    | .ok vs => return (inferencesExitCode vs, renderInferences vs)
+    | .error e => throw s!"search failed: {e}" : ExceptT String IO (UInt32 × String)).run
+  let r ← if a.inferred.isNone then IO.FS.withTempDir body else body "."
   return match r with
     | .ok out => out
     | .error e => (3, s!"error: {e}")

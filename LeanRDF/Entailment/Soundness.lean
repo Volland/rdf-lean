@@ -14,19 +14,28 @@ namespace LeanRDF
 
 open Vocab RDFS
 
-/-- A rule is sound when, in every interpretation with the core RDFS conditions and under every
-blank-node mapping, true body instances (with true guards) make the head instance true. -/
-def Rule.Sound (r : Rule) : Prop :=
-  ∀ (I : SimpleInterp), RDFSCore I → ∀ (A : BlankNode → I.Dom) (σ : Subst),
+/-- A rule is sound in a class `C` of interpretations when, in every interpretation of `C` and
+under every blank-node mapping, true body instances (with true guards) make the head instance
+true. -/
+def Rule.SoundIn (C : SimpleInterp → Prop) (r : Rule) : Prop :=
+  ∀ (I : SimpleInterp), C I → ∀ (A : BlankNode → I.Dom) (σ : Subst),
     (∀ gd ∈ r.guards, gd.Holds σ) → (∀ b ∈ r.body, I.Holds A (b.apply σ)) →
     I.Holds A (r.head.apply σ)
+
+/-- A rule is sound when it is sound in every interpretation with the core RDFS conditions. -/
+def Rule.Sound (r : Rule) : Prop := r.SoundIn RDFSCore
+
+/-- Soundness carries over to a smaller class of interpretations. -/
+theorem Rule.SoundIn.mono {C C' : SimpleInterp → Prop} (h : ∀ I, C' I → C I) {r : Rule}
+    (hr : r.SoundIn C) : r.SoundIn C' :=
+  fun I hI => hr I (h I hI)
 
 namespace SimpleInterp
 
 variable {I : SimpleInterp} {A : BlankNode → I.Dom}
 
 /-- Unpack a true triple `s p o` with a fixed IRI predicate. -/
-private theorem holds_iri {s o : Term} {p : IRI} (h : I.Holds A ⟨s, .iri p, o⟩) :
+theorem holds_iri {s o : Term} {p : IRI} (h : I.Holds A ⟨s, .iri p, o⟩) :
     ∃ s' o', I.denote A s = some s' ∧ I.denote A o = some o' ∧ I.IEXT (I.IS p) s' o' := by
   obtain ⟨s', p', o', hs, hp, ho, -, he⟩ := h
   simp only [denote_iri, Option.some.injEq] at hp
@@ -34,7 +43,7 @@ private theorem holds_iri {s o : Term} {p : IRI} (h : I.Holds A ⟨s, .iri p, o�
   exact ⟨s', o', hs, ho, he⟩
 
 /-- Unpack a true triple. -/
-private theorem holds_any {s p o : Term} (h : I.Holds A ⟨s, p, o⟩) :
+theorem holds_any {s p o : Term} (h : I.Holds A ⟨s, p, o⟩) :
     ∃ s' p' o', I.denote A s = some s' ∧ I.denote A p = some p' ∧ I.denote A o = some o' ∧
       I.IEXT p' s' o' := by
   obtain ⟨s', p', o', hs, hp, ho, -, he⟩ := h
@@ -45,7 +54,7 @@ end SimpleInterp
 open SimpleInterp
 
 /-- Two denotations of the same term agree. -/
-private theorem same {α : Type} {t : Option α} {x y : α} (hx : t = some x) (hy : t = some y) :
+theorem same {α : Type} {t : Option α} {x y : α} (hx : t = some x) (hy : t = some y) :
     x = y := by
   rw [hx] at hy; exact Option.some.inj hy
 
@@ -123,7 +132,7 @@ theorem rdfs4b_sound : rdfs4b.Sound := by
   exact Holds.intro I hy rfl rfl (hI.resource _ (I.IEXT_wt _ _ _ h).2.2)
 
 /-- Unpack a true `x rdf:type C` for a fixed class IRI `C`. -/
-private theorem holds_type {I : SimpleInterp} {A : BlankNode → I.Dom} {s : Term} {c : IRI}
+theorem holds_type {I : SimpleInterp} {A : BlankNode → I.Dom} {s : Term} {c : IRI}
     (h : I.Holds A ⟨s, .iri rdf.type, .iri c⟩) :
     ∃ x, I.denote A s = some x ∧ I.InClass x (I.IS c) := by
   obtain ⟨x, o, hx, ho, h⟩ := holds_iri h
@@ -229,13 +238,20 @@ theorem rdfsRules_sound : ∀ r ∈ rdfsRules, r.Sound := by
     · exact rdfsExtraRules_sound r hr
   · exact axiomRules_sound r hr
 
-/-- A derivation by sound rules is true under any blank-node mapping that makes the graph true. -/
-theorem Derives.holds {rules : List Rule} {g : Graph} {t : Triple} (hr : ∀ r ∈ rules, r.Sound)
-    (I : SimpleInterp) (hI : RDFSCore I) (A : BlankNode → I.Dom) (hg : ∀ u ∈ g, I.Holds A u)
-    (h : Derives rules g t) : I.Holds A t := by
+/-- A derivation by rules sound in `C` is true, in every interpretation of `C`, under any
+blank-node mapping that makes the graph true. -/
+theorem Derives.holdsIn {C : SimpleInterp → Prop} {rules : List Rule} {g : Graph} {t : Triple}
+    (hr : ∀ r ∈ rules, r.SoundIn C) (I : SimpleInterp) (hI : C I) (A : BlankNode → I.Dom)
+    (hg : ∀ u ∈ g, I.Holds A u) (h : Derives rules g t) : I.Holds A t := by
   induction h with
   | fact hu => exact hg _ hu
   | apply r σ hmem hgd _ ih => exact hr r hmem I hI A σ hgd ih
+
+/-- A derivation by sound rules is true under any blank-node mapping that makes the graph true. -/
+theorem Derives.holds {rules : List Rule} {g : Graph} {t : Triple} (hr : ∀ r ∈ rules, r.Sound)
+    (I : SimpleInterp) (hI : RDFSCore I) (A : BlankNode → I.Dom) (hg : ∀ u ∈ g, I.Holds A u)
+    (h : Derives rules g t) : I.Holds A t :=
+  Derives.holdsIn hr I hI A hg h
 
 -- @tg: implements:: [[openspec:rdfs-entailment#Soundness]]
 /-- Soundness (the key theorem): every triple derivable from `g` by `rdfsRules` is RDFS-entailed
@@ -286,6 +302,17 @@ private theorem holds_of_instantiate (I : SimpleInterp) (A : BlankNode → I.Dom
   obtain ⟨s, p, o, hs, hp, ho, hP, he⟩ := h
   exact ⟨s, p, o, denote_instantiate I A μ hs, denote_instantiate I A μ hp,
     denote_instantiate I A μ ho, hP, he⟩
+
+/-- Soundness for graph queries in any class of interpretations whose properties are resources:
+if every triple of `q`, with its blank nodes replaced by `μ`, is derivable from `g` by rules
+sound in `C`, then every interpretation of `C` that satisfies `g` satisfies `q`. -/
+theorem Derives.satisfies_graph {C : SimpleInterp → Prop} {rules : List Rule}
+    (hr : ∀ r ∈ rules, r.SoundIn C) {g q : Graph} (μ : BlankNode → Term)
+    (h : ∀ t ∈ q, Derives rules g (t.instantiate μ)) (I : SimpleInterp) (hC : C I)
+    (hPR : ∀ x, I.IP x → I.IR x) (hg : I.Satisfies g) : I.Satisfies q := by
+  obtain ⟨A, hA, hg⟩ := hg
+  exact ⟨instAssign I A μ, instAssign_IR I hPR A hA μ, fun t ht =>
+    holds_of_instantiate I A μ (Derives.holdsIn hr I hC A hg (h t ht))⟩
 
 /-- Soundness for graph queries: if every triple of `q`, with its blank nodes replaced by `μ`,
 is derivable from `g`, then `g` RDFS-entails `q` (the blank nodes of `q` are existential,
