@@ -28,3 +28,4 @@ import Tests.Datasets.TriG
 import Tests.Datasets.W3C
 import Tests.Xsd.Values
 import Tests.Text.Regex
+import Tests.Guide.Core

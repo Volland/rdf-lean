@@ -1,0 +1,11 @@
+oxilite answers: 2
+[0] ?unit = <http://example.org/org#research>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+[1] ?unit = <http://example.org/org#compilers>
+    elpi: certified
+    why:  untranslated (oxilite gave no rule: explained above)
+    verdict: CERTIFIED
+
+# exit 0

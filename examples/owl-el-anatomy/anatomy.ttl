@@ -1,0 +1,40 @@
+@prefix : <http://example.org/anatomy#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# A small medical ontology in OWL 2 EL, in the style of SNOMED CT: classes defined by what they
+# are and where they are. leanrdf-classify prints the subsumptions it can certify.
+
+# Anatomy: parts and locations.
+:Heart rdfs:subClassOf :Organ .
+:Lung rdfs:subClassOf :Organ .
+:Organ rdfs:subClassOf :BodyStructure .
+:HeartValve rdfs:subClassOf :BodyStructure ,
+    [ owl:onProperty :partOf ; owl:someValuesFrom :Heart ] .
+:MitralValve rdfs:subClassOf :HeartValve .
+
+# Findings located somewhere: being in a part of the heart is being in the heart region.
+:locatedIn rdfs:subPropertyOf :hasSite .
+:Inflammation rdfs:subClassOf :Disorder .
+
+:Carditis owl:equivalentClass [ owl:intersectionOf ( :Inflammation
+    [ owl:onProperty :hasSite ; owl:someValuesFrom :Heart ] ) ] .
+:HeartDisorder owl:equivalentClass [ owl:intersectionOf ( :Disorder
+    [ owl:onProperty :hasSite ; owl:someValuesFrom :Heart ] ) ] .
+:OrganDisorder owl:equivalentClass [ owl:intersectionOf ( :Disorder
+    [ owl:onProperty :hasSite ; owl:someValuesFrom :Organ ] ) ] .
+
+# Endocarditis is an inflammation located in the heart.
+:Endocarditis rdfs:subClassOf :Inflammation ,
+    [ owl:onProperty :locatedIn ; owl:someValuesFrom :Heart ] .
+# Pneumonia: an inflammation of the lung, defined with three conjuncts.
+:Pneumonia owl:equivalentClass [ owl:intersectionOf ( :Inflammation :InfectiousDisease
+    [ owl:onProperty :hasSite ; owl:someValuesFrom :Lung ] ) ] .
+:BacterialPneumonia rdfs:subClassOf :Pneumonia .
+:LobarPneumonia rdfs:subClassOf :Inflammation, :InfectiousDisease ,
+    [ owl:onProperty :hasSite ; owl:someValuesFrom :Lung ] .
+
+# An error in the ontology: a disorder of a structure that cannot exist.
+:Unobtainium rdfs:subClassOf owl:Nothing .
+:PhantomPain rdfs:subClassOf :Disorder ,
+    [ owl:onProperty :hasSite ; owl:someValuesFrom :Unobtainium ] .

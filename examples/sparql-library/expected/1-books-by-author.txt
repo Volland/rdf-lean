@@ -1,0 +1,7 @@
+?title	?name	?pages
+"The Fifth Season"@en	"N. K. Jemisin"	468
+"Solaris"@en	"Stanisław Lem"	204
+"The Cyberiad"@en	"Stanisław Lem"	
+"A Wizard of Earthsea"@en	"Ursula K. Le Guin"	183
+"The Dispossessed"@en	"Ursula K. Le Guin"	387
+# exit 0

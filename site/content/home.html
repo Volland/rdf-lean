@@ -5,6 +5,7 @@
 <p class="lead">LeanRDF is a Lean 4 library with a native RDF 1.1 data model and the W3C model theory of RDF and RDFS. Elpi (λProlog) searches for derivations; a verified Lean checker turns them into theorems of the form <code>g.RDFSEntails q</code>.</p>
 <div class="btns">
 <a class="btn" href="{{BASE}}/book/">Read the book</a>
+<a class="btn alt" href="{{BASE}}/docs/">Documentation</a>
 <a class="btn alt" href="{{BASE}}/examples/">See examples</a>
 <a class="btn alt" href="https://github.com/Volland/rdf-lean">GitHub</a>
 </div>
@@ -27,6 +28,10 @@
 <div class="card"><h3>67 rules, all proven sound</h3><p>Every RDFS 1.1 pattern, GrdfD1, the container rules and the axiomatic triples, as data with guards, each with a soundness proof.</p></div>
 <div class="card"><h3>Certificates and a verified checker</h3><p>Proof DAGs in JSON. <code>check_sound</code> gives <code>Derives</code>; <code>checkQuery_sound</code> gives RDFS entailment. Exports to CertifyingDatalog.</p></div>
 <div class="card"><h3>Not vacuous, by proof</h3><p>A concrete RDFS model and countermodels for non-entailments, checked by the kernel, show the semantics is neither empty nor trivial.</p></div>
+<div class="card"><h3>SPARQL 1.1, proven</h3><p>The algebra, a declarative semantics and an evaluator proven to compute it, with paths, aggregates and subqueries. Passes the W3C query suite.</p></div>
+<div class="card"><h3>OWL 2 RL and EL</h3><p>60 OWL 2 RL rules and 10 EL rules proven sound against the OWL 2 RDF-Based conditions, a model that shows they are consistent, and certified classification.</p></div>
+<div class="card"><h3>SHACL Core, both directions</h3><p>The SHACL Core semantics and a validator proven to report a violation exactly when the data does not conform. Passes all 98 W3C core tests.</p></div>
+<div class="card"><h3>Certifying oxilite</h3><p>oxilite finds and stores, LeanRDF proves: its answers and its OWL closure, checked from its own explanations or from Elpi.</p></div>
 </div>
 </section>
 
@@ -35,7 +40,9 @@
 <div class="stats">
 <div class="stat"><b>313 / 313</b><span>W3C Turtle tests</span></div>
 <div class="stat"><b>70 / 70</b><span>W3C N-Triples tests</span></div>
-<div class="stat"><b>67</b><span>rules proven sound</span></div>
+<div class="stat"><b>354</b><span>W3C SPARQL 1.1 query tests</span></div>
+<div class="stat"><b>98 / 98</b><span>W3C SHACL Core tests</span></div>
+<div class="stat"><b>137</b><span>RDFS, OWL 2 RL and EL rules proven sound</span></div>
 <div class="stat"><b>0</b><span><code>sorry</code> or new axioms</span></div>
 <div class="stat"><b>3</b><span>standard axioms used: <code>propext</code>, <code>Quot.sound</code>, <code>Classical.choice</code></span></div>
 </div>
@@ -63,8 +70,9 @@ Verdict: ENTAILED. The certificate was accepted by the verified checker (compile
 <section>
 <h2>Start here</h2>
 <div class="grid">
-<div class="card"><h3><a href="{{BASE}}/book/why/">The book</a></h3><p>Thirteen short chapters: from triples to interpretations, rules, countermodels, Elpi, certificates, SPARQL, OWL 2 RL and SHACL.</p></div>
-<div class="card"><h3><a href="{{BASE}}/examples/">Examples</a></h3><p>Worked, tested Lean snippets: build graphs, parse Turtle, derive, certify, find a countermodel.</p></div>
+<div class="card"><h3><a href="{{BASE}}/book/why/">The book</a></h3><p>Fifteen short chapters: from triples to interpretations, rules, countermodels, Elpi, certificates, your own rules, certifying oxilite, SPARQL, OWL 2 RL and EL, and SHACL.</p></div>
+<div class="card"><h3><a href="{{BASE}}/docs/">Documentation</a></h3><p>The manual: installation, every command-line tool, the library API of each package, the certificate format, testing and contributing.</p></div>
+<div class="card"><h3><a href="{{BASE}}/examples/">Examples</a></h3><p>Worked, tested examples: Lean snippets from the test suite and runnable examples for every tool, checked in CI.</p></div>
 <div class="card"><h3><a href="{{BASE}}/reference/">Reference</a></h3><p>The modules and the main definitions and theorems, with where to find them.</p></div>
 </div>
 </section>

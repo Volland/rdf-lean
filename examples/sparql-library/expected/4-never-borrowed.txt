@@ -1,0 +1,4 @@
+?book
+<http://example.org/library#cyberiad>
+<http://example.org/library#dispossessed>
+# exit 0

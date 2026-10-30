@@ -1,0 +1,22 @@
+LeanRDF: 12 data triples, 5 query triples
+Elpi closure under 67 rules: 209 triples
+Query instance: _:c ↦ <http://example.org/uni#logic101>
+Query instance: _:s ↦ <http://example.org/uni#emmy>
+Query instance: _:t ↦ <http://example.org/uni#marie>
+Certificate: 14 nodes, goals [9, 2, 12, 10, 13]
+  [0] <http://example.org/uni#Lecturer> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/uni#Staff>  (fact)
+  [1] <http://example.org/uni#Student> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/uni#Person>  (fact)
+  [2] <http://example.org/uni#emmy> <http://example.org/uni#enrolledIn> <http://example.org/uni#logic101>  (fact)
+  [3] <http://example.org/uni#enrolledIn> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/uni#Student>  (fact)
+  [4] <http://example.org/uni#enrolledIn> <http://www.w3.org/2000/01/rdf-schema#range> <http://example.org/uni#Course>  (fact)
+  [5] <http://example.org/uni#leads> <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://example.org/uni#teaches>  (fact)
+  [6] <http://example.org/uni#marie> <http://example.org/uni#leads> <http://example.org/uni#logic101>  (fact)
+  [7] <http://example.org/uni#teaches> <http://www.w3.org/2000/01/rdf-schema#domain> <http://example.org/uni#Lecturer>  (fact)
+  [8] <http://example.org/uni#emmy> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/uni#Student>  (rdfs2 [3, 2])
+  [9] <http://example.org/uni#logic101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/uni#Course>  (rdfs3 [4, 2])
+  [10] <http://example.org/uni#marie> <http://example.org/uni#teaches> <http://example.org/uni#logic101>  (rdfs7 [5, 6])
+  [11] <http://example.org/uni#marie> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/uni#Lecturer>  (rdfs2 [7, 10])
+  [12] <http://example.org/uni#emmy> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/uni#Person>  (rdfs9 [1, 8])
+  [13] <http://example.org/uni#marie> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/uni#Staff>  (rdfs9 [0, 11])
+Verdict: ENTAILED. The certificate was accepted by the verified checker (compiled).
+# exit 0

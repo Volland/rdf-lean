@@ -1,0 +1,3 @@
+# Is there a book longer than 400 pages?
+PREFIX : <http://example.org/library#>
+ASK { ?book :pages ?n . FILTER (?n > 400) }

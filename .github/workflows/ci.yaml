@@ -1,5 +1,5 @@
-# Build and test every Lake package on every push and pull request, and run the demo and the
-# classifier once.
+# Build and test every Lake package on every push and pull request, run the demo and the
+# classifier once, and check the runnable examples against their recorded outputs.
 # The contract this workflow keeps is checked by scripts/check_release.py.
 name: CI
 
@@ -39,6 +39,8 @@ jobs:
           lake-package-directory: sparql
           build: true
           test: true
+      - name: Examples (SPARQL)
+        run: scripts/examples.sh sparql
 
   owl:
     name: leanrdf-owl (OWL 2 RL rules)
@@ -61,6 +63,8 @@ jobs:
           lake-package-directory: shacl
           build: true
           test: true
+      - name: Examples (SHACL)
+        run: scripts/examples.sh shacl
 
   elpi:
     name: leanrdf-elpi (bridge and demo)
@@ -78,3 +82,5 @@ jobs:
       - name: Classify the EL example
         working-directory: elpi
         run: lake exe leanrdf-classify examples/el-ontology.ttl
+      - name: Examples (demo, oxilite, classifier)
+        run: scripts/examples.sh elpi

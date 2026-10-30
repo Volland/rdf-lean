@@ -1,0 +1,9 @@
+@prefix : <http://example.org/hr#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:Contractor rdfs:subClassOf :Employee .
+
+:ada a :Employee ; :name "Ada" ; :email "ada@example.org" ; :age 36 .
+:grace a :Contractor ; :name "Grace" ; :email "grace@example.org" ; :age 41 ; :manager :ada .
+
+:compilers a :Team ; :member :ada, :grace ; :lead :ada .

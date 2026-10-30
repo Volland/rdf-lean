@@ -7,3 +7,4 @@ import BridgeTests.Demo
 import BridgeTests.Oxilite
 import BridgeTests.OxiliteOwl
 import BridgeTests.Classify
+import BridgeTests.CustomRule

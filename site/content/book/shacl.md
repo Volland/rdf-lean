@@ -1,6 +1,6 @@
 ---
 title: SHACL, proven in both directions
-order: 12
+order: 14
 summary: The SHACL Core semantics in Lean, and a validator proven to report a violation exactly when the data does not conform.
 ---
 # SHACL, proven in both directions
@@ -36,6 +36,45 @@ theorem validate_sound (G : Graph) (S : List Shape) {r : Result}
 ```
 
 The first says the report is right in both directions: "conforms" is never wrong, and neither is "does not conform". The second says every result names a shape and a component that really fails at that focus node.
+
+## A worked example
+
+The employees example (`examples/shacl-employees/`) has a shapes graph: every employee has exactly one name, an e-mail address that matches a pattern, an age between 16 and 99 and at most one manager who is an employee, and every team's lead is one of its members.
+
+```
+:EmployeeShape a sh:NodeShape ;
+  sh:targetClass :Employee ;
+  sh:property [ sh:path :name ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+  sh:property [ sh:path :email ; sh:minCount 1 ; sh:pattern "^[^@ ]+@[^@ ]+$" ] ;
+  sh:property [ sh:path :age ; sh:datatype xsd:integer ; sh:minInclusive 16 ; sh:maxInclusive 99 ] ;
+  sh:property [ sh:path :manager ; sh:maxCount 1 ; sh:class :Employee ] .
+:TeamShape a sh:NodeShape ; sh:targetClass :Team ;
+  sh:property [ sh:path :lead ; sh:minCount 1 ; sh:node :MemberOfItsTeam ] .
+:MemberOfItsTeam a sh:NodeShape ;
+  sh:property [ sh:path [ sh:inversePath :member ] ; sh:minCount 1 ] .
+```
+
+`:Contractor rdfs:subClassOf :Employee` in the data makes every contractor a focus node of `:EmployeeShape`, because `sh:targetClass` follows `rdfs:subClassOf`. The invalid data breaks six constraints, and `leanrdf-shacl validate` reports six results and exits with 1. One of them:
+
+```
+[ a sh:ValidationResult ;
+  sh:focusNode <http://example.org/hr#kernel> ;
+  sh:resultPath <http://example.org/hr#lead> ;
+  sh:value <http://example.org/hr#alan> ;
+  sh:sourceConstraintComponent <http://www.w3.org/ns/shacl#NodeConstraintComponent> ; ... ]
+```
+
+The kernel team's lead, Alan, does not conform to `:MemberOfItsTeam`: nothing reaches him by the inverse of `:member`. The result names the outer constraint (`sh:node`), not the inner `sh:minCount`, as §4.7.1 says it should.
+
+In Lean, the report becomes a statement about the data (`shacl/ShaclTests/Examples.lean`):
+
+```lean
+theorem good_conforms : DataConforms good shapes :=
+  (validate_conforms good shapes).1 (by native_decide)
+
+theorem bad_does_not_conform : ¬ DataConforms bad shapes := fun h =>
+  absurd ((validate_conforms bad shapes).2 h) (by native_decide)
+```
 
 ## Tested against the W3C suite and oxilite
 

@@ -1,6 +1,6 @@
 ---
 title: SPARQL, specified and proven
-order: 10
+order: 12
 summary: The SPARQL 1.1 algebra in Lean, a declarative semantics, and an evaluator proven to compute it.
 ---
 # SPARQL, specified and proven
@@ -44,6 +44,40 @@ theorem runQuery_answer (D : Dataset) (q : Query) : Spec.Answer D q (Eval.runQue
 ```
 
 Sorting needs an order that is total and transitive, which SPARQL's comparison operators are not (a string and a number do not compare). Each key is mapped to a category, a rational number and a string, and those triples are ordered lexicographically. That order is proven total and transitive, so `List.mergeSort` provably returns a sorted list (`orderBy_sorted`).
+
+## Paths, aggregates and subqueries
+
+Real queries use more than the core algebra. Property paths (`:knows+`), grouping with aggregates (`COUNT`, `AVG`, `GROUP_CONCAT`) and subqueries are pattern constructors too. Their operators are *shared*: one function computes, for example, the groups and aggregate values of a list of solutions, and both the specification and the evaluator apply it to their sub-results. The theorem stays unconditional, but for these constructors it only says that both sides agree. Whether the shared operator matches §18 is a matter of reading it against the text and of the W3C tests, so the shared operators belong to the trusted transcription, as the semantic definitions do.
+
+## A worked query
+
+The library example (`examples/sparql-library/`) has five books by three authors. One has no page count. The question is how many books each author has and how long they are on average:
+
+```
+SELECT ?name (COUNT(?book) AS ?books) (AVG(?pages) AS ?avgPages)
+WHERE { ?book :author ?a . ?a :name ?name . OPTIONAL { ?book :pages ?pages } }
+GROUP BY ?name ORDER BY DESC(?books) ?name
+```
+
+```
+?name	?books	?avgPages
+"Stanisław Lem"	2
+"Ursula K. Le Guin"	2	"285"^^<http://www.w3.org/2001/XMLSchema#decimal>
+"N. K. Jemisin"	1	"468"^^<http://www.w3.org/2001/XMLSchema#decimal>
+```
+
+Lem's average is unbound. *The Cyberiad* has no page count, so `?pages` is unbound in its row, and evaluating an unbound variable is an error (§17.2). By §18.5 an error in the values makes `AVG` an error, and an error in a `SELECT` expression leaves the variable unbound. The W3C test `agg-err-01` checks this behaviour for a value that is not a number. oxilite, like Oxigraph, skips the unbound value and answers `204` for Lem. That is a difference between the engines, written down, and the specification text decides it.
+
+From Lean, the same pipeline is a few lines (`sparql/SparqlTests/Examples.lean`):
+
+```lean
+private def ask (q : String) : Except String Answer := do
+  execute D (← (parseQuery q).mapError toString)
+
+#guard (ask "PREFIX : <http://example.org/>
+  SELECT ?n WHERE { :ada :knows ?f . ?f :name ?n } ORDER BY ?n").toOption.map (·.toTsv)
+  == some "?n\n\"Alan\"\n\"Grace\"\n"
+```
 
 ## What it is for
 

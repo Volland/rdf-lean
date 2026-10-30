@@ -1,0 +1,4 @@
+# A new graph: who wrote what, as one triple per book.
+PREFIX : <http://example.org/library#>
+CONSTRUCT { ?a :wrote ?book }
+WHERE { ?book :author ?a }

@@ -1,0 +1,6 @@
+<http://example.org/library#jemisin> <http://example.org/library#wrote> <http://example.org/library#fifthseason> .
+<http://example.org/library#leguin> <http://example.org/library#wrote> <http://example.org/library#dispossessed> .
+<http://example.org/library#leguin> <http://example.org/library#wrote> <http://example.org/library#earthsea> .
+<http://example.org/library#lem> <http://example.org/library#wrote> <http://example.org/library#cyberiad> .
+<http://example.org/library#lem> <http://example.org/library#wrote> <http://example.org/library#solaris> .
+# exit 0

@@ -1,10 +1,24 @@
 ---
 title: Examples
-summary: Worked, tested examples of LeanRDF: building graphs, parsing, deriving, certifying, countermodels and the demo.
+summary: Worked, tested examples of LeanRDF: Lean snippets from the test suite, and runnable examples for every tool, checked in CI.
 ---
 # Examples
 
-Every snippet here comes from the test suite, which compiles and runs on every `lake test`; the file is named under each heading. The snippets share these helpers (the test files define their own equivalents):
+There are two kinds of examples, and both are tested.
+
+- **Runnable examples** in [`examples/`](https://github.com/Volland/rdf-lean/tree/main/examples): data, queries and shapes for every command-line tool, with the expected output of each run in `expected/`. `scripts/examples.sh` runs them all and compares the output, and CI runs it on every push.
+- **Lean snippets** from the test suite, which compiles on every `lake test`. Each heading names its file.
+
+| Example | Tool | Shows |
+|---|---|---|
+| `examples/rdfs-university/` | `leanrdf-demo` | RDFS entailment through subclass chains, domains, ranges and subproperties, and an honest "not derived" |
+| `examples/sparql-library/` | `leanrdf-sparql` | `OPTIONAL`, aggregates, date filters, `NOT EXISTS`, `CONSTRUCT` and `ASK`, and a difference from oxilite |
+| `examples/shacl-employees/` | `leanrdf-shacl` | a conforming and a non-conforming graph, six kinds of violation |
+| `examples/owl-rl-family/` | `leanrdf-oxilite` | oxilite's OWL 2 RL answers and closure certified from a recording, including a wrong explanation |
+| `examples/owl-el-anatomy/` | `leanrdf-classify` | a SNOMED-style EL ontology classified, with an unsatisfiable class |
+| `elpi/examples/` | `leanrdf-demo` | the pet ontology used throughout the book |
+
+The Lean snippets share these helpers (the test files define their own equivalents):
 
 ```lean
 open LeanRDF Vocab
@@ -184,3 +198,147 @@ $ lake exe leanrdf-sparql query --location ../elpi/BridgeTests/data/oxilite/pets
 
 `scripts/sparql-diff.sh /path/to/oxilite` runs the whole suite on both engines and writes `sparql/diff-report.md`.
 
+
+## 10. A rule of your own
+
+*elpi/BridgeTests/CustomRule.lean*. A new rule, its soundness proof, Elpi saturation with it, and the theorem. The book chapter [Adding a rule of your own](/book/custom-rule/) goes through it step by step.
+
+```lean
+def domainViaSub : Rule :=
+  { name := "domain-via-sub"
+    body := [⟨v "a", c rdfs.subPropertyOf, v "b"⟩, ⟨v "b", c rdfs.domain, v "c"⟩,
+             ⟨v "x", v "a", v "y"⟩]
+    head := ⟨v "x", c rdf.type, v "c"⟩ }
+
+theorem domainViaSub_sound : domainViaSub.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨a, b, ha, hb1, h1⟩ := holds_iri (hb _ (.head _))
+  obtain ⟨b', k, hb2, hk, h2⟩ := holds_iri (hb _ (.tail _ (.head _)))
+  obtain ⟨x, a', y, hx, ha', hy, h3⟩ := holds_any (hb _ (.tail _ (.tail _ (.head _))))
+  cases same hb1 hb2
+  cases same ha ha'
+  exact Holds.intro I hx rfl hk (hI.domain _ _ _ _ h2 (hI.subProp_ext _ _ h1 _ _ h3))
+
+private def cert : Certificate :=
+  ((saturate myRules g) >>= fun cl => certify cl (Graph.singleton goal)).toOption.getD default
+
+theorem marie_lecturer : g.RDFSEntails (Graph.singleton goal) :=
+  Derives.my_sound (checkB_sound (c := cert) (by native_decide))
+```
+
+## 11. RDFS on a university
+
+*examples/rdfs-university/*. Is some staff member teaching a course that a student takes? The data never says so. Marie *leads* a course, `leads` is a subproperty of `teaches`, `teaches` has domain `Lecturer`, and lecturers are staff.
+
+```
+$ cd examples/rdfs-university
+$ leanrdf-demo university.nt query-staff-teaches.nt
+Query instance: _:c ↦ <http://example.org/uni#logic101>
+Query instance: _:s ↦ <http://example.org/uni#emmy>
+Query instance: _:t ↦ <http://example.org/uni#marie>
+Certificate: 14 nodes, goals [9, 2, 12, 10, 13]
+  ...
+  [10] <…#marie> <…#teaches> <…#logic101>  (rdfs7 [5, 6])
+  [11] <…#marie> rdf:type <…#Lecturer>  (rdfs2 [7, 10])
+  [13] <…#marie> rdf:type <…#Staff>  (rdfs9 [0, 11])
+Verdict: ENTAILED. The certificate was accepted by the verified checker (compiled).
+```
+
+`query-kurt-teaches.nt` asks whether Kurt, a professor, teaches something. Being a professor says nothing about teaching, so the answer is `NOT DERIVED` and the exit code is 1. The tool does not claim the opposite: it reports that no derivation was found.
+
+## 12. SPARQL from Lean and from the command line
+
+*sparql/SparqlTests/Examples.lean* and *examples/sparql-library/*.
+
+```lean
+private def ask (q : String) : Except String Answer := do
+  execute D (← (parseQuery q).mapError toString)
+
+#guard (ask "PREFIX : <http://example.org/>
+  SELECT ?n WHERE { :ada :knows ?f . ?f :name ?n } ORDER BY ?n").toOption.map (·.toTsv)
+  == some "?n\n\"Alan\"\n\"Grace\"\n"
+```
+
+```
+$ leanrdf-sparql query --location library.ttl --query "$(cat 3-on-loan.rq)" --results-format tsv
+?member	?title	?due
+"Ben"	"The Fifth Season"@en	"2026-10-28T12:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+"Ana"	"Solaris"@en	"2026-11-02T12:00:00Z"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+```
+
+`2-books-per-author.rq` leaves Stanisław Lem's average page count unbound, because one of his books has no page count. That follows §18.5, while oxilite answers `204`. The [SPARQL chapter](/book/sparql/) explains why.
+
+## 13. SHACL from Lean and from the command line
+
+*shacl/ShaclTests/Examples.lean* and *examples/shacl-employees/*.
+
+```lean
+theorem good_conforms : DataConforms good shapes :=
+  (validate_conforms good shapes).1 (by native_decide)
+
+theorem bad_does_not_conform : ¬ DataConforms bad shapes := fun h =>
+  absurd ((validate_conforms bad shapes).2 h) (by native_decide)
+```
+
+```
+$ leanrdf-shacl validate --data invalid.ttl --shapes shapes.ttl
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+[ a sh:ValidationReport ;
+  sh:conforms false ;
+  sh:result
+    [ a sh:ValidationResult ;
+      sh:focusNode <http://example.org/hr#alan> ;
+      sh:resultPath <http://example.org/hr#name> ;
+      sh:sourceConstraintComponent <http://www.w3.org/ns/shacl#MaxCountConstraintComponent> ; ... ],
+    ...
+```
+
+The six results are two names for Alan, his manager who is not an employee, a contractor with no e-mail address and an age of 12, an e-mail address without an `@`, and a team lead who is not in the team. The command exits with 1.
+
+## 14. An OWL 2 RL certificate
+
+*owl/OwlTests/Rules.lean*. One step of prp-inv1, checked under `owlRules` and rejected under the RDFS rules, which do not know it.
+
+```lean
+#guard (check owlRules family invCert).toOption == some (T (ex "b") (ex "hasParent") (ex "a"))
+#guard (check RDFS.rdfsRules family invCert).toOption.isNone
+
+theorem family_entails : family.OWLEntails (Graph.singleton (T (ex "b") (ex "hasParent") (ex "a"))) :=
+  Derives.owl_sound (checkB_sound (c := invCert) (by native_decide))
+```
+
+## 15. Auditing oxilite's OWL closure
+
+*examples/owl-rl-family/*, replayed from a recording, so oxilite is not needed.
+
+```
+$ leanrdf-oxilite data.ttl pattern.ttl --profile owl --results recorded/results.json --why-dir recorded
+[1] ?unit = <http://example.org/org#compilers>
+    elpi: certified
+    why:  untranslated (oxilite gave no rule: explained above)
+    verdict: CERTIFIED
+$ leanrdf-oxilite data.ttl --materialized --inferred recorded/inferred.tsv
+oxilite inferences: 31, certified: 16
+```
+
+oxilite's answer is right, but its explanation is circular: it explains the transitive `partOf` triple by `prp-inv` from its own inverse. LeanRDF certifies the answer from Elpi's derivation by `prp-trp` instead. The 15 inferences that are not certified are all `x rdf:type owl:Thing`, which OWL 2 RL does not derive. See [Certifying a database](/book/oxilite/).
+
+## 16. Classifying an EL ontology
+
+*examples/owl-el-anatomy/*. Diseases defined by what they are and where they are.
+
+```
+$ leanrdf-classify anatomy.ttl
+certified subsumptions: 36, unsatisfiable classes: 2
+...
+:Endocarditis ⊑ :Carditis
+:Endocarditis ⊑ :HeartDisorder
+:LobarPneumonia ⊑ :Pneumonia
+:Pneumonia ⊑ :OrganDisorder
+...
+:PhantomPain ⊑ owl:Nothing (unsatisfiable)
+:Unobtainium ⊑ owl:Nothing (unsatisfiable)
+```
+
+Endocarditis is an inflammation `locatedIn` the heart, and `locatedIn` is a subproperty of `hasSite`, so it has a site in the heart (el-ex-sub) and is carditis (el-int-i2). Lobar pneumonia meets all three conjuncts of pneumonia's definition (el-int-i3). Every line is a certified OWL entailment.

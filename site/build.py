@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Static site generator for the LeanRDF site (standard library only).
 
-Reads site/content (home.html, book/*.md, *.md pages, each Markdown file with a small front
+Reads site/content (home.html, book/*.md, docs/*.md, *.md pages, each Markdown file with a small front
 matter) and writes _site/ for GitHub Pages; the Pages workflow publishes that directory.
 Usage: python3 site/build.py
 """
@@ -138,7 +138,7 @@ def front(text: str):
     return meta, text
 
 # ---------------------------------------------------------------- layout
-NAV = [("/", "Home"), ("/book/", "Book"), ("/examples/", "Examples"), ("/reference/", "Reference"),
+NAV = [("/", "Home"), ("/book/", "Book"), ("/docs/", "Docs"), ("/examples/", "Examples"), ("/reference/", "Reference"),
        ("/roadmap/", "Roadmap"), (REPO, "GitHub")]
 
 def page(title, body, path, desc="", extra_nav="", article=True):
@@ -186,6 +186,30 @@ def load(dirname):
         items.append((meta, body))
     return items
 
+def section(dirname, label, title, intro, desc):
+    """A section of ordered pages (the book, the docs) with a contents sidebar and a pager."""
+    pages = sorted(load(dirname), key=lambda x: int(x[0].get("order", "99")))
+    def toc(cur):
+        li = "".join(
+            f'<li><a href="{BASE}/{dirname}/{m["slug"]}/"{" aria-current=page" if m["slug"] == cur else ""}>{html.escape(m["title"])}</a></li>'
+            for m, _ in pages)
+        return f'<aside class="toc"><strong>{label}</strong><ol>{li}</ol></aside>'
+    cards = "".join(
+        f'<li><a href="{BASE}/{dirname}/{m["slug"]}/"><strong>{html.escape(m["title"])}</strong></a><br>{html.escape(m.get("summary",""))}</li>'
+        for m, _ in pages)
+    write(f"{dirname}/index.html", page(title, f"{intro}<ol class=chapters>{cards}</ol>",
+        f"/{dirname}/", desc=desc))
+    for n, (m, body) in enumerate(pages):
+        prev = pages[n - 1][0] if n else None
+        nxt = pages[n + 1][0] if n + 1 < len(pages) else None
+        pn = '<nav class="pager">'
+        pn += f'<a href="{BASE}/{dirname}/{prev["slug"]}/">← {html.escape(prev["title"])}</a>' if prev else "<span></span>"
+        pn += f'<a href="{BASE}/{dirname}/{nxt["slug"]}/">{html.escape(nxt["title"])} →</a>' if nxt else "<span></span>"
+        pn += "</nav>"
+        write(f"{dirname}/{m['slug']}/index.html", page(m["title"],
+            f"<article>{md(body)}</article>{pn}", f"/{dirname}/", desc=m.get("summary", ""),
+            extra_nav=toc(m["slug"])))
+
 def main():
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -196,29 +220,17 @@ def main():
     home = (SRC / "home.html").read_text(encoding="utf-8").replace("{{BASE}}", BASE)
     write("index.html", page("RDF semantics in Lean 4", home, "/", article=False))
 
-    chapters = sorted(load("book"), key=lambda x: int(x[0].get("order", "99")))
-    def toc(cur):
-        li = "".join(
-            f'<li><a href="{BASE}/book/{m["slug"]}/"{" aria-current=page" if m["slug"] == cur else ""}>{html.escape(m["title"])}</a></li>'
-            for m, _ in chapters)
-        return f'<aside class="toc"><strong>The book</strong><ol>{li}</ol></aside>'
-    cards = "".join(
-        f'<li><a href="{BASE}/book/{m["slug"]}/"><strong>{html.escape(m["title"])}</strong></a><br>{html.escape(m.get("summary",""))}</li>'
-        for m, _ in chapters)
-    write("book/index.html", page("The LeanRDF book",
+    section("book", "The book", "The LeanRDF book",
         "<h1>RDF semantics in Lean 4: a short book</h1><p>From triples to model theory to "
         "certified entailment, with LeanRDF as the running example. Read it in order: each "
-        f"chapter builds on the previous one.</p><ol class=chapters>{cards}</ol>",
-        "/book/", desc="A short book on RDF semantics in Lean 4 with LeanRDF."))
-    for n, (m, body) in enumerate(chapters):
-        prev = chapters[n - 1][0] if n else None
-        nxt = chapters[n + 1][0] if n + 1 < len(chapters) else None
-        pn = '<nav class="pager">'
-        pn += f'<a href="{BASE}/book/{prev["slug"]}/">← {html.escape(prev["title"])}</a>' if prev else "<span></span>"
-        pn += f'<a href="{BASE}/book/{nxt["slug"]}/">{html.escape(nxt["title"])} →</a>' if nxt else "<span></span>"
-        pn += "</nav>"
-        write(f"book/{m['slug']}/index.html", page(m["title"],
-            f"<article>{md(body)}</article>{pn}", "/book/", desc=m.get("summary", ""), extra_nav=toc(m["slug"])))
+        "chapter builds on the previous one.</p>",
+        "A short book on RDF semantics in Lean 4 with LeanRDF.")
+    section("docs", "Documentation", "LeanRDF documentation",
+        "<h1>Documentation</h1><p>How to install, run and use LeanRDF: the command-line tools, "
+        "the library API of every package, the certificate format, testing and contributing. "
+        "The <a href=\"" + BASE + "/book/\">book</a> explains the ideas; these pages are the "
+        "manual.</p>",
+        "The LeanRDF manual: installation, tools, library API, formats and contributing.")
 
     for f in sorted(SRC.glob("*.md")):
         m, body = front(f.read_text(encoding="utf-8").replace("{{BASE}}", BASE))

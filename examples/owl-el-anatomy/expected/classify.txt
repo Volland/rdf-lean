@@ -1,0 +1,41 @@
+certified subsumptions: 36, unsatisfiable classes: 2
+:BacterialPneumonia ⊑ :Disorder
+:BacterialPneumonia ⊑ :InfectiousDisease
+:BacterialPneumonia ⊑ :Inflammation
+:BacterialPneumonia ⊑ :OrganDisorder
+:BacterialPneumonia ⊑ :Pneumonia
+:Carditis ⊑ :Disorder
+:Carditis ⊑ :HeartDisorder
+:Carditis ⊑ :Inflammation
+:Carditis ⊑ :OrganDisorder
+:Endocarditis ⊑ :Carditis
+:Endocarditis ⊑ :Disorder
+:Endocarditis ⊑ :HeartDisorder
+:Endocarditis ⊑ :Inflammation
+:Endocarditis ⊑ :OrganDisorder
+:Heart ⊑ :BodyStructure
+:Heart ⊑ :Organ
+:HeartDisorder ⊑ :Disorder
+:HeartDisorder ⊑ :OrganDisorder
+:HeartValve ⊑ :BodyStructure
+:Inflammation ⊑ :Disorder
+:LobarPneumonia ⊑ :Disorder
+:LobarPneumonia ⊑ :InfectiousDisease
+:LobarPneumonia ⊑ :Inflammation
+:LobarPneumonia ⊑ :OrganDisorder
+:LobarPneumonia ⊑ :Pneumonia
+:Lung ⊑ :BodyStructure
+:Lung ⊑ :Organ
+:MitralValve ⊑ :BodyStructure
+:MitralValve ⊑ :HeartValve
+:Organ ⊑ :BodyStructure
+:OrganDisorder ⊑ :Disorder
+:PhantomPain ⊑ :Disorder
+:Pneumonia ⊑ :Disorder
+:Pneumonia ⊑ :InfectiousDisease
+:Pneumonia ⊑ :Inflammation
+:Pneumonia ⊑ :OrganDisorder
+:PhantomPain ⊑ owl:Nothing (unsatisfiable)
+:Unobtainium ⊑ owl:Nothing (unsatisfiable)
+
+# exit 0

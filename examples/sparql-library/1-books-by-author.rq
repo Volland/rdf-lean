@@ -1,0 +1,10 @@
+# Every book with its author's name and, when known, its page count.
+PREFIX : <http://example.org/library#>
+SELECT ?title ?name ?pages
+WHERE {
+  ?book a :Book ; :title ?title ; :author ?a .
+  ?a :name ?name .
+  OPTIONAL { ?book :pages ?pages }
+  FILTER (lang(?title) = "en")
+}
+ORDER BY ?name ?title

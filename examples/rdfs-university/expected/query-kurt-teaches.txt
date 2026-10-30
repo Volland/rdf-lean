@@ -1,0 +1,5 @@
+LeanRDF: 12 data triples, 1 query triples
+Elpi closure under 67 rules: 209 triples
+Verdict: NOT DERIVED (no instance of the query is derived).
+This is not a claim of non-entailment: completeness is not proven.
+# exit 1

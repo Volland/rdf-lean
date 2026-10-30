@@ -1,14 +1,16 @@
 ---
 title: Reference
-summary: The modules of LeanRDF and leanrdf-elpi, and their main definitions and theorems.
+summary: The modules of every LeanRDF package, and their main definitions and theorems.
 ---
 # Reference
 
-Two Lake packages share one repository. `leanrdf` (the root) has no dependencies; `leanrdf-elpi` (`elpi/`) requires `leanrdf` and lean-elpi v0.3.3. Both use Lean 4.35.0.
+Five Lake packages share one repository. `leanrdf` (the root) has no dependencies; `leanrdf-sparql`, `leanrdf-owl` and `leanrdf-shacl` require only `leanrdf`; `leanrdf-elpi` (`elpi/`) requires `leanrdf`, `leanrdf-owl` and lean-elpi v0.3.3. All use Lean 4.35.0. [Packages and installation](/docs/packages/) explains how to depend on each, and the [documentation](/docs/) has a guide per package.
 
 ```lean
 -- lakefile.lean of a project using the model and the checker
 require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
+-- or a sub-package, by its directory
+require «leanrdf-shacl» from git "https://github.com/Volland/rdf-lean" @ "main" / "shacl"
 ```
 
 ## leanrdf
@@ -35,7 +37,7 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDF.Entailment.Derivation` | `Derives`, `Triple.instantiate` |
 | `LeanRDF.Entailment.Soundness` | `Rule.Sound`, `rdfsRules_sound`, `Derives.sound`, `Derives.sound_graph` |
 | `LeanRDF.Cert.Check` | `Node`, `Certificate`, `check`, `checkQuery`, `check_sound`, `checkQuery_sound`, `checkB_sound`, `checkQueryB_sound` |
-| `LeanRDF.Cert.Json` | `Certificate.render`, `Certificate.parse` |
+| `LeanRDF.Cert.Json` | `Certificate.render`, `Certificate.parse`, `Certificate.toJson`, `Certificate.ofJson` |
 | `LeanRDF.Cert.Datalog` | `toDatalog` (CertifyingDatalog `GraphProblemInput`) |
 
 ## leanrdf-elpi
@@ -45,9 +47,8 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDFElpi.Encode` | `encodeTerm`, `decodeTerm`, `encodeTriple`, `decodeTriple` |
 | `LeanRDFElpi.Codegen` | `stepClauses` (rules to Elpi clauses) |
 | `LeanRDFElpi.Saturate` | `program`, `saturate`, `Entry`, `Closure` |
-| `LeanRDFElpi.Certify` | `certify`, `entailmentCertificate` |
+| `LeanRDFElpi.Certify` | `certify`, `entailmentCertificate` (any rule list: `saturate rules g` then `certify`) |
 | `LeanRDFElpi.Demo` | `run`, `verdict`; executable `leanrdf-demo` |
-
 | `LeanRDFElpi.Classify` | `classify`, `Edge`, `render`; executable `leanrdf-classify` |
 | `LeanRDFElpi.Oxilite.*` | `parseResults`, `patternQuery`, `instantiate`, `WhyNode`, `certificateOfWhy`, `certifyByElpi`, `certifyByWhy`, `Profile`, `run`, `runMaterialized`; `lake exe leanrdf-oxilite` |
 

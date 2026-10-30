@@ -55,7 +55,7 @@ The proof is an induction over the node list: if every earlier accepted node is 
 theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by native_decide)
 ```
 
-In the end-to-end test, `g` and `q` are parsed from N-Triples and `cert` is computed by Elpi. `native_decide` runs the compiled checker, which is why it is allowed only in tests ([chapter 10](/book/trust/)).
+In the end-to-end test, `g` and `q` are parsed from N-Triples and `cert` is computed by Elpi. `native_decide` runs the compiled checker, which is why it is allowed only in tests ([chapter 15](/book/trust/)).
 
 ## Rejection
 

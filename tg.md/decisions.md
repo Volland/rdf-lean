@@ -276,11 +276,11 @@ The repository holds two Lake packages: `leanrdf` at the root with no dependenci
 
 ## Static site from a standard-library generator
 
-The documentation site (home, a ten-chapter book, examples, reference) is Markdown in `site/content/`, built by `site/build.py` with the Python standard library and published to GitHub Pages by a workflow.
+The documentation site (home, a fifteen-chapter book, a documentation section, examples, reference, roadmap) is Markdown in `site/content/`, built by `site/build.py` with the Python standard library and published to GitHub Pages by a workflow.
 
 **Context.** The library needs an introduction to RDF semantics in Lean that people can read without a checkout. lean-elpi already uses a small standard-library generator; `docs/` here holds design files, not site output.
 
-**Decision.** Reuse lean-elpi's generator design with a Lean highlighter, write output to the ignored `_site/`, and deploy it with `actions/deploy-pages` on pushes that touch `site/`. The logo is an SVG entailment turnstile whose bars end in graph nodes. Book examples are adapted from the test suite, and demo output is copied from a real run.
+**Decision.** Reuse lean-elpi's generator design with a Lean highlighter, write output to the ignored `_site/`, and deploy it with `actions/deploy-pages` on pushes that touch `site/`. The logo is an SVG entailment turnstile whose bars end in graph nodes. Book examples are adapted from the test suite, and demo output is copied from a real run. The book and the documentation are ordered sections with a contents sidebar, built by one `section` function; the documentation is the manual (tools, API per package, formats, testing, contributing) and the book explains the ideas. Snippets on the documentation pages are compiled from `Tests/Guide/`, `SparqlTests/Examples.lean`, `ShaclTests/Examples.lean` and `BridgeTests/CustomRule.lean`.
 
 **Consequences.** No build dependencies and no committed output. A change to the library's API must be reflected in the book by hand.
 
@@ -486,3 +486,31 @@ SPARQL 1.1 queries are parsed by a hand-written recursive-descent parser, transl
 - motivated_by:: [[constraints#OWL 2 EL profile]]
 - motivated_by:: [[constraints#OWL 2 RDF-Based Semantics]]
 - motivated_by:: [[decisions#Forward-chaining saturation in Elpi]] {weight: secondary}
+
+## Runnable examples with recorded outputs
+
+`examples/` holds one runnable example per command-line tool, and `scripts/examples.sh` compares each run's output and exit code with a recorded copy in `expected/`; CI runs it in the package jobs.
+
+**Context.** The book and documentation quote tool output, and an example that silently drifts from the tools teaches the wrong thing. oxilite is not available in CI.
+
+**Decision.** Every example run writes its output followed by `# exit N` to `examples/<dir>/expected/<name>.txt`; `--update` rewrites them after an intended change. The oxilite example replays outputs recorded by `scripts/examples-record.sh` (`--results`, `--why-dir`, `--inferred`), as the bridge tests do. Lean examples of the library APIs live in the test libraries, so `lake test` compiles them.
+
+**Consequences.** A behaviour change in any tool shows up as a diff in CI. Re-recording after an oxilite upgrade turns a change in oxilite's answers or explanations into a reviewable diff; the first recording already shows a circular `why` explanation.
+
+- motivated_by:: [[decisions#Static site from a standard-library generator]] {weight: primary}
+- motivated_by:: [[decisions#Two ways to certify oxilite's answers]]
+- motivated_by:: [[constraints#oxilite explanations can be circular]] {weight: secondary}
+
+## Aggregate errors follow §18.5 literally
+
+An error among the values of `SUM`, `AVG`, `MIN`, `MAX` or `GROUP_CONCAT`, including an unbound variable, makes the aggregate an error, and `COUNT` counts the values that are not errors.
+
+**Context.** §18.5 evaluates the aggregate's expression on every solution of the group, and evaluating an unbound variable is an error (§17.2). Oxigraph and oxilite skip unbound values instead, so `AVG(?pages)` over a group where one book has no page count differs between the engines.
+
+**Decision.** Follow the text: `aggregateValue` is shared by the semantics and the evaluator and reads §18.5 literally. The W3C test `agg-err-01` expects this behaviour for a non-numeric value.
+
+**Consequences.** `examples/sparql-library/2-books-per-author.rq` leaves an average unbound where oxilite answers 204; the SPARQL chapter and the documentation explain the difference instead of hiding it.
+
+- motivated_by:: [[constraints#SPARQL algebra]] {weight: primary}
+- motivated_by:: [[constraints#SPARQL expressions]]
+- motivated_by:: [[decisions#SPARQL syntax, extensions and the W3C suite]] {weight: secondary}

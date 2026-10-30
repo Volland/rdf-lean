@@ -1,0 +1,48 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+[ a sh:ValidationReport ;
+  sh:conforms false ;
+  sh:result
+    [ a sh:ValidationResult ;
+      sh:focusNode <http://example.org/hr#alan> ;
+      sh:resultPath <http://example.org/hr#name> ;
+      sh:sourceShape _:shapes_genid1 ;
+      sh:sourceConstraintComponent <http://www.w3.org/ns/shacl#MaxCountConstraintComponent> ;
+      sh:resultSeverity <http://www.w3.org/ns/shacl#Violation> ],
+    [ a sh:ValidationResult ;
+      sh:focusNode <http://example.org/hr#alan> ;
+      sh:resultPath <http://example.org/hr#manager> ;
+      sh:value <http://example.org/hr#bletchley> ;
+      sh:sourceShape _:shapes_genid4 ;
+      sh:sourceConstraintComponent <http://www.w3.org/ns/shacl#ClassConstraintComponent> ;
+      sh:resultSeverity <http://www.w3.org/ns/shacl#Violation> ],
+    [ a sh:ValidationResult ;
+      sh:focusNode <http://example.org/hr#kid> ;
+      sh:resultPath <http://example.org/hr#email> ;
+      sh:sourceShape _:shapes_genid2 ;
+      sh:sourceConstraintComponent <http://www.w3.org/ns/shacl#MinCountConstraintComponent> ;
+      sh:resultSeverity <http://www.w3.org/ns/shacl#Violation> ],
+    [ a sh:ValidationResult ;
+      sh:focusNode <http://example.org/hr#kid> ;
+      sh:resultPath <http://example.org/hr#age> ;
+      sh:value "12"^^<http://www.w3.org/2001/XMLSchema#integer> ;
+      sh:sourceShape _:shapes_genid3 ;
+      sh:sourceConstraintComponent <http://www.w3.org/ns/shacl#MinInclusiveConstraintComponent> ;
+      sh:resultSeverity <http://www.w3.org/ns/shacl#Violation> ],
+    [ a sh:ValidationResult ;
+      sh:focusNode <http://example.org/hr#linus> ;
+      sh:resultPath <http://example.org/hr#email> ;
+      sh:value "linus at example.org" ;
+      sh:sourceShape _:shapes_genid2 ;
+      sh:sourceConstraintComponent <http://www.w3.org/ns/shacl#PatternConstraintComponent> ;
+      sh:resultSeverity <http://www.w3.org/ns/shacl#Violation> ],
+    [ a sh:ValidationResult ;
+      sh:focusNode <http://example.org/hr#kernel> ;
+      sh:resultPath <http://example.org/hr#lead> ;
+      sh:value <http://example.org/hr#alan> ;
+      sh:sourceShape _:shapes_genid5 ;
+      sh:sourceConstraintComponent <http://www.w3.org/ns/shacl#NodeConstraintComponent> ;
+      sh:resultSeverity <http://www.w3.org/ns/shacl#Violation> ]
+] .
+
+# exit 1

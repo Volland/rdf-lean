@@ -1,0 +1,5 @@
+_:t <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/uni#Staff> .
+_:t <http://example.org/uni#teaches> _:c .
+_:c <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/uni#Course> .
+_:s <http://example.org/uni#enrolledIn> _:c .
+_:s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/uni#Person> .

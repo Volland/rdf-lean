@@ -1,6 +1,6 @@
 ---
 title: OWL 2 RL, sound rule by rule
-order: 11
+order: 13
 summary: The OWL 2 RDF-Based conditions the OWL 2 RL rules need, 49 rules proven sound, a model that shows the conditions are consistent, oxilite's OWL closure certified, and certified OWL 2 EL classification.
 ---
 # OWL 2 RL, sound rule by rule

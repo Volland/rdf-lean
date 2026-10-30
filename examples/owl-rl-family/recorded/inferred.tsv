@@ -1,0 +1,31 @@
+no rule template matched this conclusion	<http://example.org/org#Employee> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+scm-sco (subclass transitivity)	<http://example.org/org#Employee> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/org#Employee> .
+no rule template matched this conclusion	<http://example.org/org#Employee> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/org#Staff> .
+no rule template matched this conclusion	<http://example.org/org#Staff> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+no rule template matched this conclusion	<http://example.org/org#Staff> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/org#Employee> .
+scm-sco (subclass transitivity)	<http://example.org/org#Staff> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/org#Staff> .
+prp-inv (inverse)	<http://example.org/org#acme> <http://example.org/org#hasPart> <http://example.org/org#compilers> .
+prp-inv (inverse)	<http://example.org/org#acme> <http://example.org/org#hasPart> <http://example.org/org#research> .
+no rule template matched this conclusion	<http://example.org/org#acme> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+cax-sco (subclass)	<http://example.org/org#ada> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/org#Staff> .
+no rule template matched this conclusion	<http://example.org/org#ada> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+prp-symp (symmetric)	<http://example.org/org#alan> <http://example.org/org#colleagueOf> <http://example.org/org#ada> .
+no rule template matched this conclusion	<http://example.org/org#alan> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+no rule template matched this conclusion	<http://example.org/org#colleagueOf> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+prp-inv (inverse)	<http://example.org/org#compilers> <http://example.org/org#partOf> <http://example.org/org#acme> .
+no rule template matched this conclusion	<http://example.org/org#compilers> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+no rule template matched this conclusion	<http://example.org/org#hasCEO> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+no rule template matched this conclusion	<http://example.org/org#hasPart> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+eq-rep-s (sameAs subject)	<http://example.org/org#jo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+eq-rep-s (sameAs subject)	<http://example.org/org#jo> <http://www.w3.org/2002/07/owl#sameAs> <http://example.org/org#jo> .
+eq-rep-s (sameAs subject)	<http://example.org/org#jo> <http://www.w3.org/2002/07/owl#sameAs> <http://example.org/org#joanna> .
+eq-rep-s (sameAs subject)	<http://example.org/org#joanna> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+eq-rep-s (sameAs subject)	<http://example.org/org#joanna> <http://www.w3.org/2002/07/owl#sameAs> <http://example.org/org#jo> .
+eq-rep-s (sameAs subject)	<http://example.org/org#joanna> <http://www.w3.org/2002/07/owl#sameAs> <http://example.org/org#joanna> .
+no rule template matched this conclusion	<http://example.org/org#partOf> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+prp-inv (inverse)	<http://example.org/org#research> <http://example.org/org#hasPart> <http://example.org/org#compilers> .
+no rule template matched this conclusion	<http://example.org/org#research> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+no rule template matched this conclusion	<http://www.w3.org/2002/07/owl#Nothing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+no rule template matched this conclusion	<http://www.w3.org/2002/07/owl#Nothing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .
+no rule template matched this conclusion	<http://www.w3.org/2002/07/owl#Thing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Class> .
+no rule template matched this conclusion	<http://www.w3.org/2002/07/owl#Thing> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Thing> .

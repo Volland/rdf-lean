@@ -1,0 +1,5 @@
+?name	?books	?avgPages
+"Stanisław Lem"	2	
+"Ursula K. Le Guin"	2	"285"^^<http://www.w3.org/2001/XMLSchema#decimal>
+"N. K. Jemisin"	1	"468"^^<http://www.w3.org/2001/XMLSchema#decimal>
+# exit 0

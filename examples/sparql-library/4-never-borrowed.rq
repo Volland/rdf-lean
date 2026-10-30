@@ -1,0 +1,8 @@
+# Books nobody has borrowed: a negation with FILTER NOT EXISTS.
+PREFIX : <http://example.org/library#>
+SELECT ?book
+WHERE {
+  ?book a :Book .
+  FILTER NOT EXISTS { ?loan :book ?book }
+}
+ORDER BY ?book

@@ -1,0 +1,11 @@
+# Books on loan before a date, with the member who has them.
+PREFIX : <http://example.org/library#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?member ?title ?due
+WHERE {
+  ?loan :book ?book ; :member ?m ; :due ?due .
+  ?m :name ?member .
+  ?book :title ?title .
+  FILTER (lang(?title) = "en" && ?due < "2026-11-05T00:00:00Z"^^xsd:dateTime)
+}
+ORDER BY ?due

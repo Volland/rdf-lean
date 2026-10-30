@@ -111,6 +111,15 @@ oxilite's `why` tool returns JSON trees: a `triple` of RDF/JS terms, a `status` 
 - source:: oxilite 0.9.1, `crates/oxilite-cli/src/studio/why.rs` and `mcp.rs` (github.com/Volland/oxilite)
 - constrains:: [[decisions#Two ways to certify oxilite's answers]] {strength: must}
 
+## oxilite explanations can be circular
+
+oxilite 0.9.1 can explain an inference by a cycle, so a `why` tree is not a proof even when the answer is right.
+
+In `examples/owl-rl-family/`, `:compilers :partOf :acme` (by transitivity) is explained by `prp-inv` from its own inverse, whose explanation points back to it ("explained above") and uses a premise marked `absent`.
+
+- source:: oxilite 0.9.1, `why` output recorded in `examples/owl-rl-family/recorded/why-1.json`
+- constrains:: [[decisions#Two ways to certify oxilite's answers]] {strength: must, note: "an explanation is never trusted; the Elpi route certifies the answer"}
+
 ## SPARQL results JSON
 
 Query answers arrive as SPARQL 1.1 Query Results JSON: `head.vars` and `results.bindings`, each binding a `uri`, `bnode` or `literal` with `xml:lang` or `datatype`.

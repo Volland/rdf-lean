@@ -1,0 +1,10 @@
+# How many books each author has, and their average length.
+PREFIX : <http://example.org/library#>
+SELECT ?name (COUNT(?book) AS ?books) (AVG(?pages) AS ?avgPages)
+WHERE {
+  ?book :author ?a .
+  ?a :name ?name .
+  OPTIONAL { ?book :pages ?pages }
+}
+GROUP BY ?name
+ORDER BY DESC(?books) ?name

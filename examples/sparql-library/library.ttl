@@ -1,0 +1,22 @@
+@prefix : <http://example.org/library#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# A small library: books, their authors, years and loans. Queried by the files *.rq next to it.
+
+:leguin a :Author ; :name "Ursula K. Le Guin" ; :born 1929 .
+:lem a :Author ; :name "Stanisław Lem" ; :born 1921 .
+:jemisin a :Author ; :name "N. K. Jemisin" ; :born 1972 .
+
+:dispossessed a :Book ; :title "The Dispossessed"@en ; :author :leguin ; :year 1974 ; :pages 387 .
+:earthsea a :Book ; :title "A Wizard of Earthsea"@en ; :author :leguin ; :year 1968 ; :pages 183 .
+:solaris a :Book ; :title "Solaris"@en, "Solaris"@pl ; :author :lem ; :year 1961 ; :pages 204 .
+:cyberiad a :Book ; :title "The Cyberiad"@en ; :author :lem ; :year 1965 .
+:fifthseason a :Book ; :title "The Fifth Season"@en ; :author :jemisin ; :year 2015 ; :pages 468 .
+
+:ana a :Member ; :name "Ana" .
+:ben a :Member ; :name "Ben" .
+
+:loan1 :book :solaris ; :member :ana ; :due "2026-11-02T12:00:00Z"^^xsd:dateTime .
+:loan2 :book :earthsea ; :member :ana ; :due "2026-11-09T12:00:00Z"^^xsd:dateTime .
+:loan3 :book :fifthseason ; :member :ben ; :due "2026-10-28T12:00:00Z"^^xsd:dateTime .

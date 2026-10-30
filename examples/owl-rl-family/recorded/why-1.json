@@ -1,0 +1,45 @@
+[{"triple":
+  {"s": {"value": "http://example.org/org#compilers", "termType": "NamedNode"},
+   "p": {"value": "http://example.org/org#partOf", "termType": "NamedNode"},
+   "o": {"value": "http://example.org/org#acme", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "prp-inv (inverse)",
+  "producer": "owl2rl",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/org#acme", "termType": "NamedNode"},
+     "p": {"value": "http://example.org/org#hasPart", "termType": "NamedNode"},
+     "o":
+     {"value": "http://example.org/org#compilers", "termType": "NamedNode"}},
+    "status": "inferred",
+    "rule": "prp-inv (inverse)",
+    "producer": "owl2rl",
+    "premises":
+    [{"triple":
+      {"s":
+       {"value": "http://example.org/org#compilers", "termType": "NamedNode"},
+       "p": {"value": "http://example.org/org#partOf", "termType": "NamedNode"},
+       "o": {"value": "http://example.org/org#acme", "termType": "NamedNode"}},
+      "status": "inferred",
+      "note": "explained above"},
+     {"triple":
+      {"s": {"value": "http://example.org/org#partOf", "termType": "NamedNode"},
+       "p":
+       {"value": "http://www.w3.org/2002/07/owl#inverseOf",
+        "termType": "NamedNode"},
+       "o":
+       {"value": "http://example.org/org#hasPart", "termType": "NamedNode"}},
+      "status": "absent"}]},
+   {"triple":
+    {"s": {"value": "http://example.org/org#hasPart", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2002/07/owl#inverseOf",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/org#partOf", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.M6Q9OrEd/project/data.ttl",
+     "range":
+     {"start": {"line": 7, "character": 9},
+      "end": {"line": 7, "character": 22}}}}]}]

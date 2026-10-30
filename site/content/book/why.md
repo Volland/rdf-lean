@@ -44,6 +44,9 @@ A bug in the search shows up as a rejected certificate, never as a wrong "entail
 1. How RDF data is represented in Lean ([chapter 2](/book/graphs/)) and read from N-Triples and Turtle ([chapter 3](/book/syntax/)).
 2. What a graph *means*: interpretations, satisfaction and entailment ([chapter 4](/book/meaning/)), then the RDF and RDFS conditions ([chapter 5](/book/rdfs/)).
 3. Rules as data, derivations and the soundness theorem ([chapter 6](/book/rules/)), and how countermodels show the semantics is not vacuous ([chapter 7](/book/countermodels/)).
-4. The search side in Elpi ([chapter 8](/book/elpi/)), certificates and the checker ([chapter 9](/book/certificates/)), and an honest account of what is proven and what is trusted ([chapter 10](/book/trust/)).
+4. The search side in Elpi ([chapter 8](/book/elpi/)), certificates and the checker ([chapter 9](/book/certificates/)), and the whole workflow on a rule of your own ([chapter 10](/book/custom-rule/)).
+5. Certifying a real triple store, oxilite, from its own explanations ([chapter 11](/book/oxilite/)).
+6. Where certificates are not enough and the engine itself is proven: SPARQL ([chapter 12](/book/sparql/)), OWL 2 RL and EL ([chapter 13](/book/owl/)) and SHACL ([chapter 14](/book/shacl/)).
+7. An honest account of what is proven and what is trusted ([chapter 15](/book/trust/)).
 
 You need to read Lean 4 a little; you do not need to know RDF or model theory.

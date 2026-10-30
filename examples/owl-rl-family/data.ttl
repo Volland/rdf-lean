@@ -1,0 +1,16 @@
+@prefix : <http://example.org/org#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# An organisation under OWL 2 RL: a transitive part-of with its inverse, a symmetric relation, a
+# functional property that identifies two names of one person, and equivalent classes.
+:partOf a owl:TransitiveProperty .
+:hasPart owl:inverseOf :partOf .
+:colleagueOf a owl:SymmetricProperty .
+:hasCEO a owl:FunctionalProperty .
+:Employee owl:equivalentClass :Staff .
+
+:compilers :partOf :research .
+:research :partOf :acme .
+:acme :hasCEO :jo, :joanna .
+:ada a :Employee ; :colleagueOf :alan .

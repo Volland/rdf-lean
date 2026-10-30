@@ -1,0 +1,15 @@
+@prefix : <http://example.org/hr#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+:Contractor rdfs:subClassOf :Employee .
+
+# Two names, and a manager who is not an employee.
+:alan a :Employee ; :name "Alan", "A. Turing" ; :email "alan@example.org" ; :age 41 ;
+  :manager :bletchley .
+# No e-mail address, and too young.
+:kid a :Contractor ; :name "Kid" ; :age 12 .
+# An e-mail address without an @.
+:linus a :Employee ; :name "Linus" ; :email "linus at example.org" .
+
+# The lead is not a member of the team.
+:kernel a :Team ; :member :linus ; :lead :alan .

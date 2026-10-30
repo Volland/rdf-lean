@@ -1,0 +1,22 @@
+@prefix : <http://example.org/hr#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Every employee has exactly one name, an e-mail address that looks like one, an age between
+# 16 and 99, and a manager who is also an employee. Contractors are employees too.
+
+:EmployeeShape a sh:NodeShape ;
+  sh:targetClass :Employee ;
+  sh:property [ sh:path :name ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+  sh:property [ sh:path :email ; sh:minCount 1 ; sh:pattern "^[^@ ]+@[^@ ]+$" ] ;
+  sh:property [ sh:path :age ; sh:datatype xsd:integer ;
+                sh:minInclusive 16 ; sh:maxInclusive 99 ] ;
+  sh:property [ sh:path :manager ; sh:maxCount 1 ; sh:class :Employee ] .
+
+# A team has a lead who is one of its members.
+:TeamShape a sh:NodeShape ;
+  sh:targetClass :Team ;
+  sh:property [ sh:path :lead ; sh:minCount 1 ; sh:node :MemberOfItsTeam ] .
+
+:MemberOfItsTeam a sh:NodeShape ;
+  sh:property [ sh:path [ sh:inversePath :member ] ; sh:minCount 1 ] .
