@@ -137,9 +137,9 @@ Capabilities `owl-rl` and `oxilite-bridge`. Depends on [[changes#add-oxilite-cer
 
 P5: package `leanrdf-shacl` with the SHACL Core semantics, a validator proven against it and the W3C core tests.
 
-Capability `shacl-core`. Depends on [[changes#add-datasets]], [[changes#add-xsd-values]] and the regex engine of [[changes#add-sparql-algebra]].
+Capability `shacl-core`. Depends on [[changes#add-datasets]], [[changes#add-xsd-values]] and the regex engine of [[changes#add-sparql-algebra]]. See [[decisions#SHACL Core with a validator proven against its semantics]].
 
-- status:: proposed
+- status:: archived
 
 ## add-owl-el
 

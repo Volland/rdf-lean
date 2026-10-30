@@ -50,6 +50,17 @@ jobs:
           build: true
           test: true
 
+  shacl:
+    name: leanrdf-shacl (validator and W3C suite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: shacl
+          build: true
+          test: true
+
   elpi:
     name: leanrdf-elpi (bridge and demo)
     runs-on: ubuntu-latest

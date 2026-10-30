@@ -1,0 +1,10 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:p1 a ex:Product ; ex:sku "AB-1234" ; ex:label "Lamp"@en, "Lampe"@de ; ex:status ex:Active ;
+  ex:price 20.0 ; ex:maker ex:acme .
+ex:p2 a ex:Product ; ex:sku "x1" ; ex:label "Stuhl"@de, "Sessel"@de ; ex:status ex:Unknown ;
+  ex:price -3 ; ex:colour "red" .
+ex:p3 a ex:Product ; ex:sku "CD-0001" ; ex:label "Table"@fr ; ex:status ex:Retired ;
+  ex:maker "Acme" .
+ex:acme a ex:Company .

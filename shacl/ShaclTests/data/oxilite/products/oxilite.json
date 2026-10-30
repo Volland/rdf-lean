@@ -1,0 +1,68 @@
+{
+  "conforms": false,
+  "errors": [],
+  "files": 2,
+  "passed": false,
+  "profile": "none",
+  "root": ".",
+  "tests": [],
+  "triples": 20,
+  "violations": [
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/p2",
+      "line": 7,
+      "message": "http://www.w3.org/ns/shacl#ClosedConstraintComponent",
+      "path": "http://example.org/colour",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/p2",
+      "line": 7,
+      "message": "MinExclusive(\"0\"^^xsd:integer) not satisfied",
+      "path": "http://example.org/price",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/p2",
+      "line": 6,
+      "message": "Pattern(^[A-Z]{2}-[0-9]{4}$) not satisfied",
+      "path": "http://example.org/sku",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/p2",
+      "line": 6,
+      "message": "In constraint not satisfied. Expected one of [Iri {IriS { iri: NamedNode { iri: \"http://example.org/Active\" } }}, Iri {IriS { iri: NamedNode { iri: \"http://example.org/Retired\" } }}]",
+      "path": "http://example.org/status",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/p2",
+      "line": 6,
+      "message": "Unique lang failed for lang de with values: \"Sessel\"@de, \"Stuhl\"@de",
+      "path": "http://example.org/label",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/p3",
+      "line": 9,
+      "message": "OR not satisfied",
+      "path": "http://example.org/maker",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/p3",
+      "line": 8,
+      "message": "LanguageIn constraint not satisfied. Expected one of en, de",
+      "path": "http://example.org/label",
+      "severity": "Violation"
+    }
+  ]
+}

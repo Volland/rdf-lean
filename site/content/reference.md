@@ -78,6 +78,18 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDFOwl.Rules` | the 49 OWL 2 RL rules, `owlRLDerivationRules`, `owlRLRules`, `owlRules` |
 | `LeanRDFOwl.Soundness` | one `*_sound` per rule, `owlRules_sound`, `Derives.owl_sound`, `Derives.owl_sound_graph` |
 
+## leanrdf-shacl
+
+`leanrdf-shacl` (`shacl/`) requires `leanrdf`.
+
+| Module | Main definitions |
+|---|---|
+| `LeanRDFShacl.Path` | `Path`, `ValueNode`, `valueNodes`, `valueNodes_iff`, `closure` |
+| `LeanRDFShacl.Shapes` | `Shape`, `Component`, `TermTest`, `Target`, `TermTest.ok`, `Component.iri` |
+| `LeanRDFShacl.Semantics` | `VN`, `InstanceOf`, `Conforms`, `CompHolds`, `IsFocus`, `DataConforms` |
+| `LeanRDFShacl.Validate`, `Correct` | `results`, `validate`, `Report`, `results_nil`, `validate_conforms`, `validate_sound` |
+| `LeanRDFShacl.Read`, `Report`, `Run` | `readShapes`, `Report.toTurtle`, `runCommand`; `lake exe leanrdf-shacl validate` |
+
 ## Key theorems
 
 ```lean
@@ -99,6 +111,11 @@ theorem Xsd.parseDecimal_canonical (q : Rat) (s : String) (h : canonicalDecimal?
 theorem evalN_perm (n : Nat) (D : Dataset) (G : Graph) (P : Pattern) :
     Eval.evalN n D G P ~ Spec.evalN n D G P
 theorem runQuery_answer (D : Dataset) (q : Query) : Spec.Answer D q (Eval.runQuery D q)
+-- SHACL: the report conforms exactly when the data conforms, and every result is real
+theorem validate_conforms (G : Graph) (S : List Shape) :
+    (validate G S).conforms = true ↔ DataConforms G S
+theorem validate_sound (G : Graph) (S : List Shape) {r : Result} (h : r ∈ (validate G S).results) :
+    Violation G r
 -- OWL 2 RL: every rule is sound for the OWL conditions
 theorem owlRules_sound : ∀ r ∈ owlRules, r.SoundIn OWLCore
 theorem Derives.owl_sound {g : Graph} {t : Triple} (h : Derives owlRules g t) :

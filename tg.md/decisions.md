@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl, shacl-core]
 ---
 # Decisions
 
@@ -455,4 +455,19 @@ SPARQL 1.1 queries are parsed by a hand-written recursive-descent parser, transl
 - motivated_by:: [[decisions#Two ways to certify oxilite's answers]] {weight: primary}
 - motivated_by:: [[constraints#OWL 2 RDF-Based Semantics]]
 - motivated_by:: [[constraints#OWL 2 RL rules]]
+- motivated_by:: [[decisions#Layers as packages in one repository]] {weight: secondary}
+
+## SHACL Core with a validator proven against its semantics
+
+`leanrdf-shacl` states when a focus node conforms to a shape as propositions (`Conforms`), and proves that its validator reports no result exactly then (`results_nil`), so a report's "conforms", which is a claim about absence, is a theorem too.
+
+**Context.** oxilite validates with SHACL through rudof, and nothing checks the reports. A violation can be certified on its own, but "conforms" cannot, so the validator itself has to be proven.
+
+**Decision.** Shapes are a finite tree: references to other shapes hold the shapes, and a recursive shape is a read error, as SHACL §3.4 allows. Paths are an inductive relation `ValueNode`, and the computed value nodes are proven exact (`valueNodes_iff`), with a fixpoint for `*` and `+` paths whose termination is bounded by the terms of the graph. Counts are stated with lists without duplicates. Checks of a single term (datatype, ranges, lengths, patterns, languages, `sh:in`) are functions shared by the semantics and the validator, as SPARQL expressions are. `validate_conforms` and `validate_sound` follow, with only Lean's standard axioms. The W3C suite runs as compiled code in the `lake test` driver, since the interpreter takes about a minute on the self-validating `shacl-shacl` test.
+
+**Consequences.** All 98 W3C SHACL Core tests pass with an empty skip list. On the two recorded samples, oxilite (rudof) and LeanRDF agree on every result's focus node, path and component. Only `"true"^^xsd:boolean` turns a boolean parameter on (`uniqueLang-002`).
+
+- motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {weight: primary}
+- motivated_by:: [[constraints#SHACL Core]]
+- motivated_by:: [[decisions#A proven reference evaluator for SPARQL]] {weight: secondary}
 - motivated_by:: [[decisions#Layers as packages in one repository]] {weight: secondary}

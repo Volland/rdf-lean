@@ -25,6 +25,6 @@ None.
 
 **Roadmap:** P5. Depends on `add-datasets` and `add-xsd-values`, and uses the regex engine from `add-sparql-algebra`.
 
-**Code:** `shacl/lakefile.lean`, `shacl/LeanRDFShacl/{Shapes,Read,Path,Semantics,Validate,Correct,Report}.lean`, `shacl/ShaclMain.lean`, `shacl/ShaclTests/*.lean`, `shacl/ShaclTests/data/`.
+**Code:** `shacl/lakefile.lean`, `shacl/LeanRDFShacl/{Vocab,Shapes,Read,Path,Semantics,Validate,Correct,Report,Run}.lean`, `shacl/ShaclMain.lean`, `shacl/ShaclTestsMain.lean`, `shacl/ShaclTests/*.lean`, `shacl/ShaclTests/data/`.
 
 **Motivating decisions** (tg.md): [[decisions#LeanRDF is the proof layer for oxilite]], [[decisions#Layers as packages in one repository]].

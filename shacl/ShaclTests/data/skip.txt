@@ -1,0 +1,2 @@
+# W3C SHACL Core tests that ShaclTests.W3C skips: test key and reason.
+# Reasons: recursive, sparql, rdfs-entailment. A listed test that passes fails the build.

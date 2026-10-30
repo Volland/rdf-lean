@@ -1,0 +1,52 @@
+{
+  "conforms": false,
+  "errors": [],
+  "files": 2,
+  "passed": false,
+  "profile": "none",
+  "root": ".",
+  "tests": [],
+  "triples": 10,
+  "violations": [
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/carol",
+      "line": 4,
+      "message": "MaxCount(1) not satisfied",
+      "path": "http://example.org/name",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/carol",
+      "line": 4,
+      "message": "MaxInclusive(\"150\"^^xsd:integer) not satisfied",
+      "path": "http://example.org/age",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/bob",
+      "line": 4,
+      "message": "MinCount(1) not satisfied",
+      "path": "http://example.org/name",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/bob",
+      "line": 3,
+      "message": "Expected Datatype: <http://www.w3.org/2001/XMLSchema#integer>",
+      "path": "http://example.org/age",
+      "severity": "Violation"
+    },
+    {
+      "file": "data.ttl",
+      "focus": "http://example.org/bob",
+      "line": 3,
+      "message": "MaxInclusive(\"150\"^^xsd:integer) not satisfied",
+      "path": "http://example.org/age",
+      "severity": "Violation"
+    }
+  ]
+}

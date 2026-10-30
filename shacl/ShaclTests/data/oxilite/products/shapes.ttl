@@ -1,0 +1,14 @@
+@prefix ex: <http://example.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+ex:ProductShape a sh:NodeShape ;
+  sh:targetClass ex:Product ;
+  sh:closed true ;
+  sh:ignoredProperties ( rdf:type ) ;
+  sh:property [ sh:path ex:sku ; sh:pattern "^[A-Z]{2}-[0-9]{4}$" ] ;
+  sh:property [ sh:path ex:label ; sh:languageIn ( "en" "de" ) ; sh:uniqueLang true ] ;
+  sh:property [ sh:path ex:status ; sh:in ( ex:Active ex:Retired ) ] ;
+  sh:property [ sh:path ex:price ; sh:minExclusive 0 ] ;
+  sh:property [ sh:path ex:maker ; sh:or ( [ sh:nodeKind sh:IRI ; sh:class ex:Company ] [ sh:datatype xsd:string ; sh:minLength 10 ] ) ] .

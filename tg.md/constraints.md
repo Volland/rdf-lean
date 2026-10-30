@@ -243,3 +243,10 @@ OWL 2 RL/RDF is a set of first-order implications over triples, in tables for eq
 
 - source:: OWL 2 Web Ontology Language Profiles (W3C Recommendation, 11 December 2012) §4.3, Tables 4 to 9
 - constrains:: [[decisions#OWL 2 RL as sound rules over a subset of the RDF-Based conditions]] {strength: must}
+
+## SHACL Core
+
+A data graph conforms to a shapes graph when every focus node of every shape conforms; SHACL Core defines targets, property paths, value nodes and the Core constraint components, and leaves validation with recursive shapes undefined.
+
+- source:: Shapes Constraint Language (SHACL) (W3C Recommendation, 20 July 2017) §2 to §4
+- constrains:: [[decisions#SHACL Core with a validator proven against its semantics]] {strength: must}

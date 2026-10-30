@@ -67,3 +67,13 @@ A rule with a list premise has no fixed number of body patterns, which `Rule` ne
 - source:: OWL 2 Profiles §4.3
 - impact:: incompleteness
 - deviates_from:: [[constraints#OWL 2 RL rules]]
+
+## Recursive shapes are rejected
+
+A shapes graph in which a shape refers to itself, directly or through other shapes, is a read error instead of being validated.
+
+SHACL §3.4 leaves validation with recursive shapes to implementations, so rejecting them is allowed; it means some shapes graphs that other validators accept get no report. Term checks compare values only for the XSD datatypes of `LeanRDF.Xsd`, and `sh:pattern` uses LeanRDF's regex engine.
+
+- source:: SHACL §3.4
+- impact:: scope
+- deviates_from:: [[constraints#SHACL Core]]
