@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release]
 ---
 # Decisions
 
@@ -346,3 +346,16 @@ SPARQL, OWL and SHACL are Lake packages in this repository (`sparql/`, `owl/`, `
 
 - motivated_by:: [[constraints#Lake requires per package]] {weight: primary}
 - motivated_by:: [[decisions#Dependency-free core package]]
+
+## Dual licence, CI and a tagged release
+
+LeanRDF is licensed `MIT OR Apache-2.0`, built and tested by CI in both packages on every push, and released as `v0.1.0` from a public repository.
+
+**Context.** The site links to the source, downstream lakefiles need a tag to pin, and lean-elpi (Apache-2.0) and oxilite (MIT or Apache-2.0) set the licence norm.
+
+**Decision.** The dual licence of oxilite, `LICENSE-MIT` and `LICENSE-APACHE` at the root and in both lakefiles' metadata. `.github/workflows/ci.yml` runs `leanprover/lean-action` for the root package (with the Reservoir eligibility check) and for `elpi/`, then runs the demo. The repository went public after a scan of the tree and history found no secrets.
+
+**Consequences.** Every later change is checked by CI. A package added under the roadmap needs its own CI job.
+
+- motivated_by:: [[decisions#Dependency-free core package]]
+- motivated_by:: [[decisions#Layers as packages in one repository]] {weight: secondary}

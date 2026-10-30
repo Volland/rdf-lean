@@ -6,7 +6,12 @@ open Lake DSL
 and the demo. Kept apart from `leanrdf` so that the core package stays dependency-free. -/
 package «leanrdf-elpi» where
   testDriver := "BridgeTests"
-  version := v!"0.0.1"
+  version := v!"0.1.0"
+  description := "Elpi (λProlog) search for LeanRDF: RDFS saturation, certificates and the demo."
+  keywords := #["rdf", "rdfs", "elpi", "lambda-prolog", "certificates"]
+  homepage := "https://volland.github.io/rdf-lean/"
+  license := "MIT OR Apache-2.0"
+  licenseFiles := #["../LICENSE-MIT", "../LICENSE-APACHE"]
   leanOptions := #[⟨`autoImplicit, false⟩]
 
 require leanrdf from ".."

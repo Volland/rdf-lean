@@ -32,3 +32,7 @@ The site in `site/` (`python3 site/build.py` writes `_site/`) has a ten-chapter 
 ## Where to read
 
 The design is a typed graph in `tg.md/` (decisions, constraints, simplifications) and the requirements are in `openspec/specs/`. Read them with `tg search`, `tg section` and `tg trace --gaps`.
+
+## Licence
+
+LeanRDF is licensed under either of the [MIT licence](LICENSE-MIT) or the [Apache License 2.0](LICENSE-APACHE), at your option. The W3C test suites vendored under `Tests/data/` keep their own licences.

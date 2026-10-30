@@ -1,0 +1,44 @@
+# Build and test both Lake packages on every push and pull request, and run the demo once.
+# The contract this workflow keeps is checked by scripts/check_release.py.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: leanrdf (core)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: leanprover/lean-action@v1
+        with:
+          build: true
+          test: true
+          check-reservoir-eligibility: true
+      - name: Release contract
+        run: python3 scripts/check_release.py
+
+  elpi:
+    name: leanrdf-elpi (bridge and demo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: elpi
+          build: true
+          test: true
+      - name: Demo on the example ontology
+        working-directory: elpi
+        run: lake exe leanrdf-demo examples/pets.nt examples/query-mammal-owner.nt
