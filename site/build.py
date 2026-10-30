@@ -141,13 +141,13 @@ def front(text: str):
 NAV = [("/", "Home"), ("/book/", "Book"), ("/docs/", "Docs"), ("/examples/", "Examples"), ("/reference/", "Reference"),
        ("/roadmap/", "Roadmap"), (REPO, "GitHub")]
 
-def page(title, body, path, desc="", extra_nav="", article=True):
+def page(title, body, path, desc="", extra_nav="", article=True, lang="en"):
     nav = "".join(
         f'<a href="{(BASE + h) if h.startswith("/") else h}"{" aria-current=page" if h == path else ""}>{n}</a>'
         for h, n in NAV)
     d = html.escape(desc or "LeanRDF: RDF and RDFS entailment in Lean 4, searched by Elpi and checked by Lean.")
     return f"""<!doctype html>
-<html lang="en">
+<html lang="{lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -167,7 +167,7 @@ def page(title, body, path, desc="", extra_nav="", article=True):
 </main>
 <footer><div class="wrap">
 <p>LeanRDF builds on <a href="https://github.com/Volland/lean-elpi">lean-elpi</a> and Lean 4.35. The W3C test suites it vendors are under the W3C test suite licence.</p>
-<p><a href="{REPO}">Source on GitHub</a></p>
+<p><a href="{REPO}">Source on GitHub</a> · <a href="{BASE}/impressum/">Impressum</a> · <a href="{BASE}/datenschutz/">Datenschutz</a> · <a href="{BASE}/agb/">AGB</a> · <a href="{BASE}/privacy/">Privacy</a></p>
 </div></footer>
 </body>
 </html>
@@ -235,7 +235,7 @@ def main():
     for f in sorted(SRC.glob("*.md")):
         m, body = front(f.read_text(encoding="utf-8").replace("{{BASE}}", BASE))
         write(f"{f.stem}/index.html", page(m["title"], f"<article>{md(body)}</article>", f"/{f.stem}/",
-              desc=m.get("summary", "")))
+              desc=m.get("summary", ""), lang=m.get("lang", "en")))
     write("404.html", page("Not found", f'<h1>Page not found</h1><p><a href="{BASE}/">Back to the home page</a></p>', "/"))
     print("built", sum(1 for _ in OUT.rglob("*.html")), "pages")
 
