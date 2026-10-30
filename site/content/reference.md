@@ -62,6 +62,9 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDFSparql.Semantics` | `Spec.bgp`, `Spec.join`, `Spec.leftJoin`, `Spec.minus`, `Spec.evalN`, `Spec.eval` |
 | `LeanRDFSparql.Eval` | `Eval.matchTP`, `Eval.bgp`, `Eval.evalN`, `Eval.eval` |
 | `LeanRDFSparql.BgpCorrect`, `Correct`, `Query` | `bgp_perm`, `evalN_perm`, `eval_perm_spec`, `orderBy_sorted`, `Spec.Answer`, `Eval.runQuery`, `runQuery_answer` |
+| `LeanRDFSparql.Syntax`, `Parser` | `SQuery`, `GElem`, `parseQuery`, `validateQuery`, `translateQuery`, `SQuery.toAlgebra` |
+| `LeanRDFSparql.Results`, `Run` | `Answer`, `toJson`, `toXml`, `toCsv`, `toTsv`, `ofJson`, `ofXml`, `ofTsv`, `execute`, `runCommand`; `lake exe leanrdf-sparql` |
+| `LeanRDFSparql.Hash` | `md5`, `sha1`, `sha256`, `sha384`, `sha512` |
 | `LeanRDF.Text.Regex` (core) | `compile`, `isMatch`, `replace` |
 
 ## Key theorems

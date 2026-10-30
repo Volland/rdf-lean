@@ -76,13 +76,20 @@ theorem evalN_perm : ∀ (n : Nat) (D : Dataset) (G : Graph) (P : Pattern),
     | union a b => simp only [Eval.evalN, Spec.evalN]; exact (ih G a).append (ih G b)
     | graph g a =>
       cases g with
-      | term g => simp only [Eval.evalN, Spec.evalN]; exact ih _ a
+      | term g =>
+        simp only [Eval.evalN, Spec.evalN]
+        split
+        · exact ih _ a
+        · exact .refl _
       | var v =>
         simp only [Eval.evalN, Spec.evalN]
         exact flatMap_perm_left fun g _ => (ih _ a).filterMap _
     | extend a v e => simp only [Eval.evalN, Spec.evalN]; rw [hex]; exact (ih G a).map _
     | minus a b => simp only [Eval.evalN, Spec.evalN]; exact minus_perm (ih G a) (ih G b)
     | table rows => simp only [Eval.evalN, Spec.evalN]; exact .refl _
+    | path s p o => simp only [Eval.evalN, Spec.evalN]; exact .refl _
+    | group keys aggs a => simp only [Eval.evalN, Spec.evalN]; rw [hex]
+    | subquery pr d ob off lim a => simp only [Eval.evalN, Spec.evalN]; rw [hex]
 
 /-- The evaluator computes the semantics of a pattern over a dataset, up to the order of
 solutions. -/

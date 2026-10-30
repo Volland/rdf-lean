@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax]
 ---
 # Decisions
 
@@ -427,3 +427,17 @@ Integers are `Int`, decimals `Rat`, floats and doubles `Float`, and the lexical 
 - motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {weight: primary}
 - motivated_by:: [[constraints#SPARQL algebra]]
 - motivated_by:: [[decisions#Layers as packages in one repository]] {weight: secondary}
+
+## SPARQL syntax, extensions and the W3C suite
+
+SPARQL 1.1 queries are parsed by a hand-written recursive-descent parser, translated to the algebra by §18.2, run through the proven evaluator, and checked on the W3C query suite with a skip list that names a reason for every skipped test.
+
+**Context.** The proven core needs real queries: the W3C suite and oxilite both speak full SPARQL, with property paths, aggregates and subqueries that the core semantics leaves out.
+
+**Decision.** Paths, grouping with aggregates and subqueries are pattern constructors whose operators are shared by the specification and the evaluator, applied to the evaluator's sub-results on both sides, so `evalN_perm` stays unconditional and says nothing about them. MD5 and the SHA functions are implemented, so the only skips are subqueries whose expected results are RDF/XML. A test on the skip list that passes fails the build. `scripts/sparql-diff.sh` runs every evaluation test on oxilite too; the committed `sparql/diff-report.md` lists the differences, and a difference counts as a LeanRDF bug only if oxilite matches the expected result and LeanRDF does not.
+
+**Consequences.** 97 of 97 syntax tests and 257 evaluation tests pass (10 skipped for RDF/XML). Against oxilite 0.9.1, 234 tests agree, LeanRDF has no bug, and five oxilite differences and one oxilite parse error are leads for oxilite.
+
+- motivated_by:: [[decisions#A proven reference evaluator for SPARQL]] {weight: primary}
+- motivated_by:: [[constraints#SPARQL grammar]]
+- motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]]

@@ -1,4 +1,4 @@
-import LeanRDFSparql.Eval
+import LeanRDFSparql.Semantics
 
 /-!
 # Basic graph patterns: matching computes the declarative semantics

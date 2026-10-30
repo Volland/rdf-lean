@@ -1,4 +1,5 @@
 import LeanRDFSparql.Algebra
+import LeanRDFSparql.Hash
 
 /-!
 # Expressions
@@ -182,6 +183,34 @@ private def findSub (s sub : String) : Option Nat :=
   let ss := sub.toList
   (List.range (cs.length + 1)).find? fun i => (cs.drop i).take ss.length == ss
 
+/-- A double as XPath casts it to a string: decimal notation for magnitudes in [1e-6, 1e6), the
+canonical scientific form otherwise. -/
+def xpathDoubleString (f : Float) : String :=
+  let c := canonicalDouble f
+  if f.isNaN || f.isInf then c
+  else if f == 0 then (if (1.0 / f) < 0 then "-0" else "0")
+  else
+    let a := if f < 0 then -f else f
+    if a < 1.0e-6 || a ≥ 1.0e6 then c
+    else
+      -- c is [-]d.dddE<n>: rebuild the digits with the point moved
+      let neg := c.startsWith "-"
+      let body := if neg then (c.drop 1).toString else c
+      match body.splitOn "E" with
+      | [mant, ex] =>
+        let e := (Xsd.parseInteger ex).getD 0
+        let ds := (mant.replace "." "").toList
+        let ds := (ds.reverse.dropWhile (· == '0')).reverse
+        let ds := if ds.isEmpty then ['0'] else ds
+        -- the point goes after position e + 1
+        let pointAt : Int := e + 1
+        let s :=
+          if pointAt ≤ 0 then "0." ++ String.ofList (List.replicate (-pointAt).toNat '0') ++ String.ofList ds
+          else if pointAt.toNat ≥ ds.length then String.ofList ds ++ String.ofList (List.replicate (pointAt.toNat - ds.length) '0')
+          else String.ofList (ds.take pointAt.toNat) ++ "." ++ String.ofList (ds.drop pointAt.toNat)
+        (if neg then "-" else "") ++ s
+      | _ => c
+
 private def casts : List String :=
   ["string", "boolean", "integer", "decimal", "double", "float", "dateTime"]
 
@@ -196,6 +225,7 @@ def castTo (dt : String) (t : Term) : Value := do
   match dt with
   | "string" =>
     match src with
+    | some (.double f) | some (.float f) => return strTerm (xpathDoubleString f)
     | some v => return strTerm ((v.canonical?).getD lex)
     | none => return strTerm lex
   | "boolean" =>
@@ -220,7 +250,10 @@ def castTo (dt : String) (t : Term) : Value := do
         return intTerm (if q < 0 then q.ceil else q.floor)
       | some _ =>
         let f := asFloat v
-        if f.isNaN || f.isInf then throw "no integer value" else return intTerm (floatToRat f).num
+        if f.isNaN || f.isInf then throw "no integer value"
+        else
+          let q := floatToRat f
+          return intTerm (if q < 0 then q.ceil else q.floor)
       | none => throw "no cast to integer"
     | none => throw "no cast to integer"
   | "decimal" =>
@@ -394,6 +427,13 @@ def callBuiltin (f : String) (args : List Term) : Value := do
     let some (fl, none) := stringArg? flags | throw "REPLACE flags"
     let r ← Text.Regex.compile p fl
     return strWithTag (← Text.Regex.replace r x rp) tag
+  | "MD5" | "SHA1" | "SHA256" | "SHA384" | "SHA512" =>
+    match stringArg? (← one) with
+    | some (x, none) =>
+      return strTerm (match f with
+        | "MD5" => Hash.md5 x | "SHA1" => Hash.sha1 x | "SHA256" => Hash.sha256 x
+        | "SHA384" => Hash.sha384 x | _ => Hash.sha512 x)
+    | _ => throw s!"{f} of a non-string"
   | "ABS" => numUnary (fun q => if q < 0 then -q else q) Float.abs (← one)
   | "CEIL" => numUnary (fun q => (q.ceil : Rat)) Float.ceil (← one)
   | "FLOOR" => numUnary (fun q => (q.floor : Rat)) Float.floor (← one)
@@ -426,6 +466,48 @@ def callBuiltin (f : String) (args : List Term) : Value := do
       let dt := (f.drop Xsd.ns.length).toString
       if casts.contains dt then castTo dt (← one) else throw s!"unknown function <{f}>"
     else throw s!"unsupported function {f}"
+
+/-- A 128-bit-looking hexadecimal identifier from a seed. -/
+def hexId (seed : UInt64) : String :=
+  let h (k : UInt64) : String :=
+    let v := (mixHash seed k).toNat
+    String.ofList ((List.range 16).map fun i => "0123456789abcdef".toList.getD ((v / 16 ^ i) % 16) '0')
+  let all := h 1 ++ h 2
+  s!"{all.take 8}-{(all.drop 8).take 4}-4{(all.drop 13).take 3}-8{(all.drop 17).take 3}-{(all.drop 20).take 12}"
+
+/-- Functions whose value depends on the solution and the call site (`BNODE`, `UUID`, `STRUUID`,
+`RAND`), on the query's base (`IRI`, `URI`), or on the query time (`NOW`): the parser tags each
+call site with `#n` and IRI calls with `@base`. Values are derived from the solution's hash, so
+they differ between solutions and call sites and are the same for the same solution. -/
+def callWithSolution (μ : Mapping) (f : String) (args : List Term) : Value := do
+  let site := ((f.splitOn "#").getD 1 "0")
+  -- the solution without blank nodes, which earlier BNODE() calls may have added
+  let sol := μ.toList.filter fun (_, t) => match t with | .bnode _ => false | _ => true
+  let seed := mixHash (hash sol) (hash site)
+  match (f.splitOn "#").head? with
+  | some "BNODE" =>
+    match args with
+    | [] => return .bnode ⟨s!"bn{site}_{seed}"⟩
+    | [t] => match stringArg? t with
+      | some (s, none) => return .bnode ⟨s!"bs{hash sol}_{hash s}"⟩
+      | _ => throw "BNODE of a non-string"
+    | _ => throw "BNODE: at most one argument"
+  | some "UUID" => return .iri ⟨"urn:uuid:" ++ hexId seed⟩
+  | some "STRUUID" => return strTerm (hexId seed)
+  | some "RAND" => return dblTerm ((seed % 1000000).toNat.toFloat / 1000000.0)
+  | some "NOW" => return typed "2026-01-01T00:00:00Z" "dateTime"
+  | _ =>
+    match f.splitOn "@" with
+    | [name, base] =>
+      if name == "IRI" || name == "URI" then
+        match args with
+        | [.iri i] => return .iri i
+        | [t] => match stringArg? t with
+          | some (s, none) => return .iri ⟨Turtle.resolve base s⟩
+          | _ => throw "IRI of a non-string"
+        | _ => throw "IRI takes one argument"
+      else callBuiltin f args
+    | _ => callBuiltin f args
 
 -- @tg: implements:: [[openspec:sparql-algebra#Expressions]]
 mutual
@@ -468,7 +550,7 @@ def Expr.eval (ex : Pattern → Bool) (μ : Mapping) : Expr → Value
     let x ← a.eval ex μ
     let r ← Expr.inListEval ex μ x l
     return boolTerm (r != n)
-  | .call f args => do callBuiltin f (← Expr.evalList ex μ args)
+  | .call f args => do callWithSolution μ f (← Expr.evalList ex μ args)
   | .exists n p => .ok (boolTerm (ex (p.subst μ) != n))
 
 /-- Evaluate arguments, failing on the first error. -/

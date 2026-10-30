@@ -1,0 +1,12 @@
+# W3C SPARQL 1.1 query tests that SparqlTests.W3C skips: test key and reason.
+# Reasons: update, service, entailment, hash-function, rdfxml. A listed test that passes fails the build.
+subquery/subquery01 rdfxml
+subquery/subquery02 rdfxml
+subquery/subquery03 rdfxml
+subquery/subquery04 rdfxml
+subquery/subquery05 rdfxml
+subquery/subquery06 rdfxml
+subquery/subquery07 rdfxml
+subquery/subquery08 rdfxml
+subquery/subquery09 rdfxml
+subquery/subquery10 rdfxml

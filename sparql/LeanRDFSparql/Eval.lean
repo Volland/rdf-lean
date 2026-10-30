@@ -1,4 +1,4 @@
-import LeanRDFSparql.Semantics
+import LeanRDFSparql.Ops
 
 /-!
 # The reference evaluator
@@ -46,12 +46,15 @@ def evalN : Nat → Dataset → Graph → Pattern → List Mapping
     | .leftJoin a b e => Spec.leftJoin (evalN n D G a) (evalN n D G b) fun μ => (e.eval ex μ).holds
     | .filter e a => (evalN n D G a).filter fun μ => (e.eval ex μ).holds
     | .union a b => evalN n D G a ++ evalN n D G b
-    | .graph (.term g) a => evalN n D (D.namedGraph g) a
+    | .graph (.term g) a => if D.graphNames.contains g then evalN n D (D.namedGraph g) a else []
     | .graph (.var v) a =>
       D.graphNames.flatMap fun g => (evalN n D (D.namedGraph g) a).filterMap (Spec.bindGraph v g)
     | .extend a v e => Spec.extend (evalN n D G a) v fun μ => e.eval ex μ
     | .minus a b => Spec.minus (evalN n D G a) (evalN n D G b)
     | .table rows => rows
+    | .path s p o => Spec.pathOp G s p o
+    | .group keys aggs a => Spec.groupOp ex keys aggs (evalN n D G a)
+    | .subquery pr d ob off lim a => Spec.subqueryOp ex pr d ob off lim (evalN n D G a)
 
 /-- Evaluate a pattern over a dataset, on its default graph. -/
 def eval (D : Dataset) (P : Pattern) : List Mapping := evalN (P.size + 1) D D.defaultGraph P

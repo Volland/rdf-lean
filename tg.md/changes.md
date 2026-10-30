@@ -121,9 +121,9 @@ Capability `sparql-algebra`. Depends on [[changes#add-datasets]] and [[changes#a
 
 P3: SPARQL 1.1 parser and translation, result formats, `leanrdf-sparql`, the W3C query tests and a differential report against oxilite.
 
-Capability `sparql-syntax`. Depends on [[changes#add-sparql-algebra]].
+Capability `sparql-syntax`. Depends on [[changes#add-sparql-algebra]]. See [[decisions#SPARQL syntax, extensions and the W3C suite]].
 
-- status:: proposed
+- status:: archived
 
 ## add-owl-rl
 

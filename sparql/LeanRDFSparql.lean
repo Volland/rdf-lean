@@ -1,11 +1,17 @@
 import LeanRDFSparql.Mapping
 import LeanRDFSparql.Algebra
 import LeanRDFSparql.Expr
-import LeanRDFSparql.Semantics
+import LeanRDFSparql.Order
+import LeanRDFSparql.Ops
 import LeanRDFSparql.Eval
+import LeanRDFSparql.Semantics
 import LeanRDFSparql.BgpCorrect
 import LeanRDFSparql.Correct
 import LeanRDFSparql.Query
+import LeanRDFSparql.Syntax
+import LeanRDFSparql.Parser
+import LeanRDFSparql.Results
+import LeanRDFSparql.Run
 
 /-!
 # LeanRDFSparql

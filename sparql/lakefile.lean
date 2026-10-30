@@ -18,5 +18,15 @@ require leanrdf from ".."
 
 @[default_target] lean_lib LeanRDFSparql
 
+/-- The vendored W3C SPARQL 1.1 tests, read by `SparqlTests.W3C` at build time. -/
+input_dir sparqlTestData where
+  path := "SparqlTests/data"
+  text := true
+
 lean_lib SparqlTests where
   globs := #[.andSubmodules `SparqlTests]
+  needs := #[sparqlTestData]
+
+/-- `lake exe leanrdf-sparql query --location FILE --query Q [--results-format F]`. -/
+lean_exe «leanrdf-sparql» where
+  root := `SparqlMain

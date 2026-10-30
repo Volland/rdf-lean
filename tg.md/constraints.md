@@ -132,6 +132,20 @@ Expressions evaluate to RDF terms or errors: `&&` and `||` by the §17.2 truth t
 - source:: SPARQL 1.1 Query Language §17; XPath and XQuery Functions and Operators 3.1 §5.6 (regular expressions)
 - constrains:: [[decisions#A proven reference evaluator for SPARQL]] {strength: must}
 
+## SPARQL grammar
+
+SPARQL queries follow the `QueryUnit` grammar of SPARQL 1.1 §19, with codepoint escapes replaced before parsing (§19.2) and the restrictions of §19.8 checked after it.
+
+- source:: SPARQL 1.1 Query Language (W3C Recommendation, 21 March 2013) §19
+- constrains:: [[decisions#SPARQL syntax, extensions and the W3C suite]] {strength: must}
+
+## SPARQL results formats
+
+Answers are written as SPARQL 1.1 Query Results JSON, XML, CSV and TSV, and graph answers as N-Triples.
+
+- source:: SPARQL 1.1 Query Results JSON Format; SPARQL Query Results XML Format (Second Edition); SPARQL 1.1 Query Results CSV and TSV Formats (W3C Recommendations, 21 March 2013)
+- constrains:: [[decisions#SPARQL syntax, extensions and the W3C suite]] {strength: must}
+
 ## RFC 3986 reference resolution
 
 Relative IRI references in Turtle resolve against the base by RFC 3986 §5.2, including dot-segment removal.

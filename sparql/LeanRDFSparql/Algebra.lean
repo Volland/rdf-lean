@@ -34,6 +34,19 @@ inductive CmpOp | eq | ne | lt | le | gt | ge
 inductive ArithOp | add | sub | mul | div
   deriving DecidableEq, Hashable, Repr, Inhabited
 
+/-- A property path (§9, §18.1.7). `negated` is a negated property set: forward IRIs and inverse
+IRIs that the step must avoid. -/
+inductive Path
+  | iri (i : IRI)
+  | inv (p : Path)
+  | seq (a b : Path)
+  | alt (a b : Path)
+  | zeroOrMore (p : Path)
+  | oneOrMore (p : Path)
+  | zeroOrOne (p : Path)
+  | negated (fwd inv : List IRI)
+  deriving Repr, Inhabited, BEq
+
 -- @tg: implements:: [[openspec:sparql-algebra#Algebra]]
 mutual
 
@@ -55,6 +68,12 @@ inductive Expr
   | exists (negated : Bool) (p : Pattern)
   deriving Repr, Inhabited
 
+/-- An aggregate (§18.5): `COUNT`, `SUM`, `MIN`, `MAX`, `AVG`, `SAMPLE` or `GROUP_CONCAT`, with
+DISTINCT, an argument (`none` for `COUNT(*)`) and a separator. -/
+inductive Aggregate
+  | mk (fn : String) (distinct : Bool) (arg : Option Expr) (sep : String)
+  deriving Repr, Inhabited
+
 /-- A graph pattern (§18.2). -/
 inductive Pattern
   | bgp (tps : List TriplePattern)
@@ -66,6 +85,14 @@ inductive Pattern
   | extend (a : Pattern) (v : Var) (e : Expr)
   | minus (a b : Pattern)
   | table (rows : List Mapping)
+  /-- A property path between two positions (§18.2.2.4); an extension outside the proof. -/
+  | path (s : TermPat) (p : Path) (o : TermPat)
+  /-- Group and aggregate (§18.2.4.1): the key expressions (with the variables they bind) and the
+  aggregates; an extension outside the proof. -/
+  | group (keys : List (Expr × Option Var)) (aggs : List (Var × Aggregate)) (a : Pattern)
+  /-- A subquery with its modifiers (§12); an extension outside the proof. -/
+  | subquery (project : Option (List Var)) (distinct : Bool) (orderBy : List (Expr × Bool))
+      (offset : Nat) (limit : Option Nat) (a : Pattern)
   deriving Repr, Inhabited
 
 end
@@ -112,7 +139,8 @@ def Expr.sizeList : List Expr → Nat
   | e :: es => e.size + Expr.sizeList es
 
 def Pattern.size : Pattern → Nat
-  | .bgp _ | .table _ => 1
+  | .bgp _ | .table _ | .path _ _ _ => 1
+  | .group _ _ a | .subquery _ _ _ _ _ a => a.size + 1
   | .join a b | .union a b | .minus a b => a.size + b.size + 1
   | .leftJoin a b e => a.size + b.size + e.size + 1
   | .filter e a => e.size + a.size + 1
@@ -165,6 +193,9 @@ def Pattern.subst (μ : Mapping) : Pattern → Pattern
   | .extend a v e => .extend (a.subst μ) v (e.subst μ)
   | .minus a b => .minus (a.subst μ) (b.subst μ)
   | .table rows => .table rows
+  | .path s p o => .path (s.subst μ) p (o.subst μ)
+  | .group keys aggs a => .group keys aggs (a.subst μ)
+  | .subquery pr d ob off lim a => .subquery pr d ob off lim (a.subst μ)
 
 end
 
@@ -189,7 +220,8 @@ theorem Expr.size_substList (μ : Mapping) : ∀ es : List Expr,
   | e :: es => by simp [Expr.substList, Expr.sizeList, Expr.size_subst μ e, Expr.size_substList μ es]
 
 theorem Pattern.size_subst (μ : Mapping) : ∀ p : Pattern, (p.subst μ).size = p.size
-  | .bgp _ | .table _ => rfl
+  | .bgp _ | .table _ | .path _ _ _ => rfl
+  | .group _ _ a | .subquery _ _ _ _ _ a => by simp [Pattern.subst, Pattern.size, Pattern.size_subst μ a]
   | .join a b | .union a b | .minus a b => by
     simp [Pattern.subst, Pattern.size, Pattern.size_subst μ a, Pattern.size_subst μ b]
   | .leftJoin a b e => by

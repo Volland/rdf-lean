@@ -166,3 +166,21 @@ oxilite answers: 2
 ```
 
 Alice owns Rex only through `hasDog rdfs:subPropertyOf hasPet`, and Rex is a mammal only through the range of `hasDog`. oxilite explains it with `prp-spo1`, `prp-rng` and `cax-sco`, which the translator maps to `rdfs7`, `rdfs3` and `rdfs9`. An answer that does not follow, such as Bob owning Rex, is reported `not derived` and the command exits with 1. `--record DIR` saves oxilite's outputs, and `--results`/`--why-dir` replay them without oxilite.
+
+## 9. Query with SPARQL
+
+*sparql/*. `leanrdf-sparql` takes oxilite's flags and runs a query with the evaluator that is proven to compute the SPARQL semantics. It passes the 97 syntax tests and 257 evaluation tests of the W3C SPARQL 1.1 query suite.
+
+```
+$ cd sparql
+$ lake exe leanrdf-sparql query --location ../elpi/BridgeTests/data/oxilite/pets/data.ttl \
+    --query 'PREFIX ex: <http://example.org/>
+             SELECT ?owner (COUNT(?pet) AS ?n)
+             WHERE { ?owner ex:hasPet|ex:hasDog ?pet } GROUP BY ?owner' --results-format tsv
+?owner	?n
+<http://example.org/bob>	1
+<http://example.org/alice>	1
+```
+
+`scripts/sparql-diff.sh /path/to/oxilite` runs the whole suite on both engines and writes `sparql/diff-report.md`.
+
