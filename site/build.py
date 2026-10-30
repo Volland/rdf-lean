@@ -139,7 +139,7 @@ def front(text: str):
 
 # ---------------------------------------------------------------- layout
 NAV = [("/", "Home"), ("/book/", "Book"), ("/examples/", "Examples"), ("/reference/", "Reference"),
-       (REPO, "GitHub")]
+       ("/roadmap/", "Roadmap"), (REPO, "GitHub")]
 
 def page(title, body, path, desc="", extra_nav="", article=True):
     nav = "".join(

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 600" role="img" aria-labelledby="t d" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <title id="t">LeanRDF roadmap</title>
+  <desc id="d">Seven phases in four lanes. Foundation: P0 release v0.1, then P1 core additions (datasets and XSD values). SPARQL in Lean: P3, after P1. Validation: P5 SHACL Core, after P1. Certify oxilite: P2 RDFS answers right after P0, then P4 OWL 2 RL, then P6 OWL EL.</desc>
+  <defs>
+    <marker id="ra" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8a8d94"/></marker>
+  </defs>
+  <rect width="760" height="600" rx="14" fill="#fbfbf8"/>
+  <text x="24" y="34" font-size="15" font-weight="600" fill="#1c1d20">Certifying oxilite starts right after v0.1; SPARQL waits on the core</text>
+  <g fill="#efefe8">
+    <rect x="16" y="64" width="728" height="112" rx="8"/>
+    <rect x="16" y="192" width="728" height="112" rx="8"/>
+    <rect x="16" y="320" width="728" height="112" rx="8"/>
+    <rect x="16" y="448" width="728" height="112" rx="8"/>
+  </g>
+  <g font-size="11.5" font-weight="600" fill="#5d6068">
+    <text x="32" y="82">Foundation</text>
+    <text x="32" y="210">SPARQL in Lean</text>
+    <text x="32" y="338">Validation</text>
+    <text x="32" y="466">Certify oxilite</text>
+  </g>
+  <g fill="none" stroke="#8a8d94" stroke-width="1.25">
+    <path d="M184 128H208" marker-end="url(#ra)"/>
+    <path d="M288 164V256H392" marker-end="url(#ra)"/>
+    <path d="M288 256V384H392" marker-end="url(#ra)"/>
+    <path d="M160 164V512H208" marker-end="url(#ra)"/>
+    <path d="M368 512H392" marker-end="url(#ra)"/>
+    <path d="M552 512H576" marker-end="url(#ra)"/>
+  </g>
+  <g fill="#fff" stroke="#c9cad0" stroke-width="1.25">
+    <rect x="24" y="92" width="160" height="72" rx="8"/>
+    <rect x="208" y="92" width="160" height="72" rx="8"/>
+    <rect x="392" y="220" width="160" height="72" rx="8"/>
+    <rect x="392" y="348" width="160" height="72" rx="8"/>
+    <rect x="392" y="476" width="160" height="72" rx="8"/>
+    <rect x="576" y="476" width="160" height="72" rx="8"/>
+  </g>
+  <rect x="208" y="476" width="160" height="72" rx="8" fill="#e7f6f2" stroke="#159c86" stroke-width="2"/>
+  <g text-anchor="middle" font-size="13" font-weight="600" fill="#1c1d20">
+    <text x="104" y="116">P0 Release v0.1</text>
+    <text x="288" y="116">P1 Core additions</text>
+    <text x="472" y="244">P3 SPARQL in Lean</text>
+    <text x="472" y="372">P5 SHACL Core</text>
+    <text x="288" y="500" fill="#11735f">P2 RDFS answers</text>
+    <text x="472" y="500">P4 OWL 2 RL</text>
+    <text x="656" y="500">P6 OWL EL</text>
+  </g>
+  <g text-anchor="middle" font-size="11.5" fill="#5d6068">
+    <text x="104" y="136">license, CI, v0.1.0 tag</text>
+    <text x="104" y="152">repo public</text>
+    <text x="288" y="136">datasets, N-Quads, TriG</text>
+    <text x="288" y="152">XSD values proven</text>
+    <text x="472" y="264">evaluator proven</text>
+    <text x="472" y="280">agrees with oxilite</text>
+    <text x="472" y="392">validator proven</text>
+    <text x="472" y="408">W3C core tests</text>
+    <text x="288" y="520" fill="#1c1d20">oxilite answers and</text>
+    <text x="288" y="536" fill="#1c1d20">why-trees certified</text>
+    <text x="472" y="520">rules proven sound</text>
+    <text x="472" y="536">materialization certified</text>
+    <text x="656" y="520">EL rules proven sound</text>
+    <text x="656" y="536">classification certified</text>
+  </g>
+  <text x="24" y="586" font-size="11.5" fill="#5d6068">An arrow means the later phase needs the earlier one done. Highlighted: the first oxilite work.</text>
+</svg>

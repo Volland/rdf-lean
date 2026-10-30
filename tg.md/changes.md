@@ -76,3 +76,75 @@ M7: native Turtle parser on the W3C `rdf-turtle` suite.
 Capability `turtle`. See [[decisions#N-Triples first, native Turtle later]].
 
 - status:: archived
+
+## release-v0-1
+
+P0: licence `MIT OR Apache-2.0`, package metadata, CI for both packages, the public repository and the `v0.1.0` release.
+
+Capability `release`. Starts the roadmap of [[decisions#LeanRDF is the proof layer for oxilite]].
+
+- status:: proposed
+
+## add-datasets
+
+P1: `Quad` and `Dataset`, N-Quads and TriG with the W3C suites.
+
+Capability `datasets`. Supersedes [[decisions#No datasets in v0.x]] when applied.
+
+- status:: proposed
+
+## add-xsd-values
+
+P1: XSD value spaces, canonical forms with round-trip proofs, and comparison with numeric promotion.
+
+Capability `xsd-values`.
+
+- status:: proposed
+
+## add-oxilite-certify
+
+P2: certify oxilite's RDFS answers from its `why` trees or with Elpi; `leanrdf-oxilite`.
+
+Capability `oxilite-bridge`. Depends on [[changes#release-v0-1]].
+
+- status:: proposed
+
+## add-sparql-algebra
+
+P3: package `leanrdf-sparql` with the §18 algebra semantics, expressions, a regex engine and an evaluator proven against the semantics.
+
+Capability `sparql-algebra`. Depends on [[changes#add-datasets]] and [[changes#add-xsd-values]]. See [[decisions#Layers as packages in one repository]].
+
+- status:: proposed
+
+## add-sparql-syntax
+
+P3: SPARQL 1.1 parser and translation, result formats, `leanrdf-sparql`, the W3C query tests and a differential report against oxilite.
+
+Capability `sparql-syntax`. Depends on [[changes#add-sparql-algebra]].
+
+- status:: proposed
+
+## add-owl-rl
+
+P4: package `leanrdf-owl` with the OWL 2 RDF-Based conditions and the fixed-arity OWL 2 RL rules proven sound; OWL why trees and materialized inferences from oxilite certified.
+
+Capabilities `owl-rl` and `oxilite-bridge`. Depends on [[changes#add-oxilite-certify]].
+
+- status:: proposed
+
+## add-shacl-core
+
+P5: package `leanrdf-shacl` with the SHACL Core semantics, a validator proven against it and the W3C core tests.
+
+Capability `shacl-core`. Depends on [[changes#add-datasets]], [[changes#add-xsd-values]] and the regex engine of [[changes#add-sparql-algebra]].
+
+- status:: proposed
+
+## add-owl-el
+
+P6: EL completion rules proven sound and certified classification with `leanrdf-classify`.
+
+Capability `owl-el`. Depends on [[changes#add-owl-rl]].
+
+- status:: proposed

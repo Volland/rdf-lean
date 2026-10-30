@@ -320,3 +320,29 @@ LeanRDF v0.x has graphs only; datasets return together with N-Quads and named-gr
 
 - motivated_by:: [[decisions#Graph queries with instance mappings]]
 - motivated_by:: [[decisions#Own certificate format with a Datalog export]]
+
+## LeanRDF is the proof layer for oxilite
+
+LeanRDF does not become a database. oxilite stores, queries and reasons; LeanRDF checks what oxilite claims, and gives SPARQL a semantics and a reference evaluator to test oxilite against.
+
+**Context.** oxilite (github.com/Volland/oxilite) is an Oxigraph-compatible SPARQL store on SQLite with RDFS and OWL-QL rewriting, OWL 2 RL materialization, Datalog and SHACL, and a `why` tool that explains inferences as proof trees. A second store in Lean would duplicate it without making it more trustworthy.
+
+**Decision.** The roadmap after v0.1 (`tg.md/changes.md`, the site's roadmap page) certifies oxilite's answers and explanations, proves a SPARQL evaluator against the algebra semantics and compares oxilite with it, and extends the proven rules to OWL 2 RL and EL and SHACL Core. LeanRDF talks to oxilite only through its command line and MCP tools; no change to oxilite is required.
+
+**Consequences.** "Elpi finds, Lean checks" generalizes to "oxilite finds, Lean checks". Certification proves soundness of answers, never completeness; completeness questions are answered by the proven SPARQL evaluator, not by certificates.
+
+- motivated_by:: [[decisions#Own checker first, LF backend later]]
+- motivated_by:: [[decisions#Demo never claims non-entailment]] {weight: secondary}
+
+## Layers as packages in one repository
+
+SPARQL, OWL and SHACL are Lake packages in this repository (`sparql/`, `owl/`, `shacl/`), each requiring the core by path, rather than separate repositories.
+
+**Context.** The layers reuse `Rule`, `Derives`, the certificate checker and the parsers, and building them changes those. Lean packages must share one toolchain.
+
+**Decision.** One repository, one package per layer, one CI. A layer moves to its own repository only when it gets its own contributors or release cadence, or a heavy dependency (Mathlib, an FFI).
+
+**Consequences.** A core change and its users land in one commit. Downstream users still fetch only the packages they require, with `require … from git … / "owl"`.
+
+- motivated_by:: [[constraints#Lake requires per package]] {weight: primary}
+- motivated_by:: [[decisions#Dependency-free core package]]
