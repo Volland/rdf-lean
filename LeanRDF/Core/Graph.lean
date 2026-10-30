@@ -82,6 +82,12 @@ def size (g : Graph) : Nat := g.triples.size
 @[simp] theorem mem_toList {t : Triple} {g : Graph} : t ∈ g.toList ↔ t ∈ g := by
   simp [toList, List.mem_mergeSort, Std.HashSet.mem_toList, mem_def]
 
+/-- `toList` lists each triple once. -/
+theorem nodup_toList (g : Graph) : g.toList.Nodup := by
+  unfold toList
+  refine (List.mergeSort_perm _ _).nodup_iff.mpr ?_
+  exact g.triples.distinct_toList.imp fun h e => by subst e; simp at h
+
 end Graph
 
 end LeanRDF

@@ -118,6 +118,20 @@ Query answers arrive as SPARQL 1.1 Query Results JSON: `head.vars` and `results.
 - source:: SPARQL 1.1 Query Results JSON Format (W3C Recommendation, 21 March 2013) §3
 - constrains:: [[decisions#Two ways to certify oxilite's answers]] {strength: must}
 
+## SPARQL algebra
+
+SPARQL graph patterns denote multisets of solution mappings by the algebra of SPARQL 1.1 §18: BGPs with blank nodes as hidden variables, Join, LeftJoin, Filter, Union, Graph, Extend, Minus, VALUES, and the modifiers.
+
+- source:: SPARQL 1.1 Query Language (W3C Recommendation, 21 March 2013) §18.2, §18.3, §18.5, §18.6
+- constrains:: [[decisions#A proven reference evaluator for SPARQL]] {strength: must}
+
+## SPARQL expressions
+
+Expressions evaluate to RDF terms or errors: `&&` and `||` by the §17.2 truth tables, comparisons by RDF term equality and the operator mapping, and the functions of §17.4.
+
+- source:: SPARQL 1.1 Query Language §17; XPath and XQuery Functions and Operators 3.1 §5.6 (regular expressions)
+- constrains:: [[decisions#A proven reference evaluator for SPARQL]] {strength: must}
+
 ## RFC 3986 reference resolution
 
 Relative IRI references in Turtle resolve against the base by RFC 3986 §5.2, including dot-segment removal.

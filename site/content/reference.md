@@ -50,6 +50,20 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 
 | `LeanRDFElpi.Oxilite.*` | `parseResults`, `patternQuery`, `instantiate`, `WhyNode`, `certificateOfWhy`, `certifyByElpi`, `certifyByWhy`, `run`; `lake exe leanrdf-oxilite` |
 
+## leanrdf-sparql
+
+`leanrdf-sparql` (`sparql/`) requires `leanrdf`.
+
+| Module | Main definitions |
+|---|---|
+| `LeanRDFSparql.Mapping` | `Mapping`, `find?`, `insert`, `merge`, `restrict`, `compatible`, `ext` |
+| `LeanRDFSparql.Algebra` | `TermPat`, `TriplePattern`, `Expr`, `Pattern`, `Query`, `subst`, `size` |
+| `LeanRDFSparql.Expr` | `Expr.eval`, `ebv`, `termEq`, `termCmp`, `callBuiltin`, `castTo` |
+| `LeanRDFSparql.Semantics` | `Spec.bgp`, `Spec.join`, `Spec.leftJoin`, `Spec.minus`, `Spec.evalN`, `Spec.eval` |
+| `LeanRDFSparql.Eval` | `Eval.matchTP`, `Eval.bgp`, `Eval.evalN`, `Eval.eval` |
+| `LeanRDFSparql.BgpCorrect`, `Correct`, `Query` | `bgp_perm`, `evalN_perm`, `eval_perm_spec`, `orderBy_sorted`, `Spec.Answer`, `Eval.runQuery`, `runQuery_answer` |
+| `LeanRDF.Text.Regex` (core) | `compile`, `isMatch`, `replace` |
+
 ## Key theorems
 
 ```lean
@@ -67,6 +81,11 @@ theorem checkQuery_sound (h : checkQuery RDFS.rdfsRules g q c = .ok ()) : g.RDFS
 theorem Xsd.parseInteger_canonical (n : Int) : parseInteger (canonicalInteger n) = some n
 theorem Xsd.parseDecimal_canonical (q : Rat) (s : String) (h : canonicalDecimal? q = some s) :
     parseDecimal s = some q
+-- SPARQL: the evaluator computes the semantics
+theorem evalN_perm (n : Nat) (D : Dataset) (G : Graph) (P : Pattern) :
+    Eval.evalN n D G P ~ Spec.evalN n D G P
+theorem runQuery_answer (D : Dataset) (q : Query) : Spec.Answer D q (Eval.runQuery D q)
+
 theorem Xsd.compare_integer_iff (a b : Int) :
     ((XsdValue.integer a).compare? (.integer b) = some .lt ↔ a < b) ∧
     ((XsdValue.integer a).compare? (.integer b) = some .eq ↔ a = b)

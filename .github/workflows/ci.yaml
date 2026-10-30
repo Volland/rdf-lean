@@ -28,6 +28,17 @@ jobs:
       - name: Release contract
         run: python3 scripts/check_release.py
 
+  sparql:
+    name: leanrdf-sparql (algebra and evaluator)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: sparql
+          build: true
+          test: true
+
   elpi:
     name: leanrdf-elpi (bridge and demo)
     runs-on: ubuntu-latest

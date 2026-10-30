@@ -20,19 +20,29 @@ SPARQL 1.1 Query Language (W3C Recommendation, 2013) §18 defines the algebra an
 
 ### The evaluator is a different algorithm
 
-`Eval.eval` matches a BGP one triple pattern at a time, extending partial mappings against the graph. A Join whose right side is a BGP is evaluated as a bind join (the BGP matched under each left mapping). ORDER BY is a stable merge sort. The main theorem is
+`Eval.evalN` matches a BGP one triple pattern at a time, extending partial mappings against the graph (`bgp_perm` proves it equal, as a multiset, to the enumeration of assignments). The main theorem is
 
-`eval_perm_spec : Eval.eval D G P ~ Spec.eval D G P` for every `P` in the core fragment.
+`evalN_perm : Eval.evalN n D G P ~ Spec.evalN n D G P` for every fuel, dataset, graph and pattern,
 
-ORDER BY is also proven to produce a sorted result, and Slice is exact on the sorted list.
+and `eval_perm_spec` is its instance at the default graph. The other operators are shared, and each preserves permutations of its inputs.
+
+A bind join was planned for Joins with a BGP on the right, and dropped: a left solution can bind a blank-node variable of the BGP (through VALUES), which the specification projects away but a bind join would constrain. Making it correct needs renaming of blank-node variables; it is left for when performance matters.
+
+### Fuel for EXISTS
+
+`EXISTS` evaluates the substituted pattern (§18.6), which is not a structural subterm. Both the specification and the evaluator take fuel, one unit per nesting level, and `eval` gives `Pattern.size + 1`, more than the depth. The theorem holds for every fuel, so `EXISTS` is inside the proven fragment.
+
+### ORDER BY with a provable order
+
+SPARQL leaves ties open, so a query's answer is specified by `Spec.Answer`: the modifiers applied to some permutation of the solutions that is sorted by the keys. Keys are triples in `Nat × Rat × String` (category, numeric value, string), ordered lexicographically, with one direction per key; that order is proven total and transitive, which `List.pairwise_mergeSort` needs for `orderBy_sorted`. `runQuery_answer` proves the evaluator's answer satisfies `Spec.Answer`.
 
 ### Expressions are one function
 
-The expression semantics is the function `Expr.eval`, used by both the specification and the evaluator, so it needs no correctness theorem. Errors are a value of `Except`. `&&` and `||` follow the §17.2 truth tables. Comparisons use `XsdValue.compare?`. `EXISTS` takes the pattern evaluator as a parameter, which keeps the definitions non-recursive across modules.
+The expression semantics is the function `Expr.eval`, used by both the specification and the evaluator, so it needs no correctness theorem. Errors are a value of `Except`. `&&` and `||` follow the §17.2 truth tables. Comparisons use `XsdValue.compare?`. `EXISTS` is answered by an oracle on the substituted pattern, which the pattern semantics supplies with one unit less fuel.
 
 ### A small regex engine in the core
 
-`LeanRDF.Text.Regex` compiles the XPath/XML Schema regex syntax (classes, escapes, quantifiers with bounds, groups, alternation, anchors, flags `i`, `s`, `m`, `x`) to a backtracking matcher with fuel. It is shared with SHACL `sh:pattern`.
+`LeanRDF.Text.Regex` compiles the XPath/XML Schema regex syntax (classes, escapes, quantifiers with bounds, groups, alternation, anchors, flags `i`, `s`, `m`, `x`) to a backtracking matcher. It is executable code outside every proof (a `partial` definition), shared with SHACL `sh:pattern`.
 
 ## Constraints
 

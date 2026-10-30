@@ -113,9 +113,9 @@ Capability `oxilite-bridge`. Depends on [[changes#release-v0-1]]. See [[decision
 
 P3: package `leanrdf-sparql` with the §18 algebra semantics, expressions, a regex engine and an evaluator proven against the semantics.
 
-Capability `sparql-algebra`. Depends on [[changes#add-datasets]] and [[changes#add-xsd-values]]. See [[decisions#Layers as packages in one repository]].
+Capability `sparql-algebra`. Depends on [[changes#add-datasets]] and [[changes#add-xsd-values]]. See [[decisions#Layers as packages in one repository]] and [[decisions#A proven reference evaluator for SPARQL]].
 
-- status:: proposed
+- status:: archived
 
 ## add-sparql-syntax
 

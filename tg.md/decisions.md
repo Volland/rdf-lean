@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra]
 ---
 # Decisions
 
@@ -413,3 +413,17 @@ Integers are `Int`, decimals `Rat`, floats and doubles `Float`, and the lexical 
 - motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {weight: primary}
 - motivated_by:: [[decisions#Demo never claims non-entailment]]
 - motivated_by:: [[decisions#Own certificate format with a Datalog export]] {weight: secondary}
+
+## A proven reference evaluator for SPARQL
+
+`leanrdf-sparql` specifies SPARQL 1.1 by transcribing §18.5 on lists up to permutation, and proves its evaluator equal to it: `evalN_perm` for every pattern, `runQuery_answer` for every query.
+
+**Context.** Answers that depend on absence (`OPTIONAL`, `MINUS`, `NOT EXISTS`) cannot be certified one at a time, so the evaluator itself must be proven to be useful as a reference for oxilite.
+
+**Decision.** Mappings are strictly sorted association lists (equal mappings are equal lists). The BGP specification enumerates assignments over the graph's terms; the evaluator matches triple patterns one at a time, and `bgp_perm` proves them equal as multisets. `EXISTS` uses substitution (§18.6) with fuel, one unit per nesting level, so it stays inside the proof. ORDER BY keys are lexicographic triples in `Nat × Rat × String`, a proven total preorder, so `orderBy_sorted` follows from `List.pairwise_mergeSort`, and a query's answer is any sorted permutation (`Spec.Answer`), since SPARQL leaves ties open. A bind join was dropped: a VALUES row may bind a BGP's blank-node variable, which the semantics projects away but a bind join would constrain.
+
+**Consequences.** Expressions are one function shared by the specification and the evaluator, so they are tested, not proven. The evaluator is a reference for small data, not a production engine.
+
+- motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {weight: primary}
+- motivated_by:: [[constraints#SPARQL algebra]]
+- motivated_by:: [[decisions#Layers as packages in one repository]] {weight: secondary}

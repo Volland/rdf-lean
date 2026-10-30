@@ -1,6 +1,6 @@
 ---
 title: What is proven, what is trusted
-order: 10
+order: 11
 summary: The exact guarantee, the trusted base, the recorded simplifications, and what remains open.
 ---
 # What is proven, what is trusted

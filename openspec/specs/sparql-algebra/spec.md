@@ -1,4 +1,9 @@
-## ADDED Requirements
+# sparql-algebra Specification
+
+## Purpose
+TBD - created by archiving change add-sparql-algebra. Update Purpose after archive.
+
+## Requirements
 
 ### Requirement: Algebra
 `leanrdf-sparql` SHALL define the SPARQL 1.1 algebra of §18.2 for BGP, Join, LeftJoin, Filter, Union, Graph, Extend, Minus, Table, ToList, OrderBy, Project, Distinct, Reduced and Slice, over the `Dataset` of the core package, with solution mappings as sorted association lists.
@@ -23,11 +28,11 @@
 - **THEN** the result holds `{x ↦ a}` twice
 
 ### Requirement: Proven evaluator
-`Eval.eval` SHALL evaluate BGPs by matching triple patterns one at a time, Joins with a BGP on the right by bind join, and ORDER BY by a stable sort, and it SHALL be proven that `Eval.eval D G P` is a permutation of `Spec.eval D G P` for every pattern of the core fragment, and that ORDER BY returns a sorted list, with no `sorry` and no axiom beyond Lean's standard three.
+`Eval.evalN` SHALL evaluate BGPs by matching triple patterns one at a time, and `Eval.runQuery` SHALL order solutions by a stable sort. It SHALL be proven that `Eval.evalN n D G P` is a permutation of `Spec.evalN n D G P` for every fuel, dataset, active graph and pattern (`EXISTS` included), that ORDER BY returns a sorted list, and that every answer of `Eval.runQuery` satisfies `Spec.Answer`, with no `sorry` and no axiom beyond Lean's standard three.
 
 #### Scenario: Correctness theorem
 - **WHEN** the package is built
-- **THEN** `eval_perm_spec` and `orderBy_sorted` are theorems, and `#print axioms` shows only `propext`, `Quot.sound` and `Classical.choice`
+- **THEN** `eval_perm_spec`, `orderBy_sorted` and `runQuery_answer` are theorems, and `#print axioms` shows only `propext`, `Quot.sound` and `Classical.choice`
 
 #### Scenario: Evaluator and specification agree on small graphs
 - **WHEN** both are run on every pattern of the scenario tests
