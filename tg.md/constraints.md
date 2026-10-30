@@ -1,6 +1,7 @@
 ---
 type: Constraint
 source: "per section: see each constraint's source:: line"
+openspec: [xsd-values]
 ---
 # Constraints
 
@@ -94,16 +95,14 @@ A block may be preceded by `GRAPH` and a label; directives appear only outside b
 The lexical spaces, lexical-to-value mappings and canonical mappings of the XSD datatypes follow XML Schema 1.1 Part 2: integers and their derived types with ranges, decimals, booleans, floats, doubles and `dateTime`.
 
 - source:: W3C XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes (5 April 2012) §3.3, §3.4, §E.3
-- constrains:: [[openspec:xsd-values#Lexical-to-value mapping]] {strength: must}
-- constrains:: [[openspec:xsd-values#Canonical forms]] {strength: must}
-- constrains:: [[openspec:xsd-values#dateTime comparison]] {strength: must}
+- constrains:: [[decisions#Exact XSD values with proven canonical forms]] {strength: must, note: "lexical mappings, canonical forms, dateTime order"}
 
 ## SPARQL operator mapping
 
 SPARQL compares numbers after promotion along integer, decimal, float and double, strings by code point, and booleans with false before true.
 
 - source:: SPARQL 1.1 Query Language (W3C Recommendation, 21 March 2013) §17.3; XPath and XQuery Functions and Operators §4.2, §7, §9
-- constrains:: [[openspec:xsd-values#Value comparison]] {strength: must}
+- constrains:: [[decisions#Exact XSD values with proven canonical forms]] {strength: must, note: "numeric promotion"}
 
 ## RFC 3986 reference resolution
 
