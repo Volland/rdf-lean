@@ -81,9 +81,9 @@ Capability `turtle`. See [[decisions#N-Triples first, native Turtle later]].
 
 P0: licence `MIT OR Apache-2.0`, package metadata, CI for both packages, the public repository and the `v0.1.0` release.
 
-Capability `release`. Starts the roadmap of [[decisions#LeanRDF is the proof layer for oxilite]]. See [[decisions#Dual licence, CI and a tagged release]].
+Capability `release`. Starts the roadmap of [[decisions#LeanRDF is the proof layer for oxilite]]. See [[decisions#Dual licence, CI and a tagged release]]. Released on 2026-10-30.
 
-- status:: applied
+- status:: archived
 
 ## add-datasets
 
