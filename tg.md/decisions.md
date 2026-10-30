@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge]
 ---
 # Decisions
 
@@ -399,3 +399,17 @@ Integers are `Int`, decimals `Rat`, floats and doubles `Float`, and the lexical 
 - motivated_by:: [[constraints#XSD datatypes]] {weight: primary}
 - motivated_by:: [[constraints#SPARQL operator mapping]]
 - motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {weight: secondary}
+
+## Two ways to certify oxilite's answers
+
+`leanrdf-oxilite` certifies each answer oxilite gives under RDFS reasoning from oxilite's own `why` tree (mode `why`) and from an Elpi certificate (mode `elpi`); an answer is certified when the checker accepts either.
+
+**Context.** oxilite needs no change for either: `oxilite query --reasoning rdfs` gives the answers, and `oxilite mcp` serves `why`, whose trees name OWL 2 RL templates and their premises.
+
+**Decision.** The query is a Turtle pattern whose blank nodes are variables, rendered as `SELECT *`, so no SPARQL parser is needed yet. A `why` step is translated by trying the rules (template names only order the attempts) against every order of its premises with `Cert.checkNode`, so a translated step is one the checker accepts; notes, `absent` nodes and unmatched steps make an answer `untranslated`. Running oxilite (a temporary project and store, one MCP session) is plumbing whose failures exit with 3; recorded outputs (`--record`, `--results`, `--why-dir`) let `lake test` replay oxilite 0.9.1 without it.
+
+**Consequences.** "oxilite finds, Lean checks" holds for RDFS today. A certified answer is proven sound, never complete: oxilite may return fewer answers than RDFS entails.
+
+- motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {weight: primary}
+- motivated_by:: [[decisions#Demo never claims non-entailment]]
+- motivated_by:: [[decisions#Own certificate format with a Datalog export]] {weight: secondary}

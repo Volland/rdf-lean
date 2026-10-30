@@ -147,3 +147,22 @@ Verdict: ENTAILED. The certificate was accepted by the verified checker (compile
 ```
 
 <figure><img src="{{BASE}}/assets/pets-graph.svg" alt="The pet ontology with the two derived triples"><figcaption>The two dashed triples are nodes 4 and 5 of the certificate.</figcaption></figure>
+
+## 8. Certify oxilite's answers
+
+*elpi/BridgeTests/Oxilite.lean*. [oxilite](https://oxilitedb.com) answers the same pet query with RDFS reasoning by query rewriting. `leanrdf-oxilite` asks it for the answers, then certifies each one twice: from oxilite's own `why` proof tree, translated rule by rule, and from a certificate Elpi finds. Both go through the same verified checker.
+
+```
+$ lake exe leanrdf-oxilite examples/pets.nt examples/query-mammal-owner.nt --oxilite oxilite
+oxilite answers: 2
+[0] ?owner = <http://example.org/alice>, ?pet = <http://example.org/rex>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+[1] ?owner = <http://example.org/bob>, ?pet = <http://example.org/tom>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+```
+
+Alice owns Rex only through `hasDog rdfs:subPropertyOf hasPet`, and Rex is a mammal only through the range of `hasDog`. oxilite explains it with `prp-spo1`, `prp-rng` and `cax-sco`, which the translator maps to `rdfs7`, `rdfs3` and `rdfs9`. An answer that does not follow, such as Bob owning Rex, is reported `not derived` and the command exits with 1. `--record DIR` saves oxilite's outputs, and `--results`/`--why-dir` replay them without oxilite.

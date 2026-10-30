@@ -29,9 +29,20 @@ input_dir elpiDriver where
 @[default_target] lean_lib LeanRDFElpi where
   needs := #[elpiDriver]
 
+/-- Recorded oxilite outputs replayed by `BridgeTests.Oxilite`. -/
+input_dir oxiliteFixtures where
+  path := "BridgeTests/data/oxilite"
+  text := true
+
 lean_lib BridgeTests where
   globs := #[.andSubmodules `BridgeTests]
+  needs := #[oxiliteFixtures]
 
 /-- The demo: `lake exe leanrdf-demo DATA.nt QUERY.nt [--cert OUT.json] [--datalog OUT.json]`. -/
 lean_exe «leanrdf-demo» where
   root := `DemoMain
+
+/-- Certify oxilite's answers: `lake exe leanrdf-oxilite DATA PATTERN [--oxilite PATH]
+[--mode elpi|why|both] [--results FILE] [--why-dir DIR] [--record DIR]`. -/
+lean_exe «leanrdf-oxilite» where
+  root := `OxiliteMain

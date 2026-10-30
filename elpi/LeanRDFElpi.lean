@@ -3,6 +3,7 @@ import LeanRDFElpi.Codegen
 import LeanRDFElpi.Saturate
 import LeanRDFElpi.Certify
 import LeanRDFElpi.Demo
+import LeanRDFElpi.Oxilite.Run
 
 /-!
 # LeanRDFElpi

@@ -48,6 +48,8 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDFElpi.Certify` | `certify`, `entailmentCertificate` |
 | `LeanRDFElpi.Demo` | `run`, `verdict`; executable `leanrdf-demo` |
 
+| `LeanRDFElpi.Oxilite.*` | `parseResults`, `patternQuery`, `instantiate`, `WhyNode`, `certificateOfWhy`, `certifyByElpi`, `certifyByWhy`, `run`; `lake exe leanrdf-oxilite` |
+
 ## Key theorems
 
 ```lean

@@ -1,0 +1,81 @@
+[{"triple":
+  {"s": {"value": "http://example.org/bob", "termType": "NamedNode"},
+   "p": {"value": "http://example.org/hasPet", "termType": "NamedNode"},
+   "o": {"value": "http://example.org/tom", "termType": "NamedNode"}},
+  "status": "asserted",
+  "location":
+  {"uri":
+   "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+   "range":
+   {"start": {"line": 9, "character": 25},
+    "end": {"line": 9, "character": 52}}}},
+ {"triple":
+  {"s": {"value": "http://example.org/bob", "termType": "NamedNode"},
+   "p":
+   {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "termType": "NamedNode"},
+   "o": {"value": "http://example.org/Person", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "prp-dom (domain)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/bob", "termType": "NamedNode"},
+     "p": {"value": "http://example.org/hasPet", "termType": "NamedNode"},
+     "o": {"value": "http://example.org/tom", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+     "range":
+     {"start": {"line": 9, "character": 25},
+      "end": {"line": 9, "character": 52}}}},
+   {"triple":
+    {"s": {"value": "http://example.org/hasPet", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#domain",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Person", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+     "range":
+     {"start": {"line": 4, "character": 28},
+      "end": {"line": 4, "character": 73}}}}]},
+ {"triple":
+  {"s": {"value": "http://example.org/tom", "termType": "NamedNode"},
+   "p":
+   {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "termType": "NamedNode"},
+   "o": {"value": "http://example.org/Mammal", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "cax-sco (subclass)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/tom", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Cat", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+     "range":
+     {"start": {"line": 10, "character": 25},
+      "end": {"line": 10, "character": 74}}}},
+   {"triple":
+    {"s": {"value": "http://example.org/Cat", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Mammal", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+     "range":
+     {"start": {"line": 2, "character": 25},
+      "end": {"line": 2, "character": 74}}}}]}]

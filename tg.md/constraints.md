@@ -104,6 +104,20 @@ SPARQL compares numbers after promotion along integer, decimal, float and double
 - source:: SPARQL 1.1 Query Language (W3C Recommendation, 21 March 2013) §17.3; XPath and XQuery Functions and Operators §4.2, §7, §9
 - constrains:: [[decisions#Exact XSD values with proven canonical forms]] {strength: must, note: "numeric promotion"}
 
+## oxilite why trees
+
+oxilite's `why` tool returns JSON trees: a `triple` of RDF/JS terms, a `status` (`asserted`, `inferred`, `absent`), and for inferred nodes a template `rule` and `premises`, or a `note`; the depth is capped at 8.
+
+- source:: oxilite 0.9.1, `crates/oxilite-cli/src/studio/why.rs` and `mcp.rs` (github.com/Volland/oxilite)
+- constrains:: [[decisions#Two ways to certify oxilite's answers]] {strength: must}
+
+## SPARQL results JSON
+
+Query answers arrive as SPARQL 1.1 Query Results JSON: `head.vars` and `results.bindings`, each binding a `uri`, `bnode` or `literal` with `xml:lang` or `datatype`.
+
+- source:: SPARQL 1.1 Query Results JSON Format (W3C Recommendation, 21 March 2013) §3
+- constrains:: [[decisions#Two ways to certify oxilite's answers]] {strength: must}
+
 ## RFC 3986 reference resolution
 
 Relative IRI references in Turtle resolve against the base by RFC 3986 §5.2, including dot-segment removal.

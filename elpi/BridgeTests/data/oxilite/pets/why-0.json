@@ -1,0 +1,144 @@
+[{"triple":
+  {"s": {"value": "http://example.org/alice", "termType": "NamedNode"},
+   "p": {"value": "http://example.org/hasPet", "termType": "NamedNode"},
+   "o": {"value": "http://example.org/rex", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "prp-spo1 (subproperty)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/alice", "termType": "NamedNode"},
+     "p": {"value": "http://example.org/hasDog", "termType": "NamedNode"},
+     "o": {"value": "http://example.org/rex", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+     "range":
+     {"start": {"line": 8, "character": 27},
+      "end": {"line": 8, "character": 54}}}},
+   {"triple":
+    {"s": {"value": "http://example.org/hasDog", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/hasPet", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+     "range":
+     {"start": {"line": 6, "character": 28},
+      "end": {"line": 6, "character": 80}}}}]},
+ {"triple":
+  {"s": {"value": "http://example.org/alice", "termType": "NamedNode"},
+   "p":
+   {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "termType": "NamedNode"},
+   "o": {"value": "http://example.org/Person", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "prp-dom (domain)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/alice", "termType": "NamedNode"},
+     "p": {"value": "http://example.org/hasPet", "termType": "NamedNode"},
+     "o": {"value": "http://example.org/rex", "termType": "NamedNode"}},
+    "status": "inferred",
+    "rule": "prp-spo1 (subproperty)",
+    "producer": "query-time reasoning",
+    "premises":
+    [{"triple":
+      {"s": {"value": "http://example.org/alice", "termType": "NamedNode"},
+       "p": {"value": "http://example.org/hasDog", "termType": "NamedNode"},
+       "o": {"value": "http://example.org/rex", "termType": "NamedNode"}},
+      "status": "asserted",
+      "location":
+      {"uri":
+       "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+       "range":
+       {"start": {"line": 8, "character": 27},
+        "end": {"line": 8, "character": 54}}}},
+     {"triple":
+      {"s": {"value": "http://example.org/hasDog", "termType": "NamedNode"},
+       "p":
+       {"value": "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
+        "termType": "NamedNode"},
+       "o": {"value": "http://example.org/hasPet", "termType": "NamedNode"}},
+      "status": "asserted",
+      "location":
+      {"uri":
+       "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+       "range":
+       {"start": {"line": 6, "character": 28},
+        "end": {"line": 6, "character": 80}}}}]},
+   {"triple":
+    {"s": {"value": "http://example.org/hasPet", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#domain",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Person", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+     "range":
+     {"start": {"line": 4, "character": 28},
+      "end": {"line": 4, "character": 73}}}}]},
+ {"triple":
+  {"s": {"value": "http://example.org/rex", "termType": "NamedNode"},
+   "p":
+   {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "termType": "NamedNode"},
+   "o": {"value": "http://example.org/Mammal", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "cax-sco (subclass)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/rex", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Dog", "termType": "NamedNode"}},
+    "status": "inferred",
+    "rule": "prp-rng (range)",
+    "producer": "query-time reasoning",
+    "premises":
+    [{"triple":
+      {"s": {"value": "http://example.org/alice", "termType": "NamedNode"},
+       "p": {"value": "http://example.org/hasDog", "termType": "NamedNode"},
+       "o": {"value": "http://example.org/rex", "termType": "NamedNode"}},
+      "status": "asserted",
+      "location":
+      {"uri":
+       "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+       "range":
+       {"start": {"line": 8, "character": 27},
+        "end": {"line": 8, "character": 54}}}},
+     {"triple":
+      {"s": {"value": "http://example.org/hasDog", "termType": "NamedNode"},
+       "p":
+       {"value": "http://www.w3.org/2000/01/rdf-schema#range",
+        "termType": "NamedNode"},
+       "o": {"value": "http://example.org/Dog", "termType": "NamedNode"}},
+      "status": "asserted",
+      "location":
+      {"uri":
+       "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+       "range":
+       {"start": {"line": 7, "character": 28},
+        "end": {"line": 7, "character": 72}}}}]},
+   {"triple":
+    {"s": {"value": "http://example.org/Dog", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Mammal", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.YQcZX155/project/data.ttl",
+     "range":
+     {"start": {"line": 1, "character": 25},
+      "end": {"line": 1, "character": 74}}}}]}]

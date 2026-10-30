@@ -1,0 +1,36 @@
+[{"triple":
+  {"s": {"value": "http://example.org/rex", "termType": "NamedNode"},
+   "p":
+   {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "termType": "NamedNode"},
+   "o": {"value": "http://example.org/Animal", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "cax-sco (subclass)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/rex", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Dog", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.6WNhlcIR/project/data.ttl",
+     "range":
+     {"start": {"line": 3, "character": 0},
+      "end": {"line": 3, "character": 6}}}},
+   {"triple":
+    {"s": {"value": "http://example.org/Dog", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Animal", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.6WNhlcIR/project/data.ttl",
+     "range":
+     {"start": {"line": 2, "character": 7},
+      "end": {"line": 2, "character": 22}}}}]}]

@@ -1,0 +1,1 @@
+{"head":{"vars":["owner","pet"]},"results":{"bindings":[{"owner":{"type":"uri","value":"http://example.org/alice"},"pet":{"type":"uri","value":"http://example.org/rex"}},{"owner":{"type":"uri","value":"http://example.org/bob"},"pet":{"type":"uri","value":"http://example.org/tom"}}]}}

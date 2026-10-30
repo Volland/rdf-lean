@@ -1,0 +1,10 @@
+oxilite answers: 2
+[0] ?owner = <http://example.org/alice>, ?pet = <http://example.org/rex>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+[1] ?owner = <http://example.org/bob>, ?pet = <http://example.org/tom>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+

@@ -1,0 +1,34 @@
+[{"triple":
+  {"s": {"value": "http://example.org/math", "termType": "NamedNode"},
+   "p":
+   {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "termType": "NamedNode"},
+   "o": {"value": "http://example.org/Subject", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "prp-rng (range)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/ann", "termType": "NamedNode"},
+     "p": {"value": "http://example.org/teaches", "termType": "NamedNode"},
+     "o": {"value": "http://example.org/math", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.Ctv9ybue/project/data.ttl",
+     "range":
+     {"start": {"line": 3, "character": 7},
+      "end": {"line": 3, "character": 17}}}},
+   {"triple":
+    {"s": {"value": "http://example.org/teaches", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#range",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/Subject", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.Ctv9ybue/project/data.ttl",
+     "range":
+     {"start": {"line": 2, "character": 11},
+      "end": {"line": 2, "character": 21}}}}]}]

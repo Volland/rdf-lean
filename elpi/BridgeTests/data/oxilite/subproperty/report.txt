@@ -1,0 +1,6 @@
+oxilite answers: 1
+[0] ?x = <http://example.org/ann>, ?y = <http://example.org/eve>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+

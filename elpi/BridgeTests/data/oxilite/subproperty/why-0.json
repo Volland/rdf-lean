@@ -1,0 +1,32 @@
+[{"triple":
+  {"s": {"value": "http://example.org/ann", "termType": "NamedNode"},
+   "p": {"value": "http://example.org/hasParent", "termType": "NamedNode"},
+   "o": {"value": "http://example.org/eve", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "prp-spo1 (subproperty)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/ann", "termType": "NamedNode"},
+     "p": {"value": "http://example.org/hasMother", "termType": "NamedNode"},
+     "o": {"value": "http://example.org/eve", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.WA0BXlLz/project/data.ttl",
+     "range":
+     {"start": {"line": 3, "character": 7},
+      "end": {"line": 3, "character": 19}}}},
+   {"triple":
+    {"s": {"value": "http://example.org/hasMother", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#subPropertyOf",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/hasParent", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.WA0BXlLz/project/data.ttl",
+     "range":
+     {"start": {"line": 2, "character": 13},
+      "end": {"line": 2, "character": 31}}}}]}]

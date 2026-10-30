@@ -105,9 +105,9 @@ Capability `xsd-values`. See [[decisions#Exact XSD values with proven canonical 
 
 P2: certify oxilite's RDFS answers from its `why` trees or with Elpi; `leanrdf-oxilite`.
 
-Capability `oxilite-bridge`. Depends on [[changes#release-v0-1]].
+Capability `oxilite-bridge`. Depends on [[changes#release-v0-1]]. See [[decisions#Two ways to certify oxilite's answers]].
 
-- status:: proposed
+- status:: archived
 
 ## add-sparql-algebra
 

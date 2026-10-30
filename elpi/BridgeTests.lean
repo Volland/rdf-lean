@@ -4,3 +4,4 @@ import BridgeTests.Saturate
 import BridgeTests.FullRules
 import BridgeTests.EndToEnd
 import BridgeTests.Demo
+import BridgeTests.Oxilite

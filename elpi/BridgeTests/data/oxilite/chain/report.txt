@@ -1,0 +1,10 @@
+oxilite answers: 2
+[0] ?x = <http://example.org/b>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+[1] ?x = <http://example.org/a>
+    elpi: certified
+    why:  certified
+    verdict: CERTIFIED
+

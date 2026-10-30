@@ -1,0 +1,36 @@
+[{"triple":
+  {"s": {"value": "http://example.org/b", "termType": "NamedNode"},
+   "p":
+   {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "termType": "NamedNode"},
+   "o": {"value": "http://example.org/C", "termType": "NamedNode"}},
+  "status": "inferred",
+  "rule": "cax-sco (subclass)",
+  "producer": "query-time reasoning",
+  "premises":
+  [{"triple":
+    {"s": {"value": "http://example.org/b", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/B", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.7ZUleW6X/project/data.ttl",
+     "range":
+     {"start": {"line": 5, "character": 0},
+      "end": {"line": 5, "character": 4}}}},
+   {"triple":
+    {"s": {"value": "http://example.org/B", "termType": "NamedNode"},
+     "p":
+     {"value": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "termType": "NamedNode"},
+     "o": {"value": "http://example.org/C", "termType": "NamedNode"}},
+    "status": "asserted",
+    "location":
+    {"uri":
+     "file:///private/var/folders/qn/v0qs219s5r763h90wgqxly1h0000gn/T/tmp.7ZUleW6X/project/data.ttl",
+     "range":
+     {"start": {"line": 3, "character": 5},
+      "end": {"line": 3, "character": 20}}}}]}]

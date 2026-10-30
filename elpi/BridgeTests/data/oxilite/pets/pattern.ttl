@@ -1,0 +1,4 @@
+# Is someone a person with a pet that is a mammal? (blank nodes are existential)
+_:owner <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Person> .
+_:owner <http://example.org/hasPet> _:pet .
+_:pet <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Mammal> .
