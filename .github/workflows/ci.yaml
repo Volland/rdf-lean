@@ -1,4 +1,5 @@
-# Build and test every Lake package on every push and pull request, and run the demo once.
+# Build and test every Lake package on every push and pull request, and run the demo and the
+# classifier once.
 # The contract this workflow keeps is checked by scripts/check_release.py.
 name: CI
 
@@ -74,3 +75,6 @@ jobs:
       - name: Demo on the example ontology
         working-directory: elpi
         run: lake exe leanrdf-demo examples/pets.nt examples/query-mammal-owner.nt
+      - name: Classify the EL example
+        working-directory: elpi
+        run: lake exe leanrdf-classify examples/el-ontology.ttl

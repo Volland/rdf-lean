@@ -1,4 +1,4 @@
-import LeanRDFOwl.Vocab
+import LeanRDFOwl.Lists
 
 /-!
 # OWL conditions
@@ -83,6 +83,11 @@ structure OWLConds (I : SimpleInterp) : Prop where
   maxQCard1 : ∀ r p c n, I.IL one = some n → I.IEXT (I.IS maxQualifiedCardinality) r n →
     I.IEXT (I.IS onProperty) r p → I.IEXT (I.IS onClass) r c →
     ∀ x, I.InClass x r → ∀ y z, I.IEXT p x y → I.InClass y c → I.IEXT p x z → I.InClass z c → y = z
+  -- @tg: implements:: [[openspec:owl-el#Intersection condition]]
+  /-- §5.4: an intersection of a sequence of classes is a class whose extension is the
+  intersection of theirs (on resources). -/
+  intersection : ∀ x l cs, I.IEXT (I.IS intersectionOf) x l → ListOf I l cs →
+    I.IC x ∧ (∀ c ∈ cs, I.IC c) ∧ ∀ y, I.IR y → (I.InClass y x ↔ ∀ c ∈ cs, I.InClass y c)
   /-- The axiomatic triples of `owlAxioms`. -/
   axioms : ∀ a ∈ owlAxioms, I.HoldsIRI a
 

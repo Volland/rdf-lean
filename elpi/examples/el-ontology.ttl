@@ -1,0 +1,30 @@
+@prefix : <http://example.org/el#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# A small OWL 2 EL ontology for leanrdf-classify. Its hierarchy is computed by hand in
+# BridgeTests/Classify.lean.
+
+# People: a parent is a person with a child who is a person.
+:Woman rdfs:subClassOf :Person .
+:Man rdfs:subClassOf :Person .
+:Parent owl:equivalentClass [ owl:intersectionOf ( :Person
+    [ owl:onProperty :hasChild ; owl:someValuesFrom :Person ] ) ] .
+:Mother rdfs:subClassOf [ owl:intersectionOf ( :Woman
+    [ owl:onProperty :hasChild ; owl:someValuesFrom :Person ] ) ] .
+
+# Three conjuncts.
+:WorkingMother owl:equivalentClass [ owl:intersectionOf ( :Woman :Employee
+    [ owl:onProperty :hasChild ; owl:someValuesFrom :Person ] ) ] .
+:MumAtWork rdfs:subClassOf :Mother, :Employee .
+
+# Hands: a thumb is a finger, and having a thumb is having a part.
+:Thumb rdfs:subClassOf :Finger .
+:hasThumb rdfs:subPropertyOf :hasPart .
+:Hand rdfs:subClassOf [ owl:onProperty :hasThumb ; owl:someValuesFrom :Thumb ] .
+:ThumbedThing owl:equivalentClass [ owl:onProperty :hasPart ; owl:someValuesFrom :Thumb ] .
+:FingeredThing owl:equivalentClass [ owl:onProperty :hasPart ; owl:someValuesFrom :Finger ] .
+
+# An unsatisfiable class: a part that cannot exist.
+:Impossible rdfs:subClassOf owl:Nothing .
+:Ghost rdfs:subClassOf [ owl:onProperty :hasPart ; owl:someValuesFrom :Impossible ] .

@@ -4,6 +4,7 @@ import LeanRDFElpi.Saturate
 import LeanRDFElpi.Certify
 import LeanRDFElpi.Demo
 import LeanRDFElpi.Oxilite.Run
+import LeanRDFElpi.Classify
 
 /-!
 # LeanRDFElpi

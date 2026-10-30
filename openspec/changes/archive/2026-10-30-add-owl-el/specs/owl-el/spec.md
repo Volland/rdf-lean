@@ -1,14 +1,14 @@
 ## ADDED Requirements
 
 ### Requirement: Intersection condition
-`OWLConditions` SHALL include the OWL 2 RDF-Based condition for `owl:intersectionOf` over sequences built from `rdf:first` and `rdf:rest`, with lemmas for sequences of two and three classes.
+`OWLConds` SHALL include the OWL 2 RDF-Based condition for `owl:intersectionOf` over sequences built from `rdf:first` and `rdf:rest`, with lemmas for sequences of two and three classes.
 
 #### Scenario: Two-element intersection
 - **WHEN** `⟨x, l⟩ ∈ IEXT(owl:intersectionOf)` and `l` denotes the sequence `a, b`
 - **THEN** a lemma gives `ICEXT(x) = ICEXT(a) ∩ ICEXT(b)`
 
 ### Requirement: EL completion rules
-`elRules` SHALL encode `el-int-e1`, `el-int-e2`, `el-int-e3`, `el-int-i2`, `el-int-i3`, `el-ex`, `el-ex-sub` and `el-ex-bot` over the RDF encoding of intersections and existential restrictions, and `owlELRules` SHALL be `owlRules ++ elRules`.
+`elRules` SHALL encode `el-int-e1`, `el-int-e2`, `el-int-e1-3`, `el-int-e2-3`, `el-int-e3`, `el-int-i2`, `el-int-i3`, `el-ex`, `el-ex-sub` and `el-ex-bot` over the RDF encoding of intersections and existential restrictions, and `owlELRules` SHALL be `owlRules ++ elRules`.
 
 #### Scenario: Existential monotonicity
 - **WHEN** a certificate derives `:Hand ⊑ :R2` from `:Hand ⊑ :R1`, `:R1 = ∃:hasPart.:Thumb`, `:Thumb ⊑ :Finger` and `:R2 = ∃:hasPart.:Finger` with `el-ex`

@@ -48,6 +48,7 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDFElpi.Certify` | `certify`, `entailmentCertificate` |
 | `LeanRDFElpi.Demo` | `run`, `verdict`; executable `leanrdf-demo` |
 
+| `LeanRDFElpi.Classify` | `classify`, `Edge`, `render`; executable `leanrdf-classify` |
 | `LeanRDFElpi.Oxilite.*` | `parseResults`, `patternQuery`, `instantiate`, `WhyNode`, `certificateOfWhy`, `certifyByElpi`, `certifyByWhy`, `Profile`, `run`, `runMaterialized`; `lake exe leanrdf-oxilite` |
 
 ## leanrdf-sparql
@@ -77,6 +78,7 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDFOwl.Semantics` | `OWLConds`, `OWLCore`, `DInterp.IsOWL`, `Graph.OWLEntails`, `sameAs_iff` |
 | `LeanRDFOwl.Rules` | the 49 OWL 2 RL rules, `owlRLDerivationRules`, `owlRLRules`, `owlRules` |
 | `LeanRDFOwl.Soundness` | one `*_sound` per rule, `owlRules_sound`, `Derives.owl_sound`, `Derives.owl_sound_graph` |
+| `LeanRDFOwl.Lists`, `EL`, `ELSoundness` | `ListOf`, `intersection_two`, `intersection_three`, the EL rules, `elRules`, `owlELRules`, `elRules_sound`, `Derives.el_sound` |
 
 ## leanrdf-shacl
 
@@ -119,6 +121,8 @@ theorem validate_sound (G : Graph) (S : List Shape) {r : Result} (h : r ∈ (val
 -- OWL 2 RL: every rule is sound for the OWL conditions
 theorem owlRules_sound : ∀ r ∈ owlRules, r.SoundIn OWLCore
 theorem Derives.owl_sound {g : Graph} {t : Triple} (h : Derives owlRules g t) :
+    g.OWLEntails (Graph.singleton t)
+theorem Derives.el_sound {g : Graph} {t : Triple} (h : Derives owlELRules g t) :
     g.OWLEntails (Graph.singleton t)
 
 theorem Xsd.compare_integer_iff (a b : Int) :

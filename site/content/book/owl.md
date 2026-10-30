@@ -1,7 +1,7 @@
 ---
 title: OWL 2 RL, sound rule by rule
 order: 11
-summary: The OWL 2 RDF-Based conditions the OWL 2 RL rules need, 49 rules proven sound, a model that shows the conditions are consistent, and oxilite's OWL closure certified.
+summary: The OWL 2 RDF-Based conditions the OWL 2 RL rules need, 49 rules proven sound, a model that shows the conditions are consistent, oxilite's OWL closure certified, and certified OWL 2 EL classification.
 ---
 # OWL 2 RL, sound rule by rule
 
@@ -53,3 +53,11 @@ theorem type_not_sameAs :
 `leanrdf-oxilite --profile owl` asks oxilite to materialize its OWL 2 RL closure, answers the query against it, and checks each answer under `owlRules`, from oxilite's `why` tree or from Elpi's search. A `prp-inv` step in oxilite's explanation becomes `prp-inv1` or `prp-inv2`. Under the RDFS profile the same step is untranslated, because no RDFS rule matches it.
 
 `leanrdf-oxilite DATA --materialized` certifies the whole closure one triple at a time. On the recorded family sample, 18 of oxilite's 31 inferences are certified, among them the inverse, transitive, symmetric, subproperty, equivalent-class and sameAs inferences. The other 13 say that a resource is an `owl:Thing`. They are true under the OWL semantics, but OWL 2 RL has no rule for them, and oxilite's own `why` names no template. They are reported `not derived`: "not derived" never means "not entailed". A made-up triple added to the recorded closure is never certified.
+
+## OWL 2 EL: classifying with intersections and existentials
+
+Most large biomedical ontologies are in OWL 2 EL: classes are defined from other classes by intersection and existential restriction ("a parent is a person with a child who is a person"). In RDF an intersection is a node with `owl:intersectionOf` and an `rdf:first`/`rdf:rest` list. The OWL conditions gain one field: an intersection of a sequence of classes contains exactly the resources in all of them.
+
+Ten EL completion rules use it. Elimination takes each conjunct (`C ⊑ A ⊓ B` gives `C ⊑ A`), introduction builds an intersection (`C ⊑ A` and `C ⊑ B` give `C ⊑ A ⊓ B`), and three rules move through existentials: to a larger filler, to a superproperty, and to `owl:Nothing` when the filler is empty. The rules match lists of two or three members in full, down to `rdf:nil`, because only a complete list is a sequence the condition talks about. Each rule is proven sound, so `Derives.el_sound` gives OWL entailment for `owlELRules`.
+
+`lake exe leanrdf-classify ONTOLOGY` saturates an ontology once with Elpi and certifies each derived subsumption between named classes as its own query. Only certified subsumptions are printed. On the example ontology in `elpi/examples/el-ontology.ttl` it prints the 20 subsumptions and two unsatisfiable classes computed by hand, among them `:Mother ⊑ :Parent`. That one needs both an intersection and an existential: a mother is a woman with a child who is a person, a woman is a person, and a parent is defined as a person with such a child.

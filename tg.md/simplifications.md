@@ -77,3 +77,13 @@ SHACL §3.4 leaves validation with recursive shapes to implementations, so rejec
 - source:: SHACL §3.4
 - impact:: scope
 - deviates_from:: [[constraints#SHACL Core]]
+
+## EL rules for intersections of two or three classes
+
+The EL rules decompose and build intersections whose `rdf:first`/`rdf:rest` list has two or three members; longer intersections, role chains, nominals and datatypes are not reasoned about.
+
+Subsumptions that need them are missed, never wrong. The semantic condition itself holds for sequences of every length.
+
+- source:: OWL 2 Profiles §2
+- impact:: incompleteness
+- deviates_from:: [[constraints#OWL 2 EL profile]]

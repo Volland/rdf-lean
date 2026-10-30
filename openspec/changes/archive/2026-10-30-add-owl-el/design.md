@@ -12,12 +12,12 @@ OWL 2 EL (OWL 2 Profiles §2) allows `ObjectIntersectionOf`, `ObjectSomeValuesFr
 
 ### Lists by length
 
-`ListOf I l [c₁, …, cₙ]` says that `l` denotes the sequence `c₁ … cₙ` through `IEXT(rdf:first)` and `IEXT(rdf:rest)`, ending in `rdf:nil`. The new condition says that if `⟨x, l⟩ ∈ IEXT(owl:intersectionOf)` and `ListOf I l cs`, then `ICEXT(x)` is the intersection of the `ICEXT(c)` for `c` in `cs`. Rules match lists of length 2 and 3 with fixed patterns: `?l rdf:first ?a . ?l rdf:rest ?l2 . ?l2 rdf:first ?b . ?l2 rdf:rest rdf:nil`.
+`ListOf I l [c₁, …, cₙ]` says that `l` denotes the sequence `c₁ … cₙ` through `IEXT(rdf:first)` and `IEXT(rdf:rest)`, ending in `rdf:nil`. The new condition (the forward direction of §5.4) says that if `⟨x, l⟩ ∈ IEXT(owl:intersectionOf)` and `ListOf I l cs`, then `x` and every `c` are classes and, on resources, `ICEXT(x)` is the intersection of the `ICEXT(c)` for `c` in `cs`. Rules match lists of length 2 and 3 with fixed patterns: `?l rdf:first ?a . ?l rdf:rest ?l2 . ?l2 rdf:first ?b . ?l2 rdf:rest rdf:nil`.
 
 ### The completion rules
 
 With `C ⊑ D` meaning `C rdfs:subClassOf D`:
-- `el-int-e1`, `el-int-e2` (and `e3` for length 3): from `C ⊑ X` and `X ≡ A ⊓ B` (as a list), derive `C ⊑ A` and `C ⊑ B`.
+- `el-int-e1`, `el-int-e2`: from `C ⊑ X` and `X ≡ A ⊓ B` (as a list), derive `C ⊑ A` and `C ⊑ B`; for three conjuncts, `el-int-e1-3`, `el-int-e2-3` and `el-int-e3` derive each of them.
 - `el-int-i2`, `el-int-i3`: from `C ⊑ A`, `C ⊑ B` and `X` the intersection of `A` and `B`, derive `C ⊑ X`.
 - `el-ex`: from `C ⊑ R`, `R = ∃p.D`, `D ⊑ E` and `S = ∃p.E`, derive `C ⊑ S`.
 - `el-ex-sub`: from `C ⊑ R`, `R = ∃p.D`, `p ⊑ q` and `S = ∃q.D`, derive `C ⊑ S`.

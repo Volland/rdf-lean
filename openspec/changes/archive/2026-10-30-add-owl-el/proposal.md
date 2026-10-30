@@ -4,7 +4,7 @@ OWL 2 RL cannot classify ontologies that build classes from existential restrict
 
 ## What Changes
 
-- Extend `OWLConditions` with `owl:intersectionOf` over `rdf:first`/`rdf:rest` lists, and state its consequences for lists of two and three classes.
+- Extend `OWLConds` with `owl:intersectionOf` over `rdf:first`/`rdf:rest` lists, and state its consequences for lists of two and three classes.
 - Add the EL completion rules over the RDF encoding of class expressions: intersection elimination and introduction (two and three conjuncts), existential monotonicity over restriction nodes, existentials through `rdfs:subPropertyOf`, and propagation of `owl:Nothing` through existentials. Each is proven sound.
 - `owlELRules := owlRules ++ elRules`.
 - `lake exe leanrdf-classify ONTOLOGY` (in `leanrdf-elpi`): saturate with Elpi, collect the subsumptions between named classes, certify each one, and print the class hierarchy.
@@ -26,6 +26,6 @@ None. The intersection condition is added inside the `owl-el` capability, so the
 
 **Code:** `owl/LeanRDFOwl/{Lists,EL,ELSoundness}.lean`, `owl/OwlTests/EL*.lean`, `elpi/LeanRDFElpi/Classify.lean`, `elpi/ClassifyMain.lean`, `elpi/examples/el-ontology.ttl`, `elpi/BridgeTests/Classify.lean`.
 
-**Motivating decisions** (tg.md): [[decisions#LeanRDF is the proof layer for oxilite]], [[decisions#Saturation, not tabled SLD]].
+**Motivating decisions** (tg.md): [[decisions#LeanRDF is the proof layer for oxilite]], [[decisions#Forward-chaining saturation in Elpi]].
 
 **Not included:** role chains, nominals, datatypes and the full EL++ profile; the ELK consequence-based calculus beyond these rules; completeness.

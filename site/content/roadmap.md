@@ -1,12 +1,12 @@
 ---
 title: Roadmap
-summary: What LeanRDF builds next: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core and OWL EL.
+summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core and OWL EL, and what comes next.
 ---
 # Roadmap
 
 LeanRDF will not become a second database. [oxilite](https://oxilitedb.com) already stores RDF in SQLite, answers SPARQL through an Oxigraph-compatible API, and reasons with RDFS, OWL 2 RL, Datalog and SHACL. LeanRDF is its proof layer: **oxilite finds and stores, LeanRDF proves.**
 
-Each phase below is an OpenSpec change in `openspec/changes/`, implemented, archived and committed in order. A phase starts only when the phases it needs are done. New layers are separate Lake packages in this repository, so the core stays free of dependencies.
+Each phase below is an OpenSpec change, implemented, archived (`openspec/changes/archive/`) and committed in order; all seven are done. A phase started only when the phases it needs were done. New layers are separate Lake packages in this repository, so the core stays free of dependencies.
 
 <figure><img src="{{BASE}}/assets/roadmap.svg" alt="Roadmap: P0 release, P1 core additions, P2 certify oxilite's RDFS answers, P3 SPARQL in Lean, P4 OWL 2 RL, P5 SHACL Core, P6 OWL EL, with their dependencies"><figcaption>Seven phases in four lanes. An arrow means the later phase needs the earlier one.</figcaption></figure>
 
@@ -22,17 +22,17 @@ Each phase below is an OpenSpec change in `openspec/changes/`, implemented, arch
 
 ## Phases
 
-| Phase | OpenSpec change | Package | Done when |
-| --- | --- | --- | --- |
-| P0 Release v0.1 | `release-v0-1` | all | MIT or Apache-2.0 licence; CI builds and tests both packages; `v0.1.0` tagged; the repository is public |
-| P1 Datasets | `add-datasets` | `leanrdf` | `Dataset`, N-Quads and TriG; the W3C N-Quads and TriG suites pass |
-| P1 XSD values | `add-xsd-values` | `leanrdf` | Value spaces for integer, decimal, boolean, string and dateTime; canonical forms parse back to the same value, by proof |
-| P2 Certify oxilite | `add-oxilite-certify` | `leanrdf-elpi` | Each RDFS answer oxilite gives is certified, either from oxilite's own `why` tree or by Elpi; a wrong answer is never accepted |
-| P3 SPARQL algebra | `add-sparql-algebra` | `leanrdf-sparql` | The SPARQL 1.1 algebra semantics in Lean, and an evaluator proven to return exactly its solution multisets for the core operators |
-| P3 SPARQL syntax | `add-sparql-syntax` | `leanrdf-sparql` | SPARQL 1.1 queries parsed and translated to the algebra; W3C syntax tests pass; evaluation tests pass for the supported fragment; a CLI with oxilite's flags, and a differential run against oxilite |
-| P4 OWL 2 RL | `add-owl-rl` | `leanrdf-owl` | The fixed-arity OWL 2 RL rules proven sound against the OWL 2 RDF-Based semantics; oxilite's OWL `why` trees and materialized inferences certified |
-| P5 SHACL Core | `add-shacl-core` | `leanrdf-shacl` | SHACL Core semantics; a validator proven to compute it; W3C core tests pass for the supported components |
-| P6 OWL EL | `add-owl-el` | `leanrdf-owl` | EL classification rules proven sound; subsumptions of a small ontology certified |
+| Phase | OpenSpec change | Package | Done when | Result |
+| --- | --- | --- | --- | --- |
+| P0 Release v0.1 | `release-v0-1` | all | MIT or Apache-2.0 licence; CI builds and tests both packages; `v0.1.0` tagged; the repository is public | Done: dual licence, CI for every package, `v0.1.0`, public repository |
+| P1 Datasets | `add-datasets` | `leanrdf` | `Dataset`, N-Quads and TriG; the W3C N-Quads and TriG suites pass | Done: both W3C suites pass |
+| P1 XSD values | `add-xsd-values` | `leanrdf` | Value spaces for integer, decimal, boolean, string and dateTime; canonical forms parse back to the same value, by proof | Done: canonical forms proven to read back |
+| P2 Certify oxilite | `add-oxilite-certify` | `leanrdf-elpi` | Each RDFS answer oxilite gives is certified, either from oxilite's own `why` tree or by Elpi; a wrong answer is never accepted | Done: every recorded answer certified, tampered ones rejected |
+| P3 SPARQL algebra | `add-sparql-algebra` | `leanrdf-sparql` | The SPARQL 1.1 algebra semantics in Lean, and an evaluator proven to return exactly its solution multisets for the core operators | Done: `evalN_perm`, `runQuery_answer` |
+| P3 SPARQL syntax | `add-sparql-syntax` | `leanrdf-sparql` | SPARQL 1.1 queries parsed and translated to the algebra; W3C syntax tests pass; evaluation tests pass for the supported fragment; a CLI with oxilite's flags, and a differential run against oxilite | Done: 97/97 syntax and 257 evaluation tests, a differential report |
+| P4 OWL 2 RL | `add-owl-rl` | `leanrdf-owl` | The fixed-arity OWL 2 RL rules proven sound against the OWL 2 RDF-Based semantics; oxilite's OWL `why` trees and materialized inferences certified | Done: 49 rules proven sound; 18 of 31 oxilite inferences certified, the rest have no OWL 2 RL rule |
+| P5 SHACL Core | `add-shacl-core` | `leanrdf-shacl` | SHACL Core semantics; a validator proven to compute it; W3C core tests pass for the supported components | Done: `validate_conforms`, `validate_sound`; 98/98 W3C tests; agrees with oxilite |
+| P6 OWL EL | `add-owl-el` | `leanrdf-owl` | EL classification rules proven sound; subsumptions of a small ontology certified | Done: 10 rules proven sound; the example hierarchy certified |
 
 ## Proven, not just certified
 

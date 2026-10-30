@@ -145,6 +145,6 @@ Capability `shacl-core`. Depends on [[changes#add-datasets]], [[changes#add-xsd-
 
 P6: EL completion rules proven sound and certified classification with `leanrdf-classify`.
 
-Capability `owl-el`. Depends on [[changes#add-owl-rl]].
+Capability `owl-el`. Depends on [[changes#add-owl-rl]]. See [[decisions#EL classification by fixed-length lists and certified subsumptions]].
 
-- status:: proposed
+- status:: archived

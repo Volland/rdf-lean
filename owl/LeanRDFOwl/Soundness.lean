@@ -196,7 +196,7 @@ theorem prpInv2_sound : prpInv2.SoundIn OWLCore := by
 /-! ## Classes -/
 
 /-- Unpack `x pred const` with a constant object IRI. -/
-private theorem holds_const {A : BlankNode → I.Dom} {s : Term} {p o : IRI}
+theorem holds_const {A : BlankNode → I.Dom} {s : Term} {p o : IRI}
     (h : I.Holds A ⟨s, .iri p, .iri o⟩) : ∃ x, I.denote A s = some x ∧ I.IEXT (I.IS p) x (I.IS o) := by
   obtain ⟨x, o', hx, ho, h⟩ := holds_iri h
   simp only [denote_iri, Option.some.injEq] at ho

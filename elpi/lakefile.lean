@@ -49,3 +49,7 @@ lean_exe «leanrdf-demo» where
 its OWL 2 RL closure: `lake exe leanrdf-oxilite DATA --materialized [--inferred FILE]`. -/
 lean_exe «leanrdf-oxilite» where
   root := `OxiliteMain
+
+/-- The certified class hierarchy of an OWL 2 EL ontology: `lake exe leanrdf-classify ONTOLOGY`. -/
+lean_exe «leanrdf-classify» where
+  root := `ClassifyMain

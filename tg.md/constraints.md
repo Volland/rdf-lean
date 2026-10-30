@@ -250,3 +250,10 @@ A data graph conforms to a shapes graph when every focus node of every shape con
 
 - source:: Shapes Constraint Language (SHACL) (W3C Recommendation, 20 July 2017) §2 to §4
 - constrains:: [[decisions#SHACL Core with a validator proven against its semantics]] {strength: must}
+
+## OWL 2 EL profile
+
+OWL 2 EL allows intersections, existential restrictions, `owl:Thing`, `owl:Nothing` and class and property hierarchies, among other constructs; in RDF an intersection is a node with `owl:intersectionOf` and an `rdf:first`/`rdf:rest` list.
+
+- source:: OWL 2 Web Ontology Language Profiles (W3C Recommendation, 11 December 2012) §2; OWL 2 Mapping to RDF Graphs §3
+- constrains:: [[decisions#EL classification by fixed-length lists and certified subsumptions]] {strength: must}

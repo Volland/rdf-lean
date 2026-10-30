@@ -8,8 +8,9 @@ One OWL interpretation, built on the small RDFS models of the core tests: `owl:s
 `owl:equivalentProperty` are identity, `owl:equivalentClass` relates classes with the same
 extension, `owl:inverseOf` relates total properties, and restrictions are on total properties and
 classes. `owl:Nothing` and the property characteristics are empty classes, and the remaining
-restriction vocabulary is empty. The model satisfies a graph with `owl:sameAs`, `owl:inverseOf`
-and a someValuesFrom restriction, and two countermodels show non-entailments.
+restriction vocabulary and `owl:intersectionOf` are empty. The model satisfies a graph with
+`owl:sameAs`, `owl:inverseOf` and a someValuesFrom restriction, and two countermodels show
+non-entailments.
 -/
 
 namespace LeanRDF.Owl.Tests.Model
@@ -23,7 +24,7 @@ def customClasses : List IRI :=
 /-- The properties with a chosen extension. -/
 def customProps : List IRI :=
   [sameAs, equivalentClass, equivalentProperty, inverseOf, onProperty, someValuesFrom,
-    allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass]
+    allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass, intersectionOf]
 
 def isCustom : Term → Bool
   | .iri c => customClasses.contains c
@@ -102,16 +103,17 @@ theorem iext_svf (x y : Term) : IEXT P (.iri someValuesFrom) x y = (UClass x ∧
   rw [iext_custom (by decide), ext, ite_eq_right (by decide), ite_eq_right (by decide),
     ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_left rfl]
 
-/-- The rest of the restriction vocabulary is empty. -/
+/-- The rest of the restriction vocabulary, and `owl:intersectionOf`, are empty. -/
 theorem iext_empty {p : IRI}
-    (hp : p ∈ [allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass])
+    (hp : p ∈ [allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass,
+      intersectionOf])
     (x y : Term) : ¬ IEXT P (.iri p) x y := by
-  have hc : ∀ q ∈ [allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass],
-      q ∈ customProps := by decide
+  have hc : ∀ q ∈ [allValuesFrom, Owl.hasValue, maxCardinality, maxQualifiedCardinality, onClass,
+      intersectionOf], q ∈ customProps := by decide
   have hc := hc p hp
   rw [iext_custom hc]
   simp only [List.mem_cons, List.not_mem_nil, or_false] at hp
-  rcases hp with rfl | rfl | rfl | rfl | rfl <;>
+  rcases hp with rfl | rfl | rfl | rfl | rfl | rfl <;>
   · rw [ext, ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_right (by decide),
       ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_right (by decide)]
     exact id
@@ -251,6 +253,7 @@ theorem conds : OWLConds I.toSimpleInterp where
   hasValue r v _ h := absurd h (iext_empty (p := Owl.hasValue) (by decide) r v)
   maxCard1 r _ n _ h := absurd h (iext_empty (p := maxCardinality) (by decide) r n)
   maxQCard1 r _ _ n _ h := absurd h (iext_empty (p := maxQualifiedCardinality) (by decide) r n)
+  intersection x l _ h := absurd h (iext_empty (p := intersectionOf) (by decide) x l)
   axioms a ha := by
     have h : ∀ b ∈ owlAxioms, b.2.1 = rdf.type ∧ UClass (.iri b.2.2) := by
       unfold UClass; decide

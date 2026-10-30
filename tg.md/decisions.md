@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl, shacl-core]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values, oxilite-bridge, sparql-algebra, sparql-syntax, owl-rl, shacl-core, owl-el]
 ---
 # Decisions
 
@@ -471,3 +471,18 @@ SPARQL 1.1 queries are parsed by a hand-written recursive-descent parser, transl
 - motivated_by:: [[constraints#SHACL Core]]
 - motivated_by:: [[decisions#A proven reference evaluator for SPARQL]] {weight: secondary}
 - motivated_by:: [[decisions#Layers as packages in one repository]] {weight: secondary}
+
+## EL classification by fixed-length lists and certified subsumptions
+
+`owlELRules` adds ten EL completion rules to `owlRules`, over intersection lists of two or three classes and existential restriction nodes, and `leanrdf-classify` certifies each derived subsumption between named classes before printing it.
+
+**Context.** OWL 2 RL cannot classify ontologies built from intersections and existentials, the shape of OWL 2 EL. Their RDF encoding uses `rdf:first`/`rdf:rest` lists, and `Rule` has a fixed number of premises.
+
+**Decision.** `OWLConds` gains the forward direction of the §5.4 condition for `owl:intersectionOf` over sequences (`ListOf`), on resources. Rules match lists of length two or three in full, down to `rdf:nil`, so every list a rule reads is a sequence and the condition applies; a partial-list rule would be unsound. The rules are intersection elimination (each conjunct, both lengths), introduction (both lengths), existential monotonicity, existentials through subproperties, and `owl:Nothing` through existentials. Each is proven sound against `OWLCore`. Classification saturates once with Elpi and certifies each subsumption as its own query; an uncertified one is reported, never printed as part of the hierarchy.
+
+**Consequences.** On the example ontology, all 20 subsumptions and both unsatisfiable classes computed by hand are derived and certified, and `:Mother ⊑ :Parent` needs the EL rules. Intersections of more than three classes, role chains and nominals are out of scope. The OWL model of the non-vacuity tests interprets `owl:intersectionOf` as empty.
+
+- motivated_by:: [[decisions#OWL 2 RL as sound rules over a subset of the RDF-Based conditions]] {weight: primary}
+- motivated_by:: [[constraints#OWL 2 EL profile]]
+- motivated_by:: [[constraints#OWL 2 RDF-Based Semantics]]
+- motivated_by:: [[decisions#Forward-chaining saturation in Elpi]] {weight: secondary}
