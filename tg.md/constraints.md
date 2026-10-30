@@ -89,6 +89,22 @@ A block may be preceded by `GRAPH` and a label; directives appear only outside b
 - source:: RDF 1.1 TriG (W3C Recommendation, 25 February 2014) §5, §6
 - constrains:: [[decisions#TriG on the Turtle statement parser]] {strength: must}
 
+## XSD datatypes
+
+The lexical spaces, lexical-to-value mappings and canonical mappings of the XSD datatypes follow XML Schema 1.1 Part 2: integers and their derived types with ranges, decimals, booleans, floats, doubles and `dateTime`.
+
+- source:: W3C XML Schema Definition Language (XSD) 1.1 Part 2: Datatypes (5 April 2012) §3.3, §3.4, §E.3
+- constrains:: [[openspec:xsd-values#Lexical-to-value mapping]] {strength: must}
+- constrains:: [[openspec:xsd-values#Canonical forms]] {strength: must}
+- constrains:: [[openspec:xsd-values#dateTime comparison]] {strength: must}
+
+## SPARQL operator mapping
+
+SPARQL compares numbers after promotion along integer, decimal, float and double, strings by code point, and booleans with false before true.
+
+- source:: SPARQL 1.1 Query Language (W3C Recommendation, 21 March 2013) §17.3; XPath and XQuery Functions and Operators §4.2, §7, §9
+- constrains:: [[openspec:xsd-values#Value comparison]] {strength: must}
+
 ## RFC 3986 reference resolution
 
 Relative IRI references in Turtle resolve against the base by RFC 3986 §5.2, including dot-segment removal.

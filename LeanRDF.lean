@@ -11,6 +11,7 @@ import LeanRDF.Parse.Turtle.Parser
 import LeanRDF.Parse.NQuads.Parser
 import LeanRDF.Parse.NQuads.Serializer
 import LeanRDF.Parse.TriG.Parser
+import LeanRDF.Xsd.Compare
 import LeanRDF.Semantics.Entails
 import LeanRDF.Entailment.Soundness
 import LeanRDF.Cert.Check

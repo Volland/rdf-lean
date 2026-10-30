@@ -26,3 +26,4 @@ import Tests.Datasets.Model
 import Tests.Datasets.NQuads
 import Tests.Datasets.TriG
 import Tests.Datasets.W3C
+import Tests.Xsd.Values

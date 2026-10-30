@@ -97,9 +97,9 @@ Capability `datasets`. See [[decisions#Datasets as sets of quads]] and [[decisio
 
 P1: XSD value spaces, canonical forms with round-trip proofs, and comparison with numeric promotion.
 
-Capability `xsd-values`.
+Capability `xsd-values`. See [[decisions#Exact XSD values with proven canonical forms]].
 
-- status:: proposed
+- status:: archived
 
 ## add-oxilite-certify
 

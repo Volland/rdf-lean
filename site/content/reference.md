@@ -26,6 +26,7 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 | `LeanRDF.Core.Dataset` | `Quad`, `Dataset`, `defaultGraph`, `namedGraph`, `graphNames`, `unionGraph`, `ofGraph`, `mem_*` |
 | `LeanRDF.Parse.NQuads.*` | `NQuads.parse`, `NTriples.parseQuads`, `Dataset.toNQuads` |
 | `LeanRDF.Parse.TriG.Parser` | `TriG.parse src base` |
+| `LeanRDF.Xsd.*` | `Literal.value?`, `XsdValue`, `XsdValue.compare?`, `canonicalInteger`, `canonicalDecimal?`, `canonicalDouble`, `DateTime` |
 | `LeanRDF.Semantics.Interpretation` | `SimpleInterp`, `denote`, `Holds`, `Satisfies`, `InClass`, `DInterp` |
 | `LeanRDF.Semantics.RDFS` | `RDFConditions`, `RDFSConditions`, `IsRDF`, `IsRDFS`, `RDFSCore`, `IsRDFS.toCore` |
 | `LeanRDF.Semantics.Entails` | `Graph.SimpleEntails`, `DEntails`, `RDFEntails`, `RDFSEntails` |
@@ -59,6 +60,14 @@ theorem Derives.sound_graph {g q : Graph} (μ : BlankNode → Term)
 theorem check_sound (h : check rules g c = .ok t) : Derives rules g t
 
 theorem checkQuery_sound (h : checkQuery RDFS.rdfsRules g q c = .ok ()) : g.RDFSEntails q
+
+-- XSD values: canonical forms read back, comparison is the order of Int and Rat
+theorem Xsd.parseInteger_canonical (n : Int) : parseInteger (canonicalInteger n) = some n
+theorem Xsd.parseDecimal_canonical (q : Rat) (s : String) (h : canonicalDecimal? q = some s) :
+    parseDecimal s = some q
+theorem Xsd.compare_integer_iff (a b : Int) :
+    ((XsdValue.integer a).compare? (.integer b) = some .lt ↔ a < b) ∧
+    ((XsdValue.integer a).compare? (.integer b) = some .eq ↔ a = b)
 ```
 
 ## Design and requirements

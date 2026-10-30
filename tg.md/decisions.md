@@ -3,7 +3,7 @@ type: Decision
 status: accepted
 date: 2026-10-29
 owner: Volodymyr Pavlyshyn
-openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets]
+openspec: [rdf-core, ntriples, rdf-semantics, rdfs-entailment, elpi-bridge, certificates, demo, turtle, release, datasets, xsd-values]
 ---
 # Decisions
 
@@ -385,3 +385,17 @@ TriG is parsed by the Turtle parser with a current graph in its state: Turtle st
 **Consequences.** `Turtle.parse` is unchanged in behaviour (its 313 W3C tests still pass) and `TriG.parse` passes the 357 TriG tests.
 
 - motivated_by:: [[decisions#N-Triples first, native Turtle later]]
+
+## Exact XSD values with proven canonical forms
+
+Integers are `Int`, decimals `Rat`, floats and doubles `Float`, and the lexical forms of the exact types are parsed and printed on character lists so that round trips are theorems.
+
+**Context.** SPARQL `FILTER` and `ORDER BY` and SHACL range constraints compare values, not lexical forms; a comparison that is wrong on integers would make every query result suspect.
+
+**Decision.** `Literal.value?` maps the supported datatypes; `XsdValue.compare?` promotes along integer, decimal, float and double. Proven: `parseInteger_canonical`, `parseDecimal_canonical`, `parseBoolean_canonical`, and `compare_integer_iff`/`compare_decimal_iff` (agreement with the order of `Int` and `Rat`). Floats are tested, not proven; the canonical double is the shortest decimal that reads back to the same float. `dateTime` compares on the UTC timeline with the XSD 1.1 rule for a missing timezone.
+
+**Consequences.** Values live beside the model theory, not in it; see [[simplifications#Two recognized datatypes with abstract values]].
+
+- motivated_by:: [[constraints#XSD datatypes]] {weight: primary}
+- motivated_by:: [[constraints#SPARQL operator mapping]]
+- motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {weight: secondary}

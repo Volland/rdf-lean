@@ -24,6 +24,8 @@ D is exactly `{xsd:string, rdf:langString}`, and their value spaces are abstract
 
 Other datatypes are unrecognized, so their literals are interpreted only through `IL`. Value-space reasoning (`"01"^^xsd:integer` equals `"1"^^xsd:integer`) is out of scope. Because the values are fields, every embedding of them is allowed, a larger class than the spec's, which only strengthens soundness. "I(aaa) is the datatype identified by aaa" (§7.1) is not expressed. The value space of `rdf:langString` is the pairs with lowercased tags, the only reading under which §8 and §9 agree.
 
+Since `add-xsd-values`, `LeanRDF.Xsd` computes XSD values for queries and validation (`Literal.value?`, `XsdValue.compare?`), but entailment still does not use them: `"01"^^xsd:integer` and `"1"^^xsd:integer` are different terms to every rule and interpretation.
+
 - source:: RDF 1.1 Semantics §7 and §8
 - impact:: scope
 - deviates_from:: [[constraints#RDF interpretations recognize two datatypes]]
