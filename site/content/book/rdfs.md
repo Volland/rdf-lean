@@ -61,6 +61,19 @@ def Graph.RDFSEntails (g h : Graph) : Prop :=
 
 Simple ⇒ D ⇒ RDF ⇒ RDFS entailment, each a one-line theorem.
 
+## Propositions and directions (RDF 1.2)
+
+RDF 1.2 adds a third recognized datatype and a class. A directional literal `"x"@ar--rtl` denotes the triple of its lexical form, lowercased tag and direction, through an injective `dirLangVal`, and `rdf:dirLangString` is the class of those values. A triple term denotes `IT` of its components, and every such value is a proposition:
+
+```lean
+  proposition : ∀ x y z, I.IR x → I.IP y → I.IR z →
+    I.InClass (I.IT x y z) (I.IS rdfs.Proposition)
+```
+
+The new axioms say that `rdf:reifies` is a property whose range is `rdfs:Proposition`. Seven rules follow from them. `Grdfs14-s`, `-p` and `-o` type a triple term that occurs in a triple; `Grdfs14-in-s`, `-in-p` and `-in-o` type one nested in a proposition; `rdfs14a` names one proposition that always exists. The spec's rdfs14 replaces the triple term by a blank node; LeanRDF keeps the triple term in the conclusion and gets the blank-node form as a graph query whose instance mapping sends the blank node to the triple term.
+
+Simple and RDF entailment have rule sets of their own. `simpleRules` is empty: a simple entailment of a well-formed query is an instance mapping into the graph, proven as `Derives.sound_graph_simple`. `rdfRules` has rdfD2, GrdfD1 and the RDF axioms, and is proven sound against `RDFCore`, which uses no RDFS condition.
+
 ## Reading the tables
 
 Where the tables are terse, LeanRDF fixes one reading and writes it down: "transitive and reflexive on IP" is transitive and reflexive on IP; container membership properties start at `rdf:_1`; the value space of `rdf:langString` uses lowercased tags (the only reading under which §8 and §9 agree).

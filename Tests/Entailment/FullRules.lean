@@ -22,6 +22,12 @@ private def ty : Term := .iri rdf.type
   (Guard.langLiteral "l").check (fun _ => .lit (.lang "a" "en")) &&
   !(Guard.langLiteral "l").check (fun _ => .lit (Literal.str "a"))
 
+-- @tg: verifies:: [[openspec:rdfs-entailment#Guards#Directional literals have their own guard]] {level: unit}
+#guard (Guard.langLiteral "l").check (fun _ => .lit (.lang "a" "en")) &&
+  !(Guard.langLiteral "l").check (fun _ => .lit (.dirLang "a" "en" .rtl)) &&
+  (Guard.dirLangLiteral "l").check (fun _ => .lit (.dirLang "a" "en" .rtl)) &&
+  !(Guard.dirLangLiteral "l").check (fun _ => .lit (.lang "a" "en"))
+
 private def g : Graph := Graph.ofList
   [T (ex "s") (ex "p") (.lit (Literal.str "v")), T (ex "seq") (.iri (rdf.member 1)) (ex "a")]
 

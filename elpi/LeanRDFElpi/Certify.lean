@@ -13,14 +13,17 @@ namespace LeanRDF.Bridge
 
 open Cert
 
-/-- Match a query term against a closure term, extending the blank-node mapping. -/
+/-- Match a query term against a closure term, extending the blank-node mapping; blank nodes
+inside a query triple term match inside the closure's triple term. -/
 private def matchTerm (μ : List (BlankNode × Term)) (q c : Term) : Option (List (BlankNode × Term)) :=
-  match q with
-  | .bnode b =>
+  match q, c with
+  | .bnode b, _ =>
     match μ.find? (·.1 == b) with
     | some (_, u) => if u == c then some μ else none
     | none => some ((b, c) :: μ)
-  | _ => if q == c then some μ else none
+  | .triple qs qp qo, .triple cs cp co => do
+    matchTerm (← matchTerm (← matchTerm μ qs cs) qp cp) qo co
+  | _, _ => if q == c then some μ else none
 
 private def matchTriple (μ : List (BlankNode × Term)) (q c : Triple) :
     Option (List (BlankNode × Term)) := do
@@ -64,8 +67,9 @@ def certify (c : Closure) (q : Graph) : Except String Certificate := do
   return { base with nodes := nodes.toList, goals := goalIds }
 
 -- @tg: implements:: [[openspec:certificates#End-to-end]]
-/-- Saturate `g` with `rdfsRules` in Elpi and certify `q`. -/
-def entailmentCertificate (g q : Graph) (fuel : Nat := Elpi.defaultFuel) : Except String Certificate := do
-  certify (← saturate RDFS.rdfsRules g fuel) q
+/-- Saturate `g` with `rules` (by default `rdfsRules`) in Elpi and certify `q`. -/
+def entailmentCertificate (g q : Graph) (fuel : Nat := Elpi.defaultFuel)
+    (rules : List Rule := RDFS.rdfsRules) : Except String Certificate := do
+  certify (← saturate rules g fuel) q
 
 end LeanRDF.Bridge

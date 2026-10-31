@@ -13,6 +13,11 @@ the RDF 1.2 style (`:name`, `trs:name`) of naming entries are read. Usage:
   python3 scripts/w3c-index.py Tests/data/rdf12-n-triples/c14n
   python3 scripts/w3c-index.py Tests/data/rdf12-n-quads/syntax
   python3 scripts/w3c-index.py Tests/data/rdf12-n-quads/c14n
+  python3 scripts/w3c-index.py elpi/BridgeTests/data/rdf12-semantics
+
+Entailment manifests (`mf:PositiveEntailmentTest`, `mf:NegativeEntailmentTest`) give lines
+`entail+ NAME REGIME ACTION RESULT DATATYPES` and `entail- …`, where RESULT is a file or `false`
+and DATATYPES lists `mf:recognizedDatatypes` separated by commas, or `-` when there are none.
 """
 import re
 import sys
@@ -51,8 +56,17 @@ if not entries:
         if not block:
             sys.exit(f"manifest entry {name} not found")
         entries.append((name, block.group(1), block.group(2)))
+entail = {"mf:PositiveEntailmentTest": "entail+", "mf:NegativeEntailmentTest": "entail-"}
 lines = []
 for name, kind, body in entries:
+    if kind in entail:
+        regime = re.search(r'mf:entailmentRegime\s+"([^"]+)"', body).group(1)
+        action = re.search(r"mf:action\s+<([^>]+)>", body).group(1)
+        result = re.search(r"mf:result\s+(<[^>]+>|false)", body).group(1).strip("<>")
+        dts = re.search(r"mf:recognizedDatatypes\s+\(([^)]*)\)", body)
+        dts = ",".join(dts.group(1).split()) if dts and dts.group(1).split() else "-"
+        lines.append(f"{entail[kind]} {name.split(':')[-1]} {regime} {action} {result} {dts}")
+        continue
     action = re.search(r"mf:action\s+<([^>]+)>", body)
     if kind not in kinds or not action:
         sys.exit(f"unexpected manifest entry {name}: {kind}")

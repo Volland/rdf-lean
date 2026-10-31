@@ -146,7 +146,7 @@ theorem subClassOf_not_symmetric :
 ```
 $ lake exe leanrdf-demo examples/pets.nt examples/query-mammal-owner.nt --cert cert.json
 LeanRDF: 11 data triples, 3 query triples
-Elpi closure under 67 rules: 201 triples
+Elpi closure under 80 rules: 218 triples
 Query instance: _:owner ↦ <http://example.org/bob>
 Query instance: _:pet ↦ <http://example.org/tom>
 Certificate: 6 nodes, goals [1, 4, 5]

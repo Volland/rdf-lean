@@ -9,7 +9,7 @@ LeanRDF is split into packages so that you build only what you use. A Lake `requ
 
 | Package | Directory | Requires | Contents |
 |---|---|---|---|
-| `leanrdf` | `.` | nothing | RDF terms, triples, graphs and datasets; N-Triples, N-Quads, Turtle and TriG; XSD values; the RDF 1.1 model theory; the 67 RDFS rules with soundness proofs; certificates and the verified checker; a regex engine |
+| `leanrdf` | `.` | nothing | RDF terms, triples, graphs and datasets; N-Triples, N-Quads, Turtle and TriG; XSD values; the RDF 1.2 model theory; the 80 RDFS rules with soundness proofs; triple terms and reification; certificates and the verified checker; a regex engine |
 | `leanrdf-sparql` | `sparql/` | `leanrdf` | the SPARQL 1.1 algebra, its semantics, an evaluator proven to compute it, the parser, result formats and `leanrdf-sparql` |
 | `leanrdf-owl` | `owl/` | `leanrdf` | the OWL 2 RDF-Based conditions the rules need, 60 OWL 2 RL rules and 10 EL rules with soundness proofs |
 | `leanrdf-shacl` | `shacl/` | `leanrdf` | the SHACL Core semantics, a validator proven to compute it, the shapes reader, the report and `leanrdf-shacl` |

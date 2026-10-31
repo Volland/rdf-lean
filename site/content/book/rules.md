@@ -13,6 +13,7 @@ Entailment quantifies over all interpretations, which no program can enumerate. 
 inductive Pat where
   | var (n : String)
   | const (t : Term)
+  | triple (s p o : Pat)   -- a triple-term pattern (RDF 1.2)
 
 structure TPat where
   s : Pat
@@ -48,7 +49,7 @@ inductive Guard where
 theorem Guard.check_sound (h : g.check σ = true) : g.Holds σ
 ```
 
-`rdfsRules` has 67 rules: rdfs2–rdfs13, rdfD2, GrdfD1 for both datatypes, three container-membership axioms, and the 48 finite axiomatic triples as rules without premises.
+`rdfsRules` has 80 rules: rdfs2–rdfs13, rdfD2, GrdfD1 for the three datatypes, three container-membership axioms, the seven proposition rules of RDF 1.2, and the 53 finite axiomatic triples as rules without premises.
 
 ## Derivations
 
@@ -83,7 +84,7 @@ theorem rdfs9_sound : rdfs9.Sound := by
   exact Holds.intro I hz rfl hy (hI.subClass_ext _ _ h1 _ h2)
 ```
 
-All 67 are collected in `rdfsRules_sound`. Induction on `Derives` then gives the key theorem:
+All 80 are collected in `rdfsRules_sound`. Induction on `Derives` then gives the key theorem:
 
 ```lean
 theorem Derives.sound {g : Graph} {t : Triple} (h : Derives rdfsRules g t) :

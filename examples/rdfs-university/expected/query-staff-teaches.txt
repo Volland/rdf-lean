@@ -1,5 +1,5 @@
 LeanRDF: 12 data triples, 5 query triples
-Elpi closure under 67 rules: 209 triples
+Elpi closure under 80 rules: 226 triples
 Query instance: _:c ↦ <http://example.org/uni#logic101>
 Query instance: _:s ↦ <http://example.org/uni#emmy>
 Query instance: _:t ↦ <http://example.org/uni#marie>

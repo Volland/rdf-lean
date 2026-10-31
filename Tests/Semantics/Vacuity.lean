@@ -31,9 +31,9 @@ theorem model_exists : ∃ I : DInterp, I.IsRDFS ∧ I.Satisfies (Graph.ofList
   simp only [List.mem_cons, List.not_mem_nil, or_false] at ht
   rcases ht with rfl | rfl | rfl | rfl
   · refine ⟨_, _, _, rfl, ?_⟩
-    rw [IEXT_sc]; exact ⟨Ty_vocab allP (by decide) _, Ty_vocab allP (by decide) _, fun z _ => Ty_univ allP (by decide) (by decide) rfl z⟩
-  · exact ⟨_, _, _, rfl, by rw [IEXT_type]; exact Ty_univ allP (by decide) (by decide) rfl _⟩
-  · exact ⟨_, _, _, rfl, by rw [IEXT_domain]; exact fun u _ _ => Ty_univ allP (by decide) (by decide) rfl u⟩
+    rw [IEXT_sc]; exact ⟨Ty_vocab allP (by decide) _, Ty_vocab allP (by decide) _, fun z _ => Ty_univ allP (by decide) (by decide) (by decide) rfl z⟩
+  · exact ⟨_, _, _, rfl, by rw [IEXT_type]; exact Ty_univ allP (by decide) (by decide) (by decide) rfl _⟩
+  · exact ⟨_, _, _, rfl, by rw [IEXT_domain]; exact fun u _ _ => Ty_univ allP (by decide) (by decide) (by decide) rfl u⟩
   · refine ⟨_, _, _, rfl, ?_⟩
     rw [IEXT_other allP (by decide) (by decide) (by decide) (by decide) (by decide)]
     exact gen_univ allP rfl _ _
@@ -59,13 +59,13 @@ theorem subClassOf_not_symmetric :
     refine ⟨_, _, _, rfl, ?_⟩
     rw [IEXT_sc]
     refine ⟨Ty_vocab emptyA (by decide) _, Ty_vocab emptyA (by decide) _, fun z hz => ?_⟩
-    exact absurd ((Ty_custom emptyA (by decide) (by decide) (by decide) z).1 hz) id
+    exact absurd ((Ty_custom emptyA (by decide) (by decide) (by decide) (by decide) z).1 hz) id
   obtain ⟨A, -, hs⟩ := h (interp emptyA) (isRDFS emptyA) sat
   have hBA := (holds_iri_iff emptyA A _ _ _).1
     (hs (T (ex "B") rdfs.subClassOf (ex "A")) (Graph.mem_ofList.2 (List.mem_singleton.2 rfl)))
   rw [IEXT_sc] at hBA
-  have hz := hBA.2.2 (.iri (ex "z")) (Ty_univ emptyA (by decide) (by decide) (by decide) _)
-  exact (Ty_custom emptyA (by decide) (by decide) (by decide) _).1 hz
+  have hz := hBA.2.2 (.iri (ex "z")) (Ty_univ emptyA (by decide) (by decide) (by decide) (by decide) _)
+  exact (Ty_custom emptyA (by decide) (by decide) (by decide) (by decide) _).1 hz
 
 /-- The class `ex:D` is empty. -/
 def emptyD : Params where
@@ -85,12 +85,12 @@ theorem type_not_transferred :
     refine satisfies_of_iri emptyD fun t ht => ?_
     rw [Graph.mem_ofList, List.mem_singleton] at ht
     subst ht
-    exact ⟨_, _, _, rfl, by rw [IEXT_type]; exact Ty_univ emptyD (by decide) (by decide) (by decide) _⟩
+    exact ⟨_, _, _, rfl, by rw [IEXT_type]; exact Ty_univ emptyD (by decide) (by decide) (by decide) (by decide) _⟩
   obtain ⟨A, -, hs⟩ := h (interp emptyD) (isRDFS emptyD) sat
   have hxD := (holds_iri_iff emptyD A _ _ _).1
     (hs (T (ex "x") rdf.type (ex "D")) (Graph.mem_ofList.2 (List.mem_singleton.2 rfl)))
   rw [IEXT_type] at hxD
-  exact (Ty_custom emptyD (by decide) (by decide) (by decide) _).1 hxD
+  exact (Ty_custom emptyD (by decide) (by decide) (by decide) (by decide) _).1 hxD
 
 /-- The class `ex:C` and the property `ex:p` are empty. -/
 def emptyCp : Params where
@@ -127,6 +127,6 @@ theorem domain_needs_its_property :
   have hxC := (holds_iri_iff emptyCp A _ _ _).1
     (hs (T (ex "x") rdf.type (ex "C")) (Graph.mem_ofList.2 (List.mem_singleton.2 rfl)))
   rw [IEXT_type] at hxC
-  exact (Ty_custom emptyCp (by decide) (by decide) (by decide) _).1 hxC
+  exact (Ty_custom emptyCp (by decide) (by decide) (by decide) (by decide) _).1 hxC
 
 end LeanRDF.Tests.Vacuity

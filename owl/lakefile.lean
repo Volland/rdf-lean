@@ -6,7 +6,7 @@ open Lake DSL
 rules as `Rule` values, and their soundness. Requires only the core. -/
 package «leanrdf-owl» where
   testDriver := "OwlTests"
-  version := v!"0.1.0"
+  version := v!"0.2.0"
   description := "OWL 2 RL rules proven sound against the OWL 2 RDF-Based Semantics, for LeanRDF."
   keywords := #["rdf", "owl", "owl2rl", "reasoning", "verification"]
   homepage := "https://volland.github.io/rdf-lean/"

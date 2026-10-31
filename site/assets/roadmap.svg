@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 600" role="img" aria-labelledby="t d" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
   <title id="t">LeanRDF roadmap</title>
-  <desc id="d">Seven phases in four lanes. Foundation: P0 release v0.1, then P1 core additions (datasets and XSD values). SPARQL in Lean: P3, after P1. Validation: P5 SHACL Core, after P1. Certify oxilite: P2 RDFS answers right after P0, then P4 OWL 2 RL, then P6 OWL EL.</desc>
+  <desc id="d">Nine phases in four lanes. Foundation: P0 release v0.1, then P1 core additions (datasets and XSD values), then R RDF 1.2 (v0.2.0, done), then S statement graphs (v0.3.0, next). SPARQL in Lean: P3, after P1. Validation: P5 SHACL Core, after P1. Certify oxilite: P2 RDFS answers right after P0, then P4 OWL 2 RL, then P6 OWL EL.</desc>
   <defs>
     <marker id="ra" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8a8d94"/></marker>
   </defs>
   <rect width="760" height="600" rx="14" fill="#fbfbf8"/>
-  <text x="24" y="34" font-size="15" font-weight="600" fill="#1c1d20">Certifying oxilite starts right after v0.1; SPARQL waits on the core</text>
+  <text x="24" y="34" font-size="15" font-weight="600" fill="#1c1d20">Certifying oxilite starts right after v0.1; RDF 1.2 extends the core; statement graphs come next</text>
   <g fill="#efefe8">
     <rect x="16" y="64" width="728" height="112" rx="8"/>
     <rect x="16" y="192" width="728" height="112" rx="8"/>
@@ -25,6 +25,8 @@
     <path d="M160 164V512H208" marker-end="url(#ra)"/>
     <path d="M368 512H392" marker-end="url(#ra)"/>
     <path d="M552 512H576" marker-end="url(#ra)"/>
+    <path d="M368 128H392" marker-end="url(#ra)"/>
+    <path d="M552 128H576" marker-end="url(#ra)"/>
   </g>
   <g fill="#fff" stroke="#c9cad0" stroke-width="1.25">
     <rect x="24" y="92" width="160" height="72" rx="8"/>
@@ -33,7 +35,9 @@
     <rect x="392" y="348" width="160" height="72" rx="8"/>
     <rect x="392" y="476" width="160" height="72" rx="8"/>
     <rect x="576" y="476" width="160" height="72" rx="8"/>
+    <rect x="392" y="92" width="160" height="72" rx="8"/>
   </g>
+  <rect x="576" y="92" width="160" height="72" rx="8" fill="#fff" stroke="#8a8d94" stroke-width="1.25" stroke-dasharray="5 4"/>
   <rect x="208" y="476" width="160" height="72" rx="8" fill="#e7f6f2" stroke="#159c86" stroke-width="2"/>
   <g text-anchor="middle" font-size="13" font-weight="600" fill="#1c1d20">
     <text x="104" y="116">P0 Release v0.1</text>
@@ -43,6 +47,8 @@
     <text x="288" y="500" fill="#11735f">P2 RDFS answers</text>
     <text x="472" y="500">P4 OWL 2 RL</text>
     <text x="656" y="500">P6 OWL EL</text>
+    <text x="472" y="116">R RDF 1.2 (v0.2)</text>
+    <text x="656" y="116">S Statement graphs</text>
   </g>
   <g text-anchor="middle" font-size="11.5" fill="#5d6068">
     <text x="104" y="136">license, CI, v0.1.0 tag</text>
@@ -59,6 +65,10 @@
     <text x="472" y="536">materialization certified</text>
     <text x="656" y="520">EL rules proven sound</text>
     <text x="656" y="536">classification certified</text>
+    <text x="472" y="136">triple terms, Turtle 1.2</text>
+    <text x="472" y="152">rdfs14 proven sound</text>
+    <text x="656" y="136">next: v0.3, tiramemsu</text>
+    <text x="656" y="152">export proven exact</text>
   </g>
-  <text x="24" y="586" font-size="11.5" fill="#5d6068">An arrow means the later phase needs the earlier one done. Highlighted: the first oxilite work.</text>
+  <text x="24" y="586" font-size="11.5" fill="#5d6068">An arrow means the later phase needs the earlier one done. Highlighted: the first oxilite work. Dashed: planned.</text>
 </svg>

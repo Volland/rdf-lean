@@ -1,0 +1,2 @@
+_:r <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <http://example.org/alice> <http://example.org/age> _:age )>> .
+_:r <http://example.org/source> _:who .

@@ -1,7 +1,7 @@
 # release Specification
 
 ## Purpose
-TBD - created by archiving change release-v0-1. Update Purpose after archive.
+The release contract of LeanRDF: the dual licence, the version every package declares, continuous integration of every package, and the tagged public releases with notes on what each version proves and trusts.
 
 ## Requirements
 
@@ -11,13 +11,6 @@ LeanRDF SHALL be licensed `MIT OR Apache-2.0`, with `LICENSE-MIT` and `LICENSE-A
 #### Scenario: Licence files and metadata
 - **WHEN** the repository root and both lakefiles are inspected
 - **THEN** both licence files exist, the README names the dual licence, and both packages declare it
-
-### Requirement: Package metadata
-Both Lake packages SHALL declare `version := v!"0.1.0"`, a `description`, `keywords` and the site as `homepage`.
-
-#### Scenario: Version is 0.1.0
-- **WHEN** `lake` loads either package
-- **THEN** its version is `0.1.0`
 
 ### Requirement: Continuous integration
 A GitHub Actions workflow SHALL build and test the core package and the Elpi package on every push and pull request to `main`, and run the demo on the example ontology, failing the run when the demo does not exit with code 0.
@@ -36,3 +29,17 @@ The repository SHALL be public after a secrets scan of the tree and history, and
 #### Scenario: Release exists
 - **WHEN** the release page of `Volland/rdf-lean` is opened
 - **THEN** `v0.1.0` is listed with its notes, and the repository is public
+
+### Requirement: Release version
+Every Lake package of the repository (`leanrdf`, `leanrdf-elpi`, `leanrdf-sparql`, `leanrdf-owl`, `leanrdf-shacl`) SHALL declare the version of the latest release, `0.2.0` since `add-rdf12-semantics`, together with a `description`, `keywords` and the site as `homepage`. The core package's description SHALL name RDF 1.2.
+
+#### Scenario: Every package has the release version
+- **WHEN** the five lakefiles are inspected
+- **THEN** each declares `version := v!"0.2.0"`, a description, keywords and the homepage, and the core description says "RDF 1.2"
+
+### Requirement: RDF 1.2 release
+`v0.2.0` SHALL be tagged on `main` after `add-rdf12-core`, `add-rdf12-syntax` and `add-rdf12-semantics` are archived, and published as a GitHub release whose notes list the RDF 1.2 capabilities, the breaking Lean API changes (`Term.triple`, `Literal.dirLang`, the new interpretation fields), what the version proves and what it trusts.
+
+#### Scenario: Release v0.2.0 exists
+- **WHEN** the release page of `Volland/rdf-lean` is opened
+- **THEN** `v0.2.0` is listed with its notes, after `v0.1.0`

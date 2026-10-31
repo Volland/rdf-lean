@@ -52,7 +52,7 @@ Nothing about this depends on trusting either engine. oxilite's answer was right
 
 ## The OWL profile and the materialized closure
 
-With `--profile owl`, oxilite materializes its OWL 2 RL closure and the certificates are checked against `owlRules`: the 67 RDFS rules and the 60 OWL 2 RL rules, all proven sound for the OWL 2 RDF-Based conditions (chapter 13). With `--materialized`, every triple oxilite *stored* as inferred is certified on its own. This audits the whole closure, not only the answers to one query.
+With `--profile owl`, oxilite materializes its OWL 2 RL closure and the certificates are checked against `owlRules`: the 80 RDFS rules and the 60 OWL 2 RL rules, all proven sound for the OWL 2 RDF-Based conditions (chapter 13). With `--materialized`, every triple oxilite *stored* as inferred is certified on its own. This audits the whole closure, not only the answers to one query.
 
 ```
 $ lake exe leanrdf-oxilite data.ttl --materialized --oxilite oxilite

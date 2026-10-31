@@ -1,0 +1,10 @@
+PREFIX : <http://example.org/>
+
+# An asserted triple with a named reifier and an annotation about it.
+:alice :worksAt :acme ~ :claim1 {| :source :hr ; :confidence "high" |} .
+
+# A reified triple that is only talked about, never asserted.
+<< :alice :age 42 >> :source :gossip .
+
+# A directional language-tagged string.
+:hr :label "Human Resources"@en--ltr .

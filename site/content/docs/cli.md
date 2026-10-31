@@ -24,7 +24,7 @@ Input formats are chosen by file extension: `.nt` is N-Triples, `.nq` N-Quads, `
 leanrdf-demo DATA.nt QUERY.nt [--cert OUT.json] [--datalog OUT.json]
 ```
 
-Is the query graph RDFS-entailed by the data? Blank nodes in the query are existential, so `_:x rdf:type ex:Animal` asks whether something is an animal. The demo saturates the data in Elpi under the 67 RDFS rules, finds an instance of the query in the closure, cuts out a certificate, checks it with the compiled verified checker and prints:
+Is the query graph RDFS-entailed by the data? Blank nodes in the query are existential, so `_:x rdf:type ex:Animal` asks whether something is an animal. The demo saturates the data in Elpi under the 80 RDFS rules, finds an instance of the query in the closure, cuts out a certificate, checks it with the compiled verified checker and prints:
 
 - the number of data and query triples, and the size of the closure;
 - the instance found, one `Query instance: _:b ↦ term` line per blank node;
@@ -65,8 +65,8 @@ leanrdf-oxilite DATA --materialized [--oxilite PATH] [--inferred FILE] [--record
 | Option | Default | Effect |
 |---|---|---|
 | `--oxilite PATH` | `oxilite` | the oxilite binary |
-| `--profile rdfs` | yes | oxilite reasons with RDFS at query time; certificates are checked against the 67 RDFS rules |
-| `--profile owl` | | oxilite materializes its OWL 2 RL closure; certificates are checked against `owlRules` (127 rules) |
+| `--profile rdfs` | yes | oxilite reasons with RDFS at query time; certificates are checked against the 80 RDFS rules |
+| `--profile owl` | | oxilite materializes its OWL 2 RL closure; certificates are checked against `owlRules` (140 rules) |
 | `--mode elpi` | | certify by Elpi search only |
 | `--mode why` | | certify from oxilite's `why` trees only |
 | `--mode both` | yes | both routes; an answer is certified when either certificate is accepted |

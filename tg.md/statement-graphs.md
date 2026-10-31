@@ -8,7 +8,7 @@ owner: Volodymyr Pavlyshyn
 
 Proposed decisions for statement graphs in LeanRDF, from the design interview of 2026-10-31, landing in [[changes#add-statement-graphs]] (v0.3.0). They move into [[decisions]] when the change is archived.
 
-The model is tiramemsu's bitemporal record store, read as a Gelling–Fletcher–Schmidt Statement Graph and exported to RDF 1.2 ([[rdf12]]). The terms are defined in [[concepts]]. The proofs build on the paper *When Is a Temporal Statement Store a Statement Graph?* (Zenodo 10.5281/zenodo.23335652).
+The model is tiramemsu's bitemporal record store, read as a Gelling–Fletcher–Schmidt Statement Graph and exported to RDF 1.2 ([[decisions]]). The terms are defined in [[concepts]]. The proofs build on the paper *When Is a Temporal Statement Store a Statement Graph?* (Zenodo 10.5281/zenodo.23335652).
 
 ```mermaid
 flowchart LR

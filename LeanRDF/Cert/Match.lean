@@ -30,34 +30,52 @@ theorem Ext.refl (σ : PSubst) : Ext σ σ := fun _ _ h => h
 theorem Ext.trans {σ₁ σ₂ σ₃ : PSubst} (h₁ : Ext σ₁ σ₂) (h₂ : Ext σ₂ σ₃) : Ext σ₁ σ₃ :=
   fun n u h => h₂ n u (h₁ n u h)
 
-/-- A pattern position is matched by a term under `σ`. -/
+/-- A pattern position is matched by a term under `σ`; a triple-term pattern only by a triple
+term whose components it matches. -/
 def Fits (σ : PSubst) : Pat → Term → Prop
   | .const c, t => c = t
   | .var n, t => σ.find? n = some t
+  | .triple ps pp po, t =>
+    ∃ ts tp to, t = .triple ts tp to ∧ Fits σ ps ts ∧ Fits σ pp tp ∧ Fits σ po to
 
 theorem Fits.mono {σ σ' : PSubst} {p : Pat} {t : Term} (e : Ext σ σ') (h : Fits σ p t) :
     Fits σ' p t := by
-  cases p with
+  induction p generalizing t with
   | const c => exact h
   | var n => exact e n t h
+  | triple ps pp po ihs ihp iho =>
+    obtain ⟨ts, tp, to, rfl, hs, hp, ho⟩ := h
+    exact ⟨ts, tp, to, rfl, ihs hs, ihp hp, iho ho⟩
 
 theorem Fits.apply {σ : PSubst} {p : Pat} {t : Term} (h : Fits σ p t) :
     p.apply σ.toSubst = t := by
-  cases p with
+  induction p generalizing t with
   | const c => exact h
   | var n => simp only [Pat.apply, PSubst.toSubst, Fits] at h ⊢; rw [h]; rfl
+  | triple ps pp po ihs ihp iho =>
+    obtain ⟨ts, tp, to, rfl, hs, hp, ho⟩ := h
+    simp only [Pat.apply, ihs hs, ihp hp, iho ho]
 
-/-- Match one pattern position. -/
+/-- Match one pattern position; a triple-term pattern matches a triple term component by
+component, left to right. -/
 def matchPat (σ : PSubst) : Pat → Term → Option PSubst
   | .const c, t => if c = t then some σ else none
   | .var n, t =>
     match σ.find? n with
     | some u => if u = t then some σ else none
     | none => some ((n, t) :: σ)
+  | .triple ps pp po, .triple ts tp to =>
+    match matchPat σ ps ts with
+    | none => none
+    | some σ₁ =>
+      match matchPat σ₁ pp tp with
+      | none => none
+      | some σ₂ => matchPat σ₂ po to
+  | .triple _ _ _, _ => none
 
 theorem matchPat_spec {σ σ' : PSubst} {p : Pat} {t : Term} (h : matchPat σ p t = some σ') :
     Ext σ σ' ∧ Fits σ' p t := by
-  cases p with
+  induction p generalizing σ σ' t with
   | const c =>
     simp only [matchPat] at h
     split at h
@@ -77,6 +95,21 @@ theorem matchPat_spec {σ σ' : PSubst} {p : Pat} {t : Term} (h : matchPat σ p 
       split
       · rename_i hnm; subst hnm; rw [hn] at hm; cases hm
       · exact hm
+  | triple ps pp po ihs ihp iho =>
+    cases t with
+    | triple ts tp to =>
+      simp only [matchPat] at h
+      split at h
+      · cases h
+      rename_i σ₁ h₁
+      split at h
+      · cases h
+      rename_i σ₂ h₂
+      obtain ⟨e₁, f₁⟩ := ihs h₁
+      obtain ⟨e₂, f₂⟩ := ihp h₂
+      obtain ⟨e₃, f₃⟩ := iho h
+      exact ⟨e₁.trans (e₂.trans e₃), ts, tp, to, rfl, f₁.mono (e₂.trans e₃), f₂.mono e₃, f₃⟩
+    | iri _ | bnode _ | lit _ => simp [matchPat] at h
 
 /-- A triple pattern is matched by a triple under `σ`. -/
 def FitsT (σ : PSubst) (b : TPat) (t : Triple) : Prop :=

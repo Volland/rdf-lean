@@ -6,7 +6,7 @@ open Lake DSL
 and the demo. Kept apart from `leanrdf` so that the core package stays dependency-free. -/
 package «leanrdf-elpi» where
   testDriver := "BridgeTests"
-  version := v!"0.1.0"
+  version := v!"0.2.0"
   description := "Elpi (λProlog) search for LeanRDF: RDFS saturation, certificates and the demo."
   keywords := #["rdf", "rdfs", "elpi", "lambda-prolog", "certificates"]
   homepage := "https://volland.github.io/rdf-lean/"
@@ -36,9 +36,14 @@ input_dir oxiliteFixtures where
   path := "BridgeTests/data/oxilite"
   text := true
 
+/-- The W3C RDF 1.2 semantics suite, read at build time by `BridgeTests.Rdf12Semantics`. -/
+input_dir rdf12Semantics where
+  path := "BridgeTests/data/rdf12-semantics"
+  text := true
+
 lean_lib BridgeTests where
   globs := #[.andSubmodules `BridgeTests]
-  needs := #[oxiliteFixtures]
+  needs := #[oxiliteFixtures, rdf12Semantics]
 
 /-- The demo: `lake exe leanrdf-demo DATA.nt QUERY.nt [--cert OUT.json] [--datalog OUT.json]`. -/
 lean_exe «leanrdf-demo» where

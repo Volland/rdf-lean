@@ -24,7 +24,7 @@ The specification states many conditions as "if and only if". `OWLConds` keeps o
 
 ## The rules
 
-`owlRules` is the 67 RDFS rules, the OWL axiomatic triples (`owl:Thing` and `owl:Nothing` are classes, the annotation properties are annotation properties), and 49 OWL 2 RL rules: equality (`eq-ref`, `eq-sym`, `eq-trans`, `eq-rep-s/p/o`), property characteristics (`prp-fp`, `prp-ifp`, `prp-symp`, `prp-trp`, `prp-eqp1/2`, `prp-inv1/2`), restrictions (`cls-svf1/2`, `cls-avf`, `cls-hv1/2`, `cls-maxc2`, `cls-maxqc3/4`), equivalent classes (`cax-eqc1/2`) and the schema rules `scm-*`. Rules whose premises walk an `rdf:List` (intersections, unions, keys) and rules that conclude `false` are left out.
+`owlRules` is the 80 RDFS rules, the OWL axiomatic triples (`owl:Thing` and `owl:Nothing` are classes, the annotation properties are annotation properties), and 49 OWL 2 RL rules: equality (`eq-ref`, `eq-sym`, `eq-trans`, `eq-rep-s/p/o`), property characteristics (`prp-fp`, `prp-ifp`, `prp-symp`, `prp-trp`, `prp-eqp1/2`, `prp-inv1/2`), restrictions (`cls-svf1/2`, `cls-avf`, `cls-hv1/2`, `cls-maxc2`, `cls-maxqc3/4`), equivalent classes (`cax-eqc1/2`) and the schema rules `scm-*`. Rules whose premises walk an `rdf:List` (intersections, unions, keys) and rules that conclude `false` are left out.
 
 Each rule has its own soundness proof, and together they give the same theorem as for RDFS:
 

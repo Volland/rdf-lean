@@ -51,7 +51,7 @@ The rule lists are in `LeanRDF.RDFS`:
 | `rdfsBasicRules` | rdfs2, rdfs3, rdfs5, rdfs7, rdfs9, rdfs11 |
 | `rdfsExtraRules` | rdfD2, rdfs4a, rdfs4b, rdfs6, rdfs8, rdfs10, rdfs12, rdfs13, GrdfD1 for strings and language-tagged literals, the container membership rules |
 | `axiomRules` | the RDF and RDFS axiomatic triples, as rules with empty bodies |
-| `rdfsRules` | all 67 |
+| `rdfsRules` | all 80 |
 
 ## Derivations and soundness
 

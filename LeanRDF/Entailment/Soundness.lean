@@ -6,8 +6,10 @@ import LeanRDF.Semantics.Entails
 # Soundness
 
 Every rule of `rdfsRules` is sound in every interpretation satisfying `RDFSCore`, so every
-derivation is an RDFS entailment (RDF 1.1 Semantics §9.2.1 states the patterns; this file
-proves them).
+derivation is an RDFS entailment; every rule of `rdfRules` is sound under `RDFCore`, so every
+derivation by them is an RDF entailment; and a query instance in the graph is a simple
+entailment (RDF 1.2 Semantics §5.3, §8.1.1 and §9.2.1 state the patterns; this file proves
+them).
 -/
 
 namespace LeanRDF
@@ -185,6 +187,67 @@ theorem grdfD1Lang_sound : grdfD1Lang.Sound := by
   show I.denote A (σ "lll") = some o
   rw [hs, denote_lit]; exact ho'
 
+theorem grdfD1DirLang_sound : grdfD1DirLang.Sound := by
+  intro I hI A σ hg hb
+  obtain ⟨s, t, d, hs⟩ := hg (.dirLangLiteral "lll") (.head _)
+  obtain ⟨_, _, o, -, -, ho, -⟩ := holds_any (prem hb)
+  have ho' : I.denote A (σ "lll") = some o := ho
+  rw [hs, denote_lit] at ho'
+  refine Holds.intro I (s := o) ?_ rfl rfl (hI.dirLang_lit s t d o ho')
+  show I.denote A (σ "lll") = some o
+  rw [hs, denote_lit]; exact ho'
+
+/-- A triple term that denotes denotes a proposition (RDF 1.2 Semantics §9): its denotation is
+`IT` on `IT`'s domain. -/
+theorem tripleTerm_proposition {I : SimpleInterp} (hI : RDFSCore I) {A : BlankNode → I.Dom}
+    {s p o : Term} {v : I.Dom} (h : I.denote A (.triple s p o) = some v) :
+    I.InClass v (I.IS rdfs.Proposition) := by
+  obtain ⟨x, y, z, -, -, -, hx, hy, hz, rfl⟩ := I.denote_triple.mp h
+  exact hI.proposition x y z hx hy hz
+
+theorem grdfs14S_sound : grdfs14S.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, _, _, hx, -, -, -⟩ := holds_any (prem hb)
+  exact Holds.intro I hx rfl rfl (tripleTerm_proposition hI hx)
+
+theorem grdfs14P_sound : grdfs14P.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨_, x, _, -, hx, -, -⟩ := holds_any (prem hb)
+  exact Holds.intro I hx rfl rfl (tripleTerm_proposition hI hx)
+
+theorem grdfs14O_sound : grdfs14O.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨_, _, x, -, -, hx, -⟩ := holds_any (prem hb)
+  exact Holds.intro I hx rfl rfl (tripleTerm_proposition hI hx)
+
+theorem grdfs14InS_sound : grdfs14InS.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, -, hx, -, -⟩ := holds_iri (prem hb)
+  obtain ⟨y, _, _, hy, -, -, -⟩ := I.denote_triple.mp hx
+  exact Holds.intro I hy rfl rfl (tripleTerm_proposition hI hy)
+
+theorem grdfs14InP_sound : grdfs14InP.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, -, hx, -, -⟩ := holds_iri (prem hb)
+  obtain ⟨_, y, _, -, hy, -, -⟩ := I.denote_triple.mp hx
+  exact Holds.intro I hy rfl rfl (tripleTerm_proposition hI hy)
+
+theorem grdfs14InO_sound : grdfs14InO.Sound := by
+  intro I hI A σ _ hb
+  obtain ⟨x, -, hx, -, -⟩ := holds_iri (prem hb)
+  obtain ⟨_, _, y, -, -, hy, -⟩ := I.denote_triple.mp hx
+  exact Holds.intro I hy rfl rfl (tripleTerm_proposition hI hy)
+
+theorem rdfs14a_sound : rdfs14a.Sound := by
+  intro I hI A σ _ _
+  have hax := hI.axioms (rdf.type, rdf.type, rdf.Property) (by simp [Semantics.rdfAxioms])
+  obtain ⟨hP, he⟩ := hax
+  obtain ⟨-, hS, hO⟩ := I.IEXT_wt _ _ _ he
+  have hd : I.denote A (.triple (.iri rdf.type) (.iri rdf.type) (.iri rdf.Property)) =
+      some (I.IT (I.IS rdf.type) (I.IS rdf.type) (I.IS rdf.Property)) :=
+    I.denote_triple.mpr ⟨_, _, _, rfl, rfl, rfl, hS, hP, hO, rfl⟩
+  exact Holds.intro I hd rfl rfl (tripleTerm_proposition hI hd)
+
 /-- The head of a container-membership rule is the axiom for `rdf:_n`. -/
 private theorem cmp_head {I : SimpleInterp} {A : BlankNode → I.Dom} {σ : Subst} {p o : IRI}
     (hg : ∃ n, σ "ppp" = .iri (rdf.member (n + 1)))
@@ -206,8 +269,10 @@ theorem cmpRange_sound : cmpRange.Sound := fun _ hI _ _ hg _ =>
 /-- The other RDFS patterns are sound. -/
 theorem rdfsExtraRules_sound : ∀ r ∈ rdfsExtraRules, r.Sound := by
   intro r hr
-  simp only [rdfsExtraRules, List.mem_cons, List.not_mem_nil, or_false] at hr
-  rcases hr with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  simp only [rdfsExtraRules, propositionRules, List.cons_append, List.nil_append, List.mem_cons,
+    List.not_mem_nil, or_false] at hr
+  rcases hr with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl |
+    rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
   · exact rdfD2_sound
   · exact rdfs4a_sound
   · exact rdfs4b_sound
@@ -218,9 +283,17 @@ theorem rdfsExtraRules_sound : ∀ r ∈ rdfsExtraRules, r.Sound := by
   · exact rdfs13_sound
   · exact grdfD1String_sound
   · exact grdfD1Lang_sound
+  · exact grdfD1DirLang_sound
   · exact cmpType_sound
   · exact cmpDomain_sound
   · exact cmpRange_sound
+  · exact grdfs14S_sound
+  · exact grdfs14P_sound
+  · exact grdfs14O_sound
+  · exact grdfs14InS_sound
+  · exact grdfs14InP_sound
+  · exact grdfs14InO_sound
+  · exact rdfs14a_sound
 
 /-- Every axiomatic-triple rule is sound: its head is an axiom of every RDFS interpretation. -/
 theorem axiomRules_sound : ∀ r ∈ axiomRules, r.Sound := by
@@ -237,6 +310,62 @@ theorem rdfsRules_sound : ∀ r ∈ rdfsRules, r.Sound := by
     · exact rdfsBasicRules_sound r hr
     · exact rdfsExtraRules_sound r hr
   · exact axiomRules_sound r hr
+
+/-! ## The RDF regime -/
+
+theorem rdfD2_sound_rdf : rdfD2.SoundIn RDFCore := by
+  intro I hI A σ _ hb
+  obtain ⟨_, a, _, -, ha, -, h⟩ := holds_any (prem hb)
+  exact Holds.intro I ha rfl rfl (hI.property _ (I.IEXT_wt _ _ _ h).1)
+
+/-- A GrdfD1 rule is sound under `RDFCore` when the class of the guarded literal is. -/
+private theorem grdfD1_sound_rdf {r : Rule} {c : IRI} (hbody : r.body = [⟨.var "xxx", .var "aaa", .var "lll"⟩])
+    (hhead : r.head = ⟨.var "lll", .const (.iri rdf.type), .const (.iri c)⟩)
+    (hlit : ∀ (I : SimpleInterp), RDFCore I → ∀ (A : BlankNode → I.Dom) (σ : Subst),
+      (∀ gd ∈ r.guards, gd.Holds σ) → ∀ x, I.denote A (σ "lll") = some x → I.InClass x (I.IS c)) :
+    r.SoundIn RDFCore := by
+  intro I hI A σ hg hb
+  rw [hbody] at hb
+  obtain ⟨_, _, o, -, -, ho, -⟩ := holds_any (prem hb)
+  rw [hhead]
+  exact Holds.intro I ho rfl rfl (hlit I hI A σ hg o ho)
+
+theorem grdfD1String_sound_rdf : grdfD1String.SoundIn RDFCore :=
+  grdfD1_sound_rdf rfl rfl fun I hI A σ hg x hx => by
+    obtain ⟨s, hs⟩ := hg (.stringLiteral "lll") (.head _)
+    rw [hs, denote_lit] at hx
+    exact hI.string_lit s x hx
+
+theorem grdfD1Lang_sound_rdf : grdfD1Lang.SoundIn RDFCore :=
+  grdfD1_sound_rdf rfl rfl fun I hI A σ hg x hx => by
+    obtain ⟨s, t, hs⟩ := hg (.langLiteral "lll") (.head _)
+    rw [hs, denote_lit] at hx
+    exact hI.lang_lit s t x hx
+
+theorem grdfD1DirLang_sound_rdf : grdfD1DirLang.SoundIn RDFCore :=
+  grdfD1_sound_rdf rfl rfl fun I hI A σ hg x hx => by
+    obtain ⟨s, t, d, hs⟩ := hg (.dirLangLiteral "lll") (.head _)
+    rw [hs, denote_lit] at hx
+    exact hI.dirLang_lit s t d x hx
+
+theorem cmpProperty_sound_rdf : cmpProperty.SoundIn RDFCore := fun _ hI _ _ hg _ =>
+  cmp_head (hg (.containerMembership "ppp") (.head _)) hI.member_axioms
+
+-- @tg: implements:: [[openspec:rdfs-entailment#Regime rule sets]] {since: "0.2.0"}
+/-- Every rule of `rdfRules` is sound under the RDF core conditions. -/
+theorem rdfRules_sound : ∀ r ∈ rdfRules, r.SoundIn RDFCore := by
+  intro r hr
+  rcases List.mem_append.1 hr with hr | hr
+  · simp only [List.mem_cons, List.not_mem_nil, or_false] at hr
+    rcases hr with rfl | rfl | rfl | rfl | rfl
+    · exact rdfD2_sound_rdf
+    · exact grdfD1String_sound_rdf
+    · exact grdfD1Lang_sound_rdf
+    · exact grdfD1DirLang_sound_rdf
+    · exact cmpProperty_sound_rdf
+  · obtain ⟨a, ha, rfl⟩ := List.mem_map.1 hr
+    intro I hI A _ _ _
+    exact (holds_iri_iff I A _ _ _).2 (hI.axioms a ha)
 
 /-- A derivation by rules sound in `C` is true, in every interpretation of `C`, under any
 blank-node mapping that makes the graph true. -/
@@ -322,9 +451,95 @@ theorem Derives.satisfies_graph {C : SimpleInterp → Prop} {rules : List Rule}
   exact ⟨instAssign I A μ, instAssign_IR I hPR A hA μ, fun t ht =>
     holds_of_instantiate I A μ (Derives.holdsIn hr I hC A hg (h t ht))⟩
 
+/-- Soundness for graph queries in RDF entailment: if every triple of `q`, with its blank nodes
+replaced by `μ`, is derivable from `g` by `rdfRules`, then `g` RDF-entails `q`. -/
+theorem Derives.sound_graph_rdf {g q : Graph} (μ : BlankNode → Term)
+    (h : ∀ t ∈ q, Derives rdfRules g (t.instantiate μ)) : g.RDFEntails q := by
+  intro I hI hg
+  exact Derives.satisfies_graph rdfRules_sound μ h I.toSimpleInterp hI.toRDFCore
+    (fun _ hx => RDFConditions.IP_IR hI hx) hg
+
+/-! ## The simple regime -/
+
+open Classical in
+/-- A blank-node mapping for a simple interpretation: the denotation of the image under `μ` when
+it is a resource, an arbitrary resource otherwise. Simple interpretations do not make every
+property a resource, so the image is used only where it is one. -/
+private noncomputable def safeAssign (I : SimpleInterp) (A : BlankNode → I.Dom)
+    (μ : BlankNode → Term) (b : BlankNode) : I.Dom :=
+  if h : ∃ d, I.denote A (μ b) = some d ∧ I.IR d then Classical.choose h
+  else Classical.choose I.IR_nonempty
+
+private theorem safeAssign_IR (I : SimpleInterp) (A : BlankNode → I.Dom) (μ : BlankNode → Term)
+    (b : BlankNode) : I.IR (safeAssign I A μ b) := by
+  unfold safeAssign
+  split
+  · rename_i h; exact (Classical.choose_spec h).2
+  · exact Classical.choose_spec I.IR_nonempty
+
+private theorem safeAssign_eq {I : SimpleInterp} {A : BlankNode → I.Dom} {μ : BlankNode → Term}
+    {b : BlankNode} {d : I.Dom} (hd : I.denote A (μ b) = some d) (hr : I.IR d) :
+    safeAssign I A μ b = d := by
+  have h : ∃ d, I.denote A (μ b) = some d ∧ I.IR d := ⟨d, hd, hr⟩
+  unfold safeAssign
+  rw [dif_pos h]
+  exact Option.some.inj ((Classical.choose_spec h).1.symm.trans hd)
+
+private theorem isObject_of_isSubject {t : Term} (h : t.isSubject = true) : t.isObject = true := by
+  cases t <;> simp_all [Term.isSubject, Term.isObject]
+
+/-- A term in a strict object position (RDF 1.2 Concepts §3.1) whose instance denotes a resource
+denotes the same resource under `safeAssign`: every blank node in it sits where a resource
+is required. -/
+private theorem denote_safe (I : SimpleInterp) (A : BlankNode → I.Dom) (μ : BlankNode → Term) :
+    ∀ {u : Term} {d : I.Dom}, u.isObject = true → I.denote A (u.instantiate μ) = some d →
+      I.IR d → I.denote (safeAssign I A μ) u = some d
+  | .iri _, _, _, h, _ => h
+  | .lit _, _, _, h, _ => h
+  | .bnode b, d, _, h, hr => by
+    simp only [Term.instantiate] at h
+    simp only [denote_bnode, safeAssign_eq h hr]
+  | .triple s p o, _, hu, h, _ => by
+    simp only [Term.isObject, Bool.and_eq_true] at hu
+    obtain ⟨⟨hs, hp⟩, ho⟩ := hu
+    simp only [Term.instantiate] at h
+    obtain ⟨x, y, z, hsx, hpy, hoz, hx, hy, hz, rfl⟩ := I.denote_triple.mp h
+    cases p with
+    | iri i =>
+      exact I.denote_triple.mpr ⟨x, y, z, denote_safe I A μ (isObject_of_isSubject hs) hsx hx,
+        hpy, denote_safe I A μ ho hoz hz, hx, hy, hz, rfl⟩
+    | _ => simp [Term.isPredicate] at hp
+
+-- @tg: implements:: [[openspec:rdfs-entailment#Regime rule sets]] {since: "0.2.0"}
+/-- Soundness for graph queries in simple entailment (the interpolation lemma, RDF 1.2 Semantics
+§5.3): if every triple of a well-formed query `q`, with its blank nodes replaced by `μ`, is in
+`g`, then `g` simply entails `q`. -/
+theorem Derives.sound_graph_simple {g q : Graph} (μ : BlankNode → Term)
+    (hq : ∀ t ∈ q, t.WellFormed) (h : ∀ t ∈ q, t.instantiate μ ∈ g) : g.SimpleEntails q := by
+  intro I ⟨A, _, hg⟩
+  refine ⟨safeAssign I A μ, safeAssign_IR I A μ, fun t ht => ?_⟩
+  obtain ⟨s', p', o', hs, hp, ho, hP, he⟩ := hg _ (h t ht)
+  have hw := hq t ht
+  simp only [Triple.WellFormed, Bool.and_eq_true] at hw
+  obtain ⟨⟨hws, hwp⟩, hwo⟩ := hw
+  obtain ⟨-, hrs, hro⟩ := I.IEXT_wt _ _ _ he
+  have hp' : I.denote (safeAssign I A μ) t.p = some p' := by
+    obtain ⟨_, p, _⟩ := t
+    cases p with
+    | iri i => exact hp
+    | _ => simp [Term.isPredicate] at hwp
+  exact ⟨s', p', o', denote_safe I A μ (isObject_of_isSubject hws) hs hrs, hp',
+    denote_safe I A μ hwo ho hro, hP, he⟩
+
+/-- A derivation from no rules is membership. -/
+theorem Derives.mem_of_nil {g : Graph} {t : Triple} (h : Derives [] g t) : t ∈ g := by
+  cases h with
+  | fact h => exact h
+  | apply r _ hr _ _ => exact absurd hr List.not_mem_nil
+
 /-- Soundness for graph queries: if every triple of `q`, with its blank nodes replaced by `μ`,
 is derivable from `g`, then `g` RDFS-entails `q` (the blank nodes of `q` are existential,
-RDF 1.1 Semantics §5.1 and §5.3). -/
+RDF 1.2 Semantics §5.1 and §5.3). -/
 theorem Derives.sound_graph {g q : Graph} (μ : BlankNode → Term)
     (h : ∀ t ∈ q, Derives rdfsRules g (t.instantiate μ)) : g.RDFSEntails q := by
   intro I hI ⟨A, hA, hg⟩

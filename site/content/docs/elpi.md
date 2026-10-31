@@ -31,7 +31,7 @@ abbrev Closure := Array Entry
 | `Closure.triples c` | the closure as a graph |
 | `Closure.wellOrdered c` | premises precede conclusions (checked in tests) |
 
-Any rule list works: `RDFS.rdfsRules` (67 rules), `Owl.owlRules` (127), `Owl.owlELRules` (137) or your own. Rules must be range-restricted. The fuel bounds Elpi's steps, and running out is an error, not a verdict.
+Any rule list works: `RDFS.rdfsRules` (80 rules), `Owl.owlRules` (140), `Owl.owlELRules` (150) or your own. Rules must be range-restricted. The fuel bounds Elpi's steps, and running out is an error, not a verdict.
 
 ## Certificates from a closure
 
@@ -56,4 +56,4 @@ Terms become Elpi terms (`encodeTerm`, `decodeTerm`, `encodeTriple`, `decodeTrip
 
 ## Performance
 
-Saturation is the expensive step. The demo's eleven triples saturate to 201 under the RDFS rules in well under a second. The EL anatomy example (`examples/owl-el-anatomy/`) saturates under 137 rules and certifies 38 queries in about ten seconds. The axiomatic triples are a large share of every RDFS closure. LeanRDF targets test-sized data and audits: graphs of thousands of triples, not millions.
+Saturation is the expensive step. The demo's eleven triples saturate to 218 under the RDFS rules in well under a second. The EL anatomy example (`examples/owl-el-anatomy/`) saturates under 150 rules and certifies 38 queries in about ten seconds. The axiomatic triples are a large share of every RDFS closure. LeanRDF targets test-sized data and audits: graphs of thousands of triples, not millions.

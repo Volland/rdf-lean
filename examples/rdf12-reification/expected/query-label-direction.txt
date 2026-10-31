@@ -1,0 +1,8 @@
+LeanRDF: 7 data triples, 2 query triples
+Elpi closure under 80 rules: 199 triples
+Query instance: _:l ↦ "Human Resources"@en--ltr
+Certificate: 2 nodes, goals [0, 1]
+  [0] <http://example.org/hr> <http://example.org/label> "Human Resources"@en--ltr  (fact)
+  [1] "Human Resources"@en--ltr <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#dirLangString>  (GrdfD1-dirLangString [0])
+Verdict: ENTAILED. The certificate was accepted by the verified checker (compiled).
+# exit 0

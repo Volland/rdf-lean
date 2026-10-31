@@ -4,7 +4,7 @@ status: draft
 ---
 # Concepts
 
-The vocabulary of RDF 1.2 and statement graphs as LeanRDF uses it, planned in [[changes#add-rdf12-core]] and [[changes#add-statement-graphs]]. Each concept is defined once here and cited by the decisions in [[rdf12]] and [[statement-graphs]].
+The vocabulary of RDF 1.2 and statement graphs as LeanRDF uses it, planned in [[changes#add-rdf12-core]] and [[changes#add-statement-graphs]]. Each concept is defined once here and cited by the decisions in [[decisions]] and [[statement-graphs]].
 
 The concepts are drafts until their changes are archived; then they become stable.
 

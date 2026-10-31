@@ -1,0 +1,11 @@
+# Tests of the W3C RDF 1.2 semantics suite that BridgeTests.Rdf12Semantics does not run.
+# One line per test: NAME: REASON. Every reason names a section of tg.md/simplifications.md.
+malformed-literal: needs xsd:integer recognized, so that an ill-typed literal makes the graph inconsistent (simplifications#Three recognized datatypes with abstract values)
+opaque-literal: needs xsd:integer recognized, to equate "01"^^xsd:integer and "1"^^xsd:integer (simplifications#Three recognized datatypes with abstract values)
+json-array-ordered: needs rdf:JSON recognized (simplifications#Three recognized datatypes with abstract values)
+json-object-unordered: needs rdf:JSON recognized (simplifications#Three recognized datatypes with abstract values)
+json-zero: needs rdf:JSON recognized (simplifications#Three recognized datatypes with abstract values)
+json-zero-array: needs rdf:JSON recognized (simplifications#Three recognized datatypes with abstract values)
+json-round-different: needs rdf:JSON recognized (simplifications#Three recognized datatypes with abstract values)
+json-round-same: needs rdf:JSON recognized (simplifications#Three recognized datatypes with abstract values)
+json-infinity: needs rdf:JSON recognized (simplifications#Three recognized datatypes with abstract values)

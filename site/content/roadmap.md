@@ -1,21 +1,21 @@
 ---
 title: Roadmap
-summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core and OWL EL, and what comes next.
+summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core, OWL EL and RDF 1.2 (v0.2), and what comes next: statement graphs.
 ---
 # Roadmap
 
 LeanRDF will not become a second database. [oxilite](https://oxilitedb.com) already stores RDF in SQLite, answers SPARQL through an Oxigraph-compatible API, and reasons with RDFS, OWL 2 RL, Datalog and SHACL. LeanRDF is its proof layer: **oxilite finds and stores, LeanRDF proves.**
 
-Each phase below is an OpenSpec change, implemented, archived (`openspec/changes/archive/`) and committed in order; all seven are done. A phase started only when the phases it needs were done. New layers are separate Lake packages in this repository, so the core stays free of dependencies.
+Each phase below is an OpenSpec change, implemented, archived (`openspec/changes/archive/`) and committed in order. The seven phases of v0.1 and the three RDF 1.2 changes of v0.2 are done; statement graphs (v0.3) come next. A phase started only when the phases it needs were done. New layers are separate Lake packages in this repository, so the core stays free of dependencies.
 
-<figure><img src="{{BASE}}/assets/roadmap.svg" alt="Roadmap: P0 release, P1 core additions, P2 certify oxilite's RDFS answers, P3 SPARQL in Lean, P4 OWL 2 RL, P5 SHACL Core, P6 OWL EL, with their dependencies"><figcaption>Seven phases in four lanes. An arrow means the later phase needs the earlier one.</figcaption></figure>
+<figure><img src="{{BASE}}/assets/roadmap.svg" alt="Roadmap: P0 release, P1 core additions, P2 certify oxilite's RDFS answers, P3 SPARQL in Lean, P4 OWL 2 RL, P5 SHACL Core, P6 OWL EL, RDF 1.2 and statement graphs, with their dependencies"><figcaption>Nine phases in four lanes. An arrow means the later phase needs the earlier one.</figcaption></figure>
 
 ## Who does what
 
 | Concern | oxilite: fast, not trusted | LeanRDF: the proof |
 | --- | --- | --- |
 | Storage and SPARQL | SQLite, D1 and Turso backends; SPARQL compiled to SQL | SPARQL semantics and a reference evaluator proven to compute it |
-| RDFS | Query rewriting against a schema closure | A certificate per answer, checked against the 67 proven rules |
+| RDFS | Query rewriting against a schema closure | A certificate per answer, checked against the 80 proven rules |
 | Explanations | `why` proof trees over OWL 2 RL and RDFS templates | Each tree translated to a certificate and checked |
 | OWL 2 RL | Materialized inferences, tagged with their producer | OWL 2 RL rules proven sound; each inference certified |
 | SHACL | Validation through the rudof validators | SHACL Core semantics and a validator proven against it |
@@ -33,6 +33,10 @@ Each phase below is an OpenSpec change, implemented, archived (`openspec/changes
 | P4 OWL 2 RL | `add-owl-rl` | `leanrdf-owl` | The fixed-arity OWL 2 RL rules proven sound against the OWL 2 RDF-Based semantics; oxilite's OWL `why` trees and materialized inferences certified | Done: 49 rules proven sound; 18 of 31 oxilite inferences certified, the rest have no OWL 2 RL rule |
 | P5 SHACL Core | `add-shacl-core` | `leanrdf-shacl` | SHACL Core semantics; a validator proven to compute it; W3C core tests pass for the supported components | Done: `validate_conforms`, `validate_sound`; 98/98 W3C tests; agrees with oxilite |
 | P6 OWL EL | `add-owl-el` | `leanrdf-owl` | EL classification rules proven sound; subsumptions of a small ontology certified | Done: 10 rules proven sound; the example hierarchy certified |
+| R1 RDF 1.2 core | `add-rdf12-core` | all | Triple terms and base directions in the model, `IT` in the semantics, N-Triples and N-Quads 1.2; every package accepts the new terms | Done: W3C RDF 1.2 N-Triples and N-Quads suites pass, canonicalization included |
+| R2 RDF 1.2 syntax | `add-rdf12-syntax` | `leanrdf` | Turtle and TriG 1.2: triple terms, reified triples, annotations | Done: W3C RDF 1.2 Turtle and TriG suites pass |
+| R3 RDF 1.2 semantics | `add-rdf12-semantics` | `leanrdf`, `leanrdf-elpi` | `rdf:dirLangString`, `rdfs:Proposition`, rdfs14 proven sound; simple and RDF regimes; `v0.2.0` | Done: 80 RDFS rules; 20 W3C RDF 1.2 semantics tests run (16 certified, 4 not derived), 9 listed as needing other datatypes |
+| S1 Statement graphs | `add-statement-graphs` | `leanrdf-statements` | tiramemsu's bitemporal records, an exact RDF 1.2 export, the export criterion and kernel proven; `v0.3.0` | Next |
 
 ## Proven, not just certified
 

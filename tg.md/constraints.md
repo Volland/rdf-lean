@@ -27,6 +27,8 @@ Blank nodes of an entailed graph are existentially quantified, and a graph entai
 
 An RDF interpretation recognizes at least `rdf:langString` and `xsd:string`, satisfies the RDF semantic conditions and makes the RDF axiomatic triples true, including one for every `rdf:_n`.
 
+
+RDF 1.1 history since add-rdf12-semantics: [[constraints#RDF 1.2 RDF interpretations]] replaces it, adding `rdf:dirLangString` and `rdf:reifies`.
 - source:: RDF 1.1 Semantics §7 (Literals and datatypes) and §8 (RDF Interpretations)
 - constrains:: [[decisions#Layered interpretations with a core]] {strength: must}
 
@@ -34,7 +36,7 @@ An RDF interpretation recognizes at least `rdf:langString` and `xsd:string`, sat
 
 An RDFS interpretation adds ICEXT and IC and the conditions on `rdfs:domain`, `rdfs:range`, `rdfs:subClassOf`, `rdfs:subPropertyOf`, the RDFS classes and the RDFS axiomatic triples.
 
-- source:: RDF 1.1 Semantics §9 (RDFS Interpretations)
+- source:: RDF 1.2 Semantics §9 (RDFS Interpretations); RDF 1.1 Semantics §9 before add-rdf12-semantics
 - constrains:: [[decisions#Layered interpretations with a core]] {strength: must}
 
 ## Entailment rules use generalized RDF
@@ -379,7 +381,7 @@ D-interpretations recognize `rdf:langString`, `rdf:dirLangString` and `xsd:strin
 The special datatypes `rdf:langString` and `rdf:dirLangString` have no ill-typed literals.
 
 - source:: RDF 1.2 Semantics §7.1 (D-interpretations) and §8 (RDF Interpretations)
-- constrains:: [[rdf12#Three recognized datatypes with abstract values]] {strength: must}
+- constrains:: [[decisions#Three recognized datatypes with abstract values]] {strength: must}
 
 ## RDF 1.2 RDFS conditions
 
@@ -388,21 +390,21 @@ RDFS interpretations add `ICEXT(I(rdf:dirLangString))`, put every `IT(x, y, z)` 
 The axioms are `rdf:reifies rdfs:domain rdfs:Resource`, `rdf:reifies rdfs:range rdfs:Proposition` and `rdfs:Proposition rdfs:subClassOf rdfs:Resource`.
 
 - source:: RDF 1.2 Semantics §9 (RDFS Interpretations)
-- constrains:: [[rdf12#Propositions are the image of IT on its domain]] {strength: must}
+- constrains:: [[decisions#Propositions are the image of IT on its domain]] {strength: must}
 
 ## RDF 1.2 entailment patterns
 
 RDF entailment has the patterns rdfD1, rdfD1a and rdfD2. RDFS adds rdfs14, which replaces a triple term with a blank node typed `rdfs:Proposition`, and rdfs14a, which says some proposition exists.
 
 - source:: RDF 1.2 Semantics §8.1.1 (RDF entailment patterns) and §9.2.1 (RDFS entailment patterns)
-- constrains:: [[rdf12#rdfs14 as generalized Horn rules plus graph queries]] {strength: must}
-- constrains:: [[rdf12#Triple-term patterns in rules]] {strength: must}
-- constrains:: [[rdf12#Regime rule sets for simple and RDF entailment]] {strength: must}
+- constrains:: [[decisions#rdfs14 as generalized Horn rules plus graph queries]] {strength: must}
+- constrains:: [[decisions#Triple-term patterns in rules]] {strength: must}
+- constrains:: [[decisions#Regime rule sets for simple and RDF entailment]] {strength: must}
 
 ## RDF 1.2 semantics test suite
 
 The W3C RDF 1.2 semantics suite has 29 active positive and negative entailment tests in the simple, RDF, RDFS and RDFS-Plus regimes. It is distributed under the W3C Test Suite and 3-clause BSD licences.
 
 - source:: w3c/rdf-tests `rdf/rdf12/rdf-semantics/manifest.ttl`
-- constrains:: [[rdf12#The W3C semantics suite in the bridge package]] {strength: must}
-- constrains:: [[rdf12#Vacuity with propositions]] {strength: should}
+- constrains:: [[decisions#The W3C semantics suite in the bridge package]] {strength: must}
+- constrains:: [[decisions#Vacuity with propositions]] {strength: should}

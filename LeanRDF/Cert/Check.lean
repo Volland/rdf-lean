@@ -8,7 +8,8 @@ A certificate is a proof DAG: nodes numbered from 0, each a conclusion with the 
 justifies it and the ids of its premises, which must be earlier nodes. The checker accepts a
 node when it is a fact of the graph, or when matching the rule's body against the premises
 yields an instance whose head is the conclusion. `check_sound` and `checkQuery_sound` turn an
-accepted certificate into `Derives` and into RDFS entailment.
+accepted certificate into `Derives` and into RDFS entailment; `checkQuery_sound_rdf` and
+`checkQuery_sound_simple` do the same for the RDF and simple regimes.
 -/
 
 namespace LeanRDF.Cert
@@ -220,16 +221,32 @@ theorem checkQuery_sound {g q : Graph} {c : Certificate}
     (h : checkQuery RDFS.rdfsRules g q c = .ok ()) : g.RDFSEntails q :=
   Derives.sound_graph c.mu (checkQuery_derives h)
 
+-- @tg: implements:: [[openspec:certificates#Checker soundness]] {since: "0.2.0"}
+/-- Soundness for queries in RDF entailment: a certificate accepted for `q` under `rdfRules`
+proves that `g` RDF-entails `q`. -/
+theorem checkQuery_sound_rdf {g q : Graph} {c : Certificate}
+    (h : checkQuery RDFS.rdfRules g q c = .ok ()) : g.RDFEntails q :=
+  Derives.sound_graph_rdf c.mu (checkQuery_derives h)
+
+/-- Soundness for queries in simple entailment: a certificate accepted for a well-formed `q`
+under `simpleRules`, that is one whose nodes are facts, proves that `g` simply entails `q`. -/
+theorem checkQuery_sound_simple {g q : Graph} {c : Certificate} (hq : ∀ t ∈ q, t.WellFormed)
+    (h : checkQuery RDFS.simpleRules g q c = .ok ()) : g.SimpleEntails q :=
+  Derives.sound_graph_simple c.mu hq fun t ht => Derives.mem_of_nil (checkQuery_derives h t ht)
+
 /-- `checkQuery` as a Boolean, for `native_decide` in tests. -/
 def checkQueryB (rules : List Rule) (g q : Graph) (c : Certificate) : Bool :=
   (checkQuery rules g q c).toBool
 
-theorem checkQueryB_sound {g q : Graph} {c : Certificate}
-    (h : checkQueryB RDFS.rdfsRules g q c = true) : g.RDFSEntails q := by
-  apply checkQuery_sound (c := c)
+theorem checkQueryB_ok {rules : List Rule} {g q : Graph} {c : Certificate}
+    (h : checkQueryB rules g q c = true) : checkQuery rules g q c = .ok () := by
   unfold checkQueryB at h
-  cases hq : checkQuery RDFS.rdfsRules g q c with
+  cases hq : checkQuery rules g q c with
   | ok u => rfl
   | error e => rw [hq] at h; simp [Except.toBool] at h
+
+theorem checkQueryB_sound {g q : Graph} {c : Certificate}
+    (h : checkQueryB RDFS.rdfsRules g q c = true) : g.RDFSEntails q :=
+  checkQuery_sound (checkQueryB_ok h)
 
 end LeanRDF.Cert

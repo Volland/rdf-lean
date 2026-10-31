@@ -44,6 +44,6 @@ theorem hand_r2 : hands.OWLEntails (Graph.singleton (T (ex "Hand") sc (ex "R2"))
   Derives.el_sound (checkB_sound (c := exCert) (by native_decide))
 
 /- 10 EL rules on top of the 127 RDFS and OWL 2 RL rules. -/
-#guard elRules.length == 10 && owlELRules.length == 137
+#guard elRules.length == 10 && owlELRules.length == 150
 
 end LeanRDF.Owl.Tests.EL

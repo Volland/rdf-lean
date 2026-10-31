@@ -16,8 +16,10 @@ import Tests.Semantics.Basics
 import Tests.Semantics.Vacuity
 import Tests.Semantics.HandProofs
 import Tests.Semantics.TripleTerms
+import Tests.Semantics.Rdf12
 import Tests.Entailment.Rules
 import Tests.Entailment.FullRules
+import Tests.Entailment.Propositions
 import Tests.Entailment.Axioms
 import Tests.Cert.Check
 import Tests.Cert.Axioms

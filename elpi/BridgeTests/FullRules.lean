@@ -41,4 +41,29 @@ plain property is not a container membership property. -/
   closure.wellOrdered &&
     (checkCert RDFS.rdfsRules g { nodes, goals := [] }).toOption.map (·.size) == some closure.size
 
+/-! RDF 1.2: the proposition rules and the third datatype. -/
+
+private def tt (s p o : Term) : Term := .triple s p o
+private def inner : Term := tt (ex "c") (ex "q") (ex "d")
+private def outer : Term := tt (ex "a") (ex "p") inner
+private def dir : Term := .lit (.dirLang "x" "en" .rtl)
+
+private def g12 : Graph := Graph.ofList
+  [T (ex "r") (.iri rdf.reifies) outer, T (ex "r") (ex "label") dir]
+
+private def closure12 : Closure := (saturate RDFS.rdfsRules g12).toOption.getD #[]
+
+private def has12 (t : Triple) : Bool := (closure12.find? t).isSome
+
+-- @tg: verifies:: [[openspec:elpi-bridge#Rule clauses#Proposition rules run in Elpi]] {level: integration}
+#guard closure12.size > 0 &&
+  has12 (T outer ty (.iri rdfs.Proposition)) && has12 (T inner ty (.iri rdfs.Proposition)) &&
+  has12 (T dir ty (.iri rdf.dirLangString)) && !has12 (T dir ty (.iri rdf.langString)) &&
+  has12 (T (ex "r") ty (.iri rdfs.Resource)) &&
+  (let nodes := closure12.toList.zipIdx.map fun (e, i) =>
+    { id := i, conclusion := e.conclusion, rule := e.rule,
+      premises := e.premises.filterMap fun p => closure12.findIdx? (·.conclusion == p) : Node }
+   closure12.wellOrdered &&
+    (checkCert RDFS.rdfsRules g12 { nodes, goals := [] }).toOption.map (·.size) == some closure12.size)
+
 end LeanRDF.BridgeTests.FullRules

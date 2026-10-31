@@ -7,7 +7,7 @@ import LeanRDF.Core.Vocab
 Simple interpretations (RDF 1.2 Semantics §5) over one carrier `Dom`, with the sets `IR` and
 `IP` as predicates on it, so that one element can be both a resource and a property, and the
 injective triple denotation `IT`; and D-interpretations (§7.1) for
-`D = {rdf:langString, xsd:string}`.
+`D = {rdf:langString, rdf:dirLangString, xsd:string}`.
 -/
 
 namespace LeanRDF
@@ -161,15 +161,21 @@ theorem HoldsIRI.of_IEXT {s p o : IRI} (h : I.IEXT (I.IS p) (I.IS s) (I.IS o)) :
 end SimpleInterp
 
 -- @tg: implements:: [[openspec:rdf-semantics#D-interpretations]]
-/-- A D-interpretation for `D = {rdf:langString, xsd:string}` (RDF 1.1 Semantics §7.1). The
-values of the two datatypes are abstract: `langVal s t` is the pair `⟨s, t⟩` and `strVal` is
-the lexical-to-value mapping of `xsd:string`, partial for ill-typed strings.
--- SIMPLIFICATION: [[simplifications#Two recognized datatypes with abstract values]] -/
+/-- A D-interpretation for `D = {rdf:langString, rdf:dirLangString, xsd:string}` (RDF 1.2
+Semantics §7.1). The values of the three datatypes are abstract: `langVal s t` is the pair
+`⟨s, t⟩`, `dirLangVal s t d` the triple `⟨s, t, d⟩`, and `strVal` the lexical-to-value mapping
+of `xsd:string`, partial for ill-typed strings.
+-- SIMPLIFICATION: [[simplifications#Three recognized datatypes with abstract values]] -/
 structure DInterp extends SimpleInterp where
   langVal : String → String → Dom
   langVal_inj : ∀ s t s' t', langVal s t = langVal s' t' → s = s' ∧ t = t'
   /-- §7.1: `IL(E) = ⟨sss, ttt'⟩` with `ttt'` the tag in lower case. -/
   IL_lang : ∀ s t, IL (.lang s t) = some (langVal s t.toLower)
+  dirLangVal : String → String → Direction → Dom
+  dirLangVal_inj : ∀ s t d s' t' d', dirLangVal s t d = dirLangVal s' t' d' →
+    s = s' ∧ t = t' ∧ d = d'
+  /-- §7.1: `IL(E) = ⟨sss, ttt', bbb⟩` with `ttt'` the tag in lower case. -/
+  IL_dirLang : ∀ s t d, IL (.dirLang s t d) = some (dirLangVal s t.toLower d)
   strVal : String → Option Dom
   strVal_inj : ∀ s s' v, strVal s = some v → strVal s' = some v → s = s'
   /-- §7.1: `IL("sss"^^xsd:string) = L2V(I(xsd:string))(sss)`. -/

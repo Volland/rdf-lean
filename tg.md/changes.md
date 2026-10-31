@@ -153,7 +153,7 @@ Capability `owl-el`. Depends on [[changes#add-owl-rl]]. See [[decisions#EL class
 
 R1: `Term.triple`, `Literal.dirLang`, recursive `WellFormed`, `Basic`, isomorphism through triple terms, `IT` in simple interpretations, N-Triples and N-Quads 1.2, and opaque pass-through in every package.
 
-Capabilities `rdf-core`, `ntriples`, `datasets`, `rdf-semantics`, `elpi-bridge`, `certificates`, `sparql-algebra`, `sparql-syntax`, `shacl-core`, `oxilite-bridge`. Depends on [[changes#add-owl-el]]. See [[rdf12]].
+Capabilities `rdf-core`, `ntriples`, `datasets`, `rdf-semantics`, `elpi-bridge`, `certificates`, `sparql-algebra`, `sparql-syntax`, `shacl-core`, `oxilite-bridge`. Depends on [[changes#add-owl-el]]. See [[decisions]].
 
 - status:: archived
 
@@ -169,9 +169,9 @@ Capabilities `turtle` and `datasets`. Depends on [[changes#add-rdf12-core]]. See
 
 R3: the RDF and RDFS layers of RDF 1.2 Semantics: `rdf:dirLangString` recognized, `rdfs:Proposition`, the new axioms, rdfs14 and rdfs14a proven sound, and the W3C RDF 1.2 semantics tests. Release v0.2.0.
 
-Capabilities `rdf-semantics`, `rdfs-entailment` and the bridge capabilities. Depends on [[changes#add-rdf12-syntax]]. See [[rdf12]].
+Capabilities `rdf-semantics`, `rdfs-entailment` and the bridge capabilities. Depends on [[changes#add-rdf12-syntax]]. See [[decisions]].
 
-- status:: proposed
+- status:: archived
 
 ## add-statement-graphs
 

@@ -79,7 +79,8 @@ private def rejects (c : Certificate) : Bool := (check rdfsRules g c).toOption.i
 #guard
   let j := toDatalog rdfsRules g cert
   match (j.getObjValD "graph").getObjValD "edges", j.getObjValD "program" with
-  | .arr edges, .arr prog => edges.size == 5 && prog.size == rdfsRules.length + 3 &&
+  -- the six Grdfs14 rules have triple-term patterns over variables, which Datalog cannot write
+  | .arr edges, .arr prog => edges.size == 5 && prog.size == rdfsRules.length - 6 + 3 &&
       ((edges[4]!.getObjValD "predecessors").getArr?.toOption.map (·.size)) == some 2 &&
       ((prog[0]!.getObjValD "head").getObjValD "symbol") == .str "triple"
   | _, _ => false

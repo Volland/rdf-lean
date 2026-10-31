@@ -46,6 +46,6 @@ private def sameCert : Certificate :=
   if n.id == 2 then { n with conclusion := T (ex "c") (ex "p") (ex "b") } else n }).toOption.isNone
 
 /- 49 derivation rules, 11 axiom rules, on top of the 67 RDFS rules. -/
-#guard owlRules.length == 127
+#guard owlRules.length == 140
 
 end LeanRDF.Owl.Tests.Rules

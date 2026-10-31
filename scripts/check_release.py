@@ -4,7 +4,7 @@
 Offline checks (run in CI): licence files and README, package metadata in both lakefiles, the
 CI workflow's jobs and the Pages workflow's action versions. With `--online` it also asks GitHub,
 through `gh`, that the repository is public, that the latest CI run on `main` succeeded and that
-the `v0.1.0` release exists.
+the `v0.1.0` and `v0.2.0` releases exist.
 Usage: python3 scripts/check_release.py [--online]
 """
 import json, re, subprocess, sys
@@ -12,7 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "Volland/rdf-lean"
-VERSION = "0.1.0"
+VERSION = "0.2.0"
+RELEASES = ("0.1.0", "0.2.0")
+PACKAGES = ("lakefile.lean", "elpi/lakefile.lean", "sparql/lakefile.lean", "owl/lakefile.lean",
+            "shacl/lakefile.lean")
 LICENCE = "MIT OR Apache-2.0"
 # The first major version of each action that runs on Node 24, not Node 20.
 NODE24 = {"actions/checkout": 5, "actions/setup-python": 6, "actions/upload-pages-artifact": 4,
@@ -31,16 +34,18 @@ def check_licence():
             errs.append(f"{lf} does not declare {LICENCE}")
     return errs
 
-# @tg: verifies:: [[openspec:release#Package metadata#Version is 0.1.0]] {level: integration}
+# @tg: verifies:: [[openspec:release#Release version#Every package has the release version]] {level: integration}
 def check_metadata():
     errs = []
-    for lf in ("lakefile.lean", "elpi/lakefile.lean"):
+    for lf in PACKAGES:
         s = read(lf)
         if f'version := v!"{VERSION}"' not in s:
             errs.append(f"{lf}: version is not {VERSION}")
         for field in ("description", "keywords", "homepage"):
             if not re.search(rf"^\s*{field} :=", s, re.M):
                 errs.append(f"{lf}: no {field}")
+    if "RDF 1.2" not in read("lakefile.lean"):
+        errs.append("lakefile.lean: the description does not name RDF 1.2")
     return errs
 
 # The workflow itself is .github/workflows/ci.yaml; tg does not read YAML, so the contract it
@@ -68,7 +73,9 @@ def gh(*args):
     return subprocess.run(["gh", *args], capture_output=True, text=True, check=True).stdout
 
 # @tg: implements:: [[openspec:release#Tagged public release]] {note: "checks the release made with gh"}
+# @tg: implements:: [[openspec:release#RDF 1.2 release]] {note: "checks the release made with gh"}
 # @tg: verifies:: [[openspec:release#Tagged public release#Release exists]] {level: e2e}
+# @tg: verifies:: [[openspec:release#RDF 1.2 release#Release v0.2.0 exists]] {level: e2e}
 def check_online():
     errs = []
     if json.loads(gh("repo", "view", REPO, "--json", "visibility"))["visibility"] != "PUBLIC":
@@ -77,12 +84,13 @@ def check_online():
                          "--limit", "1", "--json", "conclusion,status"))
     if not runs or runs[0]["conclusion"] != "success":
         errs.append(f"the latest CI run on main is not green: {runs}")
-    try:
-        tag = json.loads(gh("release", "view", f"v{VERSION}", "-R", REPO, "--json", "tagName"))["tagName"]
-        if tag != f"v{VERSION}":
-            errs.append(f"release tag is {tag}")
-    except subprocess.CalledProcessError:
-        errs.append(f"no v{VERSION} release")
+    for version in RELEASES:
+        try:
+            tag = json.loads(gh("release", "view", f"v{version}", "-R", REPO, "--json", "tagName"))["tagName"]
+            if tag != f"v{version}":
+                errs.append(f"release tag is {tag}")
+        except subprocess.CalledProcessError:
+            errs.append(f"no v{version} release")
     return errs
 
 def main():

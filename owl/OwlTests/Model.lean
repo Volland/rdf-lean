@@ -45,7 +45,7 @@ def base : Params where
 
 /-- A class whose extension is every element. -/
 def UClass (c : Term) : Prop :=
-  c ≠ .iri xsd.string ∧ c ≠ .iri rdf.langString ∧ isCustom c = false
+  c ≠ .iri xsd.string ∧ c ≠ .iri rdf.langString ∧ c ≠ .iri rdf.dirLangString ∧ isCustom c = false
 
 /-- A property whose extension is every pair. -/
 def UProp (p : Term) : Prop :=
@@ -122,14 +122,15 @@ theorem iext_univ {p : Term} (hp : UProp p) (x y : Term) : IEXT P p x y := by
   obtain ⟨h1, h2, h3, h4, h5, h6⟩ := hp
   rw [IEXT_other P h1 h2 h3 h4 h5]; exact gen_univ P h6 x y
 
-theorem ty_univ {c : Term} (hc : UClass c) (x : Term) : Ty P x c := Ty_univ P hc.1 hc.2.1 hc.2.2 x
+theorem ty_univ {c : Term} (hc : UClass c) (x : Term) : Ty P x c :=
+  Ty_univ P hc.1 hc.2.1 hc.2.2.1 hc.2.2.2 x
 
 /-- A custom class is empty. -/
 theorem ty_empty {c : IRI} (hc : c ∈ customClasses) (x : Term) : ¬ Ty P x (.iri c) := by
   have h : ∀ d ∈ customClasses, Term.iri d ≠ .iri xsd.string ∧ Term.iri d ≠ .iri rdf.langString ∧
-      isCustom (.iri d) = true := by decide
-  obtain ⟨h1, h2, h3⟩ := h c hc
-  rw [Ty_custom P h1 h2 h3]; exact id
+      Term.iri d ≠ .iri rdf.dirLangString ∧ isCustom (.iri d) = true := by decide
+  obtain ⟨h1, h2, hd, h3⟩ := h c hc
+  rw [Ty_custom P h1 h2 hd h3]; exact id
 
 theorem ic (x : Term) : I.IC x := by
   show IEXT P (.iri rdf.type) x (.iri rdfs.Class)

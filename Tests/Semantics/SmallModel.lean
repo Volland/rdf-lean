@@ -22,7 +22,7 @@ open Vocab Semantics
 to contain every resource. Custom classes must avoid them. -/
 def universalClasses : List IRI :=
   [rdfs.Resource, rdf.Property, rdfs.Class, rdfs.Literal, rdf.Statement, rdf.List,
-    rdfs.Container, rdfs.ContainerMembershipProperty, rdfs.Datatype]
+    rdfs.Container, rdfs.ContainerMembershipProperty, rdfs.Datatype, rdfs.Proposition]
 
 /-- The parameters of a model: which classes and properties are custom, and their extensions. -/
 structure Params where
@@ -39,6 +39,8 @@ variable (P : Params)
 def Ty (x c : Term) : Prop :=
   if c = .iri xsd.string then ∃ s, x = .lit (.typed s xsd.string)
   else if c = .iri rdf.langString then ∃ s t : String, x = .lit (.lang s t.toLower)
+  else if c = .iri rdf.dirLangString then
+    ∃ (s t : String) (d : Direction), x = .lit (.dirLang s t.toLower d)
   else if P.isCustom c then P.custExt c x else True
 
 /-- `rdfs:subClassOf`: classes with included extensions. -/
@@ -80,6 +82,7 @@ def IEXT (p x y : Term) : Prop :=
 /-- Literal values: language tags lowercased. -/
 def litVal : Literal → Literal
   | .lang s t => .lang s t.toLower
+  | .dirLang s t d => .dirLang s t.toLower d
   | l => l
 
 -- @tg: implements:: [[openspec:rdf-semantics#Semantics is not vacuous]]
@@ -107,6 +110,12 @@ abbrev interp : DInterp where
     simp only [Term.lit.injEq, Literal.lang.injEq] at h
     exact h
   IL_lang := fun _ _ => rfl
+  dirLangVal := fun s t d => .lit (.dirLang s t d)
+  dirLangVal_inj := by
+    intro s t d s' t' d' h
+    simp only [Term.lit.injEq, Literal.dirLang.injEq] at h
+    exact h
+  IL_dirLang := fun _ _ _ => rfl
   strVal := fun s => some (.lit (.typed s xsd.string))
   strVal_inj := by
     intro s s' v h h'
@@ -159,16 +168,17 @@ theorem IEXT_over (p u v : Term) (h : IEXT P p u v) : Over P p u v := by
 
 /-- A class that is neither a datatype nor custom contains everything. -/
 theorem Ty_univ {c : Term} (h1 : c ≠ .iri xsd.string) (h2 : c ≠ .iri rdf.langString)
-    (h3 : P.isCustom c = false) (x : Term) : Ty P x c := by
-  simp [Ty, h1, h2, h3]
+    (hd : c ≠ .iri rdf.dirLangString) (h3 : P.isCustom c = false) (x : Term) : Ty P x c := by
+  simp [Ty, h1, h2, hd, h3]
 
 /-- A custom class contains exactly its custom extension. -/
 theorem Ty_custom {c : Term} (h1 : c ≠ .iri xsd.string) (h2 : c ≠ .iri rdf.langString)
-    (h3 : P.isCustom c = true) (x : Term) : Ty P x c ↔ P.custExt c x := by
-  simp [Ty, h1, h2, h3]
+    (hd : c ≠ .iri rdf.dirLangString) (h3 : P.isCustom c = true) (x : Term) :
+    Ty P x c ↔ P.custExt c x := by
+  simp [Ty, h1, h2, hd, h3]
 
 theorem Ty_vocab {c : IRI} (hc : c ∈ universalClasses) (x : Term) : Ty P x (.iri c) := by
-  refine Ty_univ P ?_ ?_ (P.hClass c hc) x <;>
+  refine Ty_univ P ?_ ?_ ?_ (P.hClass c hc) x <;>
   · intro h
     simp only [Term.iri.injEq] at h
     subst h
@@ -180,6 +190,11 @@ theorem Ty_string (x : Term) : Ty P x (.iri xsd.string) ↔ ∃ s, x = .lit (.ty
 theorem Ty_langString (x : Term) :
     Ty P x (.iri rdf.langString) ↔ ∃ s t : String, x = .lit (.lang s t.toLower) := by
   rw [Ty, ite_eq_right (by decide), ite_eq_left rfl]
+
+theorem Ty_dirLangString (x : Term) :
+    Ty P x (.iri rdf.dirLangString) ↔
+      ∃ (s t : String) (d : Direction), x = .lit (.dirLang s t.toLower d) := by
+  rw [Ty, ite_eq_right (by decide), ite_eq_right (by decide), ite_eq_left rfl]
 
 theorem gen_univ {p : Term} (h : P.isCustomProp p = false) (u v : Term) : gen P p u v := by
   simp [gen, h]
@@ -231,9 +246,13 @@ theorem rdf : RDFConditions (interp P) where
   langString_class x := by
     show IEXT P (.iri rdf.type) x (.iri rdf.langString) ↔ ∃ s t : String, x = .lit (.lang s t.toLower)
     rw [IEXT_type, Ty_langString]
+  dirLangString_class x := by
+    show IEXT P (.iri rdf.type) x (.iri rdf.dirLangString) ↔
+      ∃ (s t : String) (d : Direction), x = .lit (.dirLang s t.toLower d)
+    rw [IEXT_type, Ty_dirLangString]
   axioms a ha := by
     simp only [rdfAxioms, List.mem_cons, List.not_mem_nil, or_false] at ha
-    rcases ha with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact ax_type P (by decide)
+    rcases ha with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact ax_type P (by decide)
   axioms_member _ := ax_type P (by decide)
 
 theorem rdfs : RDFSConditions (interp P) where
@@ -246,11 +265,20 @@ theorem rdfs : RDFSConditions (interp P) where
     rw [IEXT_type, Ty_langString]
     simp only [litVal, Option.some.injEq]
     exact ⟨fun ⟨s, t, h⟩ => ⟨s, t, h.symm⟩, fun ⟨s, t, h⟩ => ⟨s, t, h.symm⟩⟩
+  dirLangString_ext x := by
+    show IEXT P (.iri rdf.type) x (.iri rdf.dirLangString) ↔
+      ∃ s t d, some (Term.lit (litVal (.dirLang s t d))) = some x
+    rw [IEXT_type, Ty_dirLangString]
+    simp only [litVal, Option.some.injEq]
+    exact ⟨fun ⟨s, t, d, h⟩ => ⟨s, t, d, h.symm⟩, fun ⟨s, t, d, h⟩ => ⟨s, t, d, h.symm⟩⟩
   string_ext x := (rdf P).string_class x
   datatypes := by
-    constructor <;>
+    refine ⟨?_, ?_, ?_⟩ <;>
     · show IEXT P (.iri rdf.type) _ (.iri rdfs.Datatype)
       rw [IEXT_type]; exact Ty_vocab P (by decide) _
+  proposition x y z _ _ _ := by
+    show IEXT P (.iri rdf.type) (.triple x y z) (.iri rdfs.Proposition)
+    rw [IEXT_type]; exact Ty_vocab P (by decide) _
   domain x y u v h1 h2 := by
     show IEXT P (.iri rdf.type) u y
     have h1 : IEXT P (.iri rdfs.domain) x y := h1
@@ -325,7 +353,7 @@ theorem rdfs : RDFSConditions (interp P) where
   axioms a ha := by
     simp only [rdfsAxioms, List.mem_cons, List.not_mem_nil, or_false] at ha
     rcases ha with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl |
-      rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl |
+      rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl |
       rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
     all_goals first
       | exact ax_domain P (by decide)

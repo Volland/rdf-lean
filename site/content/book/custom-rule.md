@@ -5,7 +5,7 @@ summary: The whole workflow on one new rule: write it as data, prove it sound, l
 ---
 # Adding a rule of your own
 
-The previous chapters used the 67 RDFS rules that ship with LeanRDF. Nothing in the machinery is specific to them. A rule is a value of type `Rule`, Elpi's clauses are generated from whatever list you pass, and the checker accepts any list. What makes a rule *usable for proofs* is a soundness theorem. This chapter walks through all four steps on one new rule. The complete file is `elpi/BridgeTests/CustomRule.lean`, and `lake test` in `elpi/` compiles it.
+The previous chapters used the 80 RDFS rules that ship with LeanRDF. Nothing in the machinery is specific to them. A rule is a value of type `Rule`, Elpi's clauses are generated from whatever list you pass, and the checker accepts any list. What makes a rule *usable for proofs* is a soundness theorem. This chapter walks through all four steps on one new rule. The complete file is `elpi/BridgeTests/CustomRule.lean`, and `lake test` in `elpi/` compiles it.
 
 ## Step 1: the rule as data
 

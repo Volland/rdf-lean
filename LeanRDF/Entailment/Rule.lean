@@ -4,17 +4,20 @@ import LeanRDF.Core.Vocab
 /-!
 # Rules
 
-Horn rules over triple patterns, the data form of the entailment patterns of RDF 1.1 Semantics
-§9.2.1. A rule has a name, body patterns, a head pattern and decidable guards; variables may
-stand in any position, because the patterns are stated over generalized RDF.
+Horn rules over triple patterns, the data form of the entailment patterns of RDF 1.2 Semantics
+§8.1.1 and §9.2.1. A rule has a name, body patterns, a head pattern and decidable guards;
+variables may stand in any position, inside triple-term patterns too, because the patterns are
+stated over generalized RDF.
 -/
 
 namespace LeanRDF
 
-/-- A position of a triple pattern: a named variable or a fixed term. -/
+/-- A position of a triple pattern: a named variable, a fixed term, or a triple-term pattern
+whose three positions are patterns again. -/
 inductive Pat where
   | var (n : String)
   | const (t : Term)
+  | triple (s p o : Pat)
   deriving DecidableEq, Repr
 
 /-- A triple pattern. -/
@@ -35,8 +38,10 @@ inductive Guard where
   | containerMembership (v : String)
   /-- The variable is a literal with datatype `xsd:string`. -/
   | stringLiteral (v : String)
-  /-- The variable is a language-tagged literal. -/
+  /-- The variable is a language-tagged literal without a base direction. -/
   | langLiteral (v : String)
+  /-- The variable is a directional language-tagged literal (RDF 1.2 Concepts §3.4). -/
+  | dirLangLiteral (v : String)
   deriving DecidableEq, Repr
 
 open Vocab in
@@ -45,6 +50,7 @@ def Guard.Holds : Guard → Subst → Prop
   | .containerMembership v, σ => ∃ n, σ v = .iri (rdf.member (n + 1))
   | .stringLiteral v, σ => ∃ s, σ v = .lit (.typed s xsd.string)
   | .langLiteral v, σ => ∃ s t, σ v = .lit (.lang s t)
+  | .dirLangLiteral v, σ => ∃ s t d, σ v = .lit (.dirLang s t d)
 
 open Vocab in
 /-- The number of a container membership IRI `rdf:_n`, `n ≥ 1`, found by reading the digits and
@@ -82,6 +88,10 @@ def Guard.check : Guard → Subst → Bool
     match σ v with
     | .lit (.lang _ _) => true
     | _ => false
+  | .dirLangLiteral v, σ =>
+    match σ v with
+    | .lit (.dirLang _ _ _) => true
+    | _ => false
 
 /-- The checker of a guard is sound for its meaning. -/
 theorem Guard.check_sound {g : Guard} {σ : Subst} (h : g.check σ = true) : g.Holds σ := by
@@ -106,6 +116,11 @@ theorem Guard.check_sound {g : Guard} {σ : Subst} (h : g.check σ = true) : g.H
     split at h
     · rename_i s t hv; exact ⟨s, t, hv⟩
     · cases h
+  | dirLangLiteral v =>
+    simp only [Guard.check] at h
+    split at h
+    · rename_i s t d hv; exact ⟨s, t, d, hv⟩
+    · cases h
 
 -- @tg: implements:: [[openspec:rdfs-entailment#Rule format]]
 /-- A Horn rule: if every body pattern holds under σ and every guard holds, the head holds. -/
@@ -118,15 +133,17 @@ structure Rule where
 
 namespace Pat
 
-/-- Instantiate a pattern. -/
+/-- Instantiate a pattern; a triple-term pattern gives the triple term of its instances. -/
 def apply (σ : Subst) : Pat → Term
   | .var n => σ n
   | .const t => t
+  | .triple s p o => .triple (s.apply σ) (p.apply σ) (o.apply σ)
 
-/-- The variables of a pattern. -/
+/-- The variables of a pattern, inside triple-term patterns too. -/
 def vars : Pat → List String
   | .var n => [n]
   | .const _ => []
+  | .triple s p o => s.vars ++ p.vars ++ o.vars
 
 end Pat
 

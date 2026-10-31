@@ -11,6 +11,7 @@ scripts/examples.sh --update     # record new expected outputs after an intended
 | Directory | Tool | What it shows |
 |---|---|---|
 | [`rdfs-university/`](rdfs-university/) | `leanrdf-demo` | RDFS entailment with a checked certificate, and an honest "not derived" |
+| [`rdf12-reification/`](rdf12-reification/) | `leanrdf-demo` | RDF 1.2 reification: an asserted annotation, a reified triple that is not asserted, propositions |
 | [`sparql-library/`](sparql-library/) | `leanrdf-sparql` | SPARQL 1.1 queries run by the proven evaluator |
 | [`shacl-employees/`](shacl-employees/) | `leanrdf-shacl` | SHACL Core validation with a conforming and a non-conforming graph |
 | [`owl-rl-family/`](owl-rl-family/) | `leanrdf-oxilite` | oxilite's OWL 2 RL answers and closure, certified from a recording |

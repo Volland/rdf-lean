@@ -1,0 +1,10 @@
+LeanRDF: 7 data triples, 2 query triples
+Elpi closure under 80 rules: 199 triples
+Query instance: _:r ↦ _:genid1
+Query instance: _:who ↦ <http://example.org/gossip>
+Query instance: _:age ↦ "42"^^<http://www.w3.org/2001/XMLSchema#integer>
+Certificate: 2 nodes, goals [0, 1]
+  [0] _:genid1 <http://example.org/source> <http://example.org/gossip>  (fact)
+  [1] _:genid1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <http://example.org/alice> <http://example.org/age> "42"^^<http://www.w3.org/2001/XMLSchema#integer> )>>  (fact)
+Verdict: ENTAILED. The certificate was accepted by the verified checker (compiled).
+# exit 0

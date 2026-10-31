@@ -36,7 +36,7 @@ structure Entry where
 def saturate (rules : List Rule) (g : Graph) : Except String Closure
 ```
 
-Every triple appears once, premises before conclusions. On the pet ontology, eleven triples close to 201 under all 67 rules; a subclass cycle adds exactly the reflexive triples and the inherited type.
+Every triple appears once, premises before conclusions. On the pet ontology, eleven triples close to 218 under all 80 rules; a subclass cycle adds exactly the reflexive triples and the inherited type.
 
 ```lean
 #guard closesTo [T (ex "A") sc (ex "B"), T (ex "B") sc (ex "A"), T (ex "x") ty (ex "A")]
@@ -47,5 +47,5 @@ Nothing here is trusted. If the clause generator or the Elpi engine had a bug, t
 
 ## Other engines can be the searcher
 
-Elpi is one searcher among many. oxilite, an Oxigraph-compatible SPARQL store on SQLite, answers RDFS queries by rewriting them, and its `why` tool returns the proof tree behind an inferred triple. `leanrdf-oxilite` translates each step of such a tree into a rule application, trying the 67 rules with the checker's own node check, and hands the result to the same checker. When oxilite's explanation is incomplete, Elpi's certificate is the fallback. Either way, nothing oxilite says is trusted until the checker accepts it.
+Elpi is one searcher among many. oxilite, an Oxigraph-compatible SPARQL store on SQLite, answers RDFS queries by rewriting them, and its `why` tool returns the proof tree behind an inferred triple. `leanrdf-oxilite` translates each step of such a tree into a rule application, trying the 80 rules with the checker's own node check, and hands the result to the same checker. When oxilite's explanation is incomplete, Elpi's certificate is the fallback. Either way, nothing oxilite says is trusted until the checker accepts it.
 

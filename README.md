@@ -4,7 +4,7 @@
 
 **Website, book, documentation and examples: https://volland.github.io/rdf-lean/**
 
-LeanRDF is RDF semantics you can prove. It is a set of Lean 4 libraries with a native RDF 1.1 data model and the W3C semantics of RDF, RDFS, OWL 2 RL and EL, SPARQL 1.1 and SHACL Core, written as Lean definitions. Untrusted engines find answers. A verified checker, or an engine proven against the semantics, turns them into theorems.
+LeanRDF is RDF semantics you can prove. It is a set of Lean 4 libraries with a native RDF 1.2 data model (triple terms, reification and base directions included) and the W3C semantics of RDF, RDFS, OWL 2 RL and EL, SPARQL 1.1 and SHACL Core, written as Lean definitions. Untrusted engines find answers. A verified checker, or an engine proven against the semantics, turns them into theorems.
 
 - **Elpi finds, Lean checks.** Elpi (λProlog, through [lean-elpi](https://github.com/Volland/lean-elpi)) saturates a graph and produces a proof certificate. The checker is proven sound, so an accepted certificate gives the theorem `g.RDFSEntails q` or `g.OWLEntails q`. A bug in the search can only produce a rejected certificate, never a wrong answer.
 - **oxilite finds and stores, LeanRDF proves.** [oxilite](https://oxilitedb.com), a SPARQL store on SQLite, answers queries and materializes OWL closures. LeanRDF certifies each answer from oxilite's own explanation or from Elpi, and audits the whole closure.
@@ -14,7 +14,7 @@ LeanRDF is RDF semantics you can prove. It is a set of Lean 4 libraries with a n
 
 | Package | Directory | Main theorem |
 |---|---|---|
-| `leanrdf` | `.` | `checkQuery_sound`: an accepted certificate gives `g.RDFSEntails q`, under 67 RDFS rules each proven sound |
+| `leanrdf` | `.` | `checkQuery_sound`: an accepted certificate gives `g.RDFSEntails q`, under 80 RDFS rules each proven sound; `checkQuery_sound_rdf` and `checkQuery_sound_simple` for the RDF and simple regimes |
 | `leanrdf-owl` | `owl/` | `Derives.owl_sound`, `Derives.el_sound`: 60 OWL 2 RL rules and 10 EL rules proven sound for the OWL 2 RDF-Based conditions |
 | `leanrdf-sparql` | `sparql/` | `evalN_perm`, `runQuery_answer`: the evaluator's solutions are the SPARQL 1.1 semantics, up to order |
 | `leanrdf-shacl` | `shacl/` | `validate_conforms`, `validate_sound`: "conforms" exactly when the data conforms, and every result is a real violation |
@@ -25,6 +25,8 @@ The libraries contain no `sorry` and no new axioms. They use only `propext`, `Qu
 | Test suite | Result |
 |---|---|
 | W3C RDF 1.1 N-Triples, Turtle, N-Quads, TriG | all pass |
+| W3C RDF 1.2 N-Triples, N-Quads (with canonicalization), Turtle, TriG | all pass |
+| W3C RDF 1.2 Semantics | 20 run: 16 certified, 4 not derived; 9 need datatypes outside D |
 | W3C SPARQL 1.1 Query | 97 syntax and 257 evaluation tests pass |
 | W3C SHACL Core | 98 / 98 |
 
@@ -72,6 +74,7 @@ Exit codes are the same for every tool: `0` proven or ran, `1` not derived or do
 [`examples/`](examples/) has a runnable example for every tool, with recorded outputs. `scripts/examples.sh` checks them, and CI runs it on every push:
 
 - RDFS entailment on a university ontology;
+- RDF 1.2 reification: annotations, reified triples and propositions;
 - six SPARQL queries over a library;
 - SHACL validation of employees;
 - oxilite's OWL 2 RL answers and closure, certified from a recording (including an explanation of oxilite's that LeanRDF rejects);

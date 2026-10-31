@@ -2,7 +2,7 @@
 <section class="hero">
 <div>
 <h1>RDF semantics you can prove</h1>
-<p class="lead">LeanRDF is a Lean 4 library with a native RDF 1.1 data model and the W3C model theory of RDF and RDFS. Elpi (λProlog) searches for derivations; a verified Lean checker turns them into theorems of the form <code>g.RDFSEntails q</code>.</p>
+<p class="lead">LeanRDF is a Lean 4 library with a native RDF 1.2 data model and the W3C model theory of RDF and RDFS. Elpi (λProlog) searches for derivations; a verified Lean checker turns them into theorems of the form <code>g.RDFSEntails q</code>.</p>
 <div class="btns">
 <a class="btn" href="{{BASE}}/book/">Read the book</a>
 <a class="btn alt" href="{{BASE}}/docs/">Documentation</a>
@@ -25,7 +25,7 @@
 <div class="card"><h3>A native RDF model</h3><p>IRIs, blank nodes, literals that cannot be ill-formed, generalized triples and graphs used through membership lemmas only. No FFI, no dependencies.</p></div>
 <div class="card"><h3>N-Triples and Turtle</h3><p>Native parsers with line and column in every error, a canonical serializer, RFC 3986 IRI resolution. All W3C syntax and evaluation tests pass.</p></div>
 <div class="card"><h3>The model theory</h3><p>Simple, D-, RDF and RDFS interpretations transcribed from RDF 1.1 Semantics, one field per condition, with four entailment relations.</p></div>
-<div class="card"><h3>67 rules, all proven sound</h3><p>Every RDFS 1.1 pattern, GrdfD1, the container rules and the axiomatic triples, as data with guards, each with a soundness proof.</p></div>
+<div class="card"><h3>80 rules, all proven sound</h3><p>Every RDFS pattern of RDF 1.2, rdfs14 for propositions, GrdfD1, the container rules and the axiomatic triples, as data with guards, each with a soundness proof.</p></div>
 <div class="card"><h3>Certificates and a verified checker</h3><p>Proof DAGs in JSON. <code>check_sound</code> gives <code>Derives</code>; <code>checkQuery_sound</code> gives RDFS entailment. Exports to CertifyingDatalog.</p></div>
 <div class="card"><h3>Not vacuous, by proof</h3><p>A concrete RDFS model and countermodels for non-entailments, checked by the kernel, show the semantics is neither empty nor trivial.</p></div>
 <div class="card"><h3>SPARQL 1.1, proven</h3><p>The algebra, a declarative semantics and an evaluator proven to compute it, with paths, aggregates and subqueries. Passes the W3C query suite.</p></div>
@@ -42,7 +42,7 @@
 <div class="stat"><b>70 / 70</b><span>W3C N-Triples tests</span></div>
 <div class="stat"><b>354</b><span>W3C SPARQL 1.1 query tests</span></div>
 <div class="stat"><b>98 / 98</b><span>W3C SHACL Core tests</span></div>
-<div class="stat"><b>137</b><span>RDFS, OWL 2 RL and EL rules proven sound</span></div>
+<div class="stat"><b>150</b><span>RDFS, OWL 2 RL and EL rules proven sound</span></div>
 <div class="stat"><b>0</b><span><code>sorry</code> or new axioms</span></div>
 <div class="stat"><b>3</b><span>standard axioms used: <code>propext</code>, <code>Quot.sound</code>, <code>Classical.choice</code></span></div>
 </div>
@@ -54,7 +54,7 @@
 <pre><code>$ cd elpi
 $ lake exe leanrdf-demo examples/pets.nt examples/query-mammal-owner.nt
 LeanRDF: 11 data triples, 3 query triples
-Elpi closure under 67 rules: 201 triples
+Elpi closure under 80 rules: 218 triples
 Query instance: _:owner ↦ &lt;http://example.org/bob&gt;
 Query instance: _:pet ↦ &lt;http://example.org/tom&gt;
 Certificate: 6 nodes, goals [1, 4, 5]

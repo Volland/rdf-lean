@@ -20,9 +20,16 @@ example : Rule.UniqueNames rdfsRules := by decide
 
 -- @tg: verifies:: [[openspec:rdfs-entailment#RDFS rule set#The full rule set]] {level: unit}
 #guard rdfsExtraRules.map (·.name) == ["rdfD2", "rdfs4a", "rdfs4b", "rdfs6", "rdfs8", "rdfs10", "rdfs12",
-    "rdfs13", "GrdfD1-string", "GrdfD1-langString", "rdfs-axiom-cmp-type", "rdfs-axiom-cmp-domain",
-    "rdfs-axiom-cmp-range"] &&
-  axiomRules.length == 48 && rdfsRules.length == 67
+    "rdfs13", "GrdfD1-string", "GrdfD1-langString", "GrdfD1-dirLangString", "rdfs-axiom-cmp-type",
+    "rdfs-axiom-cmp-domain", "rdfs-axiom-cmp-range", "Grdfs14-s", "Grdfs14-p", "Grdfs14-o",
+    "Grdfs14-in-s", "Grdfs14-in-p", "Grdfs14-in-o", "rdfs14a"] &&
+  axiomRules.length == 53 && rdfsRules.length == 80
+
+-- @tg: verifies:: [[openspec:rdfs-entailment#RDFS rule set#RDF 1.2 axioms are rules]] {level: unit}
+#guard [(rdf.reifies, rdf.type, rdf.Property), (rdf.reifies, rdfs.domain, rdfs.Resource),
+    (rdf.reifies, rdfs.range, rdfs.Proposition), (rdfs.Proposition, rdfs.subClassOf, rdfs.Resource),
+    (rdf.dirLangString, rdf.type, rdfs.Datatype)].all fun a =>
+  axiomRules.any (·.name == (axiomRule a).name)
 
 /- The basic rules have no guards, and rdfs7 has a variable in predicate position. -/
 example : ∀ r ∈ rdfsBasicRules, r.guards = [] := by decide

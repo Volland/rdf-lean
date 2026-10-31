@@ -14,10 +14,12 @@ namespace LeanRDF.Bridge
 def varSrc (n : String) : String :=
   "V" ++ String.ofList (n.toList.map fun c => if c.isAlphanum then c else 'x')
 
-/-- A pattern position as Elpi source text. -/
+/-- A pattern position as Elpi source text; a triple-term pattern is an `rdf.tt` term with the
+pattern's variables inside, so Elpi unification matches inside triple terms. -/
 def patSrc : Pat → String
   | .var n => varSrc n
   | .const t => termSrc t
+  | .triple s p o => s!"(rdf.tt {patSrc s} {patSrc p} {patSrc o})"
 
 /-- A triple pattern as an Elpi `rdftriple`. -/
 def tpatSrc (b : TPat) : String := s!"(rdf.t {patSrc b.s} {patSrc b.p} {patSrc b.o})"
@@ -32,6 +34,7 @@ def guardSrc : Guard → String
   | .containerMembership v => s!"rdf.is-cmp {varSrc v}"
   | .stringLiteral v => s!"{varSrc v} = rdf.typed _ {Elpi.quoteArg Vocab.xsd.string.val}"
   | .langLiteral v => s!"{varSrc v} = rdf.lang _ _"
+  | .dirLangLiteral v => s!"{varSrc v} = rdf.dirlang _ _ _"
 
 -- @tg: implements:: [[openspec:elpi-bridge#Rule clauses]]
 /-- The clauses of a rule. A rule with premises gives one `rdf.step` clause per premise

@@ -18,17 +18,17 @@ Soundness is unaffected, since a statement over all interpretations in `Type` is
 - impact:: soundness-neutral
 - deviates_from:: [[constraints#Simple interpretations]]
 
-## Two recognized datatypes with abstract values
+## Three recognized datatypes with abstract values
 
-D is exactly `{xsd:string, rdf:langString}`, and their value spaces are abstract fields `strVal` and `langVal` of the interpretation, not an XSD implementation.
+D is exactly `{xsd:string, rdf:langString, rdf:dirLangString}`, and their value spaces are abstract fields `strVal`, `langVal` and `dirLangVal` of the interpretation, not an XSD implementation.
 
-Other datatypes are unrecognized, so their literals are interpreted only through `IL`. Value-space reasoning (`"01"^^xsd:integer` equals `"1"^^xsd:integer`) is out of scope. Because the values are fields, every embedding of them is allowed, a larger class than the spec's, which only strengthens soundness. "I(aaa) is the datatype identified by aaa" (§7.1) is not expressed. The value space of `rdf:langString` is the pairs with lowercased tags, the only reading under which §8 and §9 agree.
+Other datatypes are unrecognized, so their literals are interpreted only through `IL`. Value-space reasoning (`"01"^^xsd:integer` equals `"1"^^xsd:integer`) is out of scope, and so are the RDF 1.2 tests that need it or `rdf:JSON` (the expected-not-run list of the W3C semantics suite). Because the values are fields, every embedding of them is allowed, a larger class than the spec's, which only strengthens soundness. "I(aaa) is the datatype identified by aaa" (§7.1) is not expressed. The value spaces of `rdf:langString` and `rdf:dirLangString` are the tuples with lowercased tags, the only reading under which §8 and §9 agree.
 
 Since `add-xsd-values`, `LeanRDF.Xsd` computes XSD values for queries and validation (`Literal.value?`, `XsdValue.compare?`), but entailment still does not use them: `"01"^^xsd:integer` and `"1"^^xsd:integer` are different terms to every rule and interpretation.
 
-- source:: RDF 1.1 Semantics §7 and §8
+- source:: RDF 1.2 Semantics §7 and §8
 - impact:: scope
-- deviates_from:: [[constraints#RDF interpretations recognize two datatypes]]
+- deviates_from:: [[constraints#RDF 1.2 RDF interpretations]]
 
 ## IRIs checked only by the N-Triples grammar
 
@@ -97,3 +97,23 @@ RDF 1.2 Concepts §3.4 requires tags well-formed by BCP 47 §2.2.9. The length b
 - source:: RDF 1.2 Concepts §3.4; BCP 47 §2.2.9
 - impact:: scope
 - deviates_from:: [[constraints#Directional language-tagged strings]]
+
+## Datatype rules see asserted positions only
+
+The GrdfD1 rules type a literal that is the object of a triple; a literal inside a triple term, or in subject or predicate position, is not typed.
+
+RDF 1.2 Semantics §8.1.1 states rdfD1 for a literal that *appears* in a triple, triple terms included. Soundness is unaffected, since every typing the rules derive is entailed; the rule set is only less complete.
+
+- source:: RDF 1.2 Semantics §8.1.1
+- impact:: incompleteness
+- deviates_from:: [[constraints#RDF 1.2 entailment patterns]]
+
+## Proposition rules are not exported to Datalog
+
+The CertifyingDatalog export writes ground triple-term patterns as constants and leaves out rules whose triple-term patterns have variables, since Datalog has no function terms.
+
+The six Grdfs14 rules are such rules, so a certificate that uses them does not re-check in CertifyingDatalog. The export is a cross-check, not part of LeanRDF's trusted base; LeanRDF's own checker accepts these certificates.
+
+- source:: CertifyingDatalog `GraphProblemInput` format; RDF 1.2 Semantics §9.2.1
+- impact:: scope
+- deviates_from:: [[constraints#RDF 1.2 entailment patterns]]

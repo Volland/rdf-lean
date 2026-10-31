@@ -1,0 +1,6 @@
+LeanRDF: 7 data triples, 1 query triples
+Elpi closure under 80 rules: 199 triples
+Certificate: 1 nodes, goals [0]
+  [0] <http://example.org/alice> <http://example.org/worksAt> <http://example.org/acme>  (fact)
+Verdict: ENTAILED. The certificate was accepted by the verified checker (compiled).
+# exit 0

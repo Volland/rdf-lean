@@ -60,6 +60,10 @@ if [ "$WHICH" = all ] || [ "$WHICH" = elpi ]; then
     n=$(basename "$q" .nt)
     check rdfs-university "$n" "$BIN/leanrdf-demo" university.nt "$(basename "$q")"
   done
+  for q in "$ROOT"/examples/rdf12-reification/query-*.nt; do
+    n=$(basename "$q" .nt)
+    check rdf12-reification "$n" "$BIN/leanrdf-demo" claims.nt "$(basename "$q")"
+  done
   check owl-rl-family answers "$BIN/leanrdf-oxilite" data.ttl pattern.ttl --profile owl \
     --results recorded/results.json --why-dir recorded
   check owl-rl-family materialized "$BIN/leanrdf-oxilite" data.ttl --materialized \

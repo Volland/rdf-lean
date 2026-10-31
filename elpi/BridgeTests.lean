@@ -8,3 +8,4 @@ import BridgeTests.Oxilite
 import BridgeTests.OxiliteOwl
 import BridgeTests.Classify
 import BridgeTests.CustomRule
+import BridgeTests.Rdf12Semantics

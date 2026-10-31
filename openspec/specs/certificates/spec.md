@@ -28,7 +28,7 @@ A certificate SHALL consist of a version, nodes (an id, a conclusion triple, a r
 - **THEN** the checker returns an error
 
 ### Requirement: Checker soundness
-`check_sound` SHALL prove that `check rules g c = .ok t` implies `Derives rules g t`, and `checkQuery_sound` that `checkQuery rdfsRules g q c = .ok ()` implies `g.RDFSEntails q`, using no axiom beyond `propext`, `Classical.choice` and `Quot.sound`.
+`check_sound` SHALL prove that `check rules g c = .ok t` implies `Derives rules g t`. `checkQuery_sound` SHALL prove that `checkQuery rdfsRules g q c = .ok ()` implies `g.RDFSEntails q`. `checkQuery_sound_rdf` and `checkQuery_sound_simple` SHALL prove the same for `rdfRules` with `g.RDFEntails q`, and for `simpleRules` with `g.SimpleEntails q`. All four SHALL use no axiom beyond `propext`, `Classical.choice` and `Quot.sound`.
 
 #### Scenario: An accepted certificate gives Derives
 - **WHEN** the checker accepts the certificate of `ex:x rdf:type ex:C`
@@ -41,6 +41,14 @@ A certificate SHALL consist of a version, nodes (an id, a conclusion triple, a r
 #### Scenario: Checker theorems are axiom-clean
 - **WHEN** the axioms of `check_sound` and `checkQuery_sound` are printed
 - **THEN** they are among `propext`, `Classical.choice` and `Quot.sound`
+
+#### Scenario: A proposition certificate gives RDFS entailment
+- **WHEN** the checker accepts a certificate for `_:n rdf:type rdfs:Proposition . ex:r rdf:reifies _:n .` with `_:n ↦ <<( ex:a ex:p ex:b )>>` over `ex:r rdf:reifies <<( ex:a ex:p ex:b )>> .`
+- **THEN** a Lean theorem `g.RDFSEntails q` is obtained from it
+
+#### Scenario: Regime certificates give their entailment
+- **WHEN** `checkQuery simpleRules` accepts a certificate of fact nodes only, and `checkQuery rdfRules` accepts one using rdfD2
+- **THEN** `g.SimpleEntails q` and `g.RDFEntails q` are obtained from them, and the regime theorems are axiom-clean
 
 ### Requirement: CertifyingDatalog export
 `toDatalog` SHALL write a certificate, its rules and its graph as a CertifyingDatalog `GraphProblemInput`: triples as `triple(s, p, o)` atoms over N-Triples constants, rules over `triple/3` with `?`-prefixed variables, graph triples as rules with an empty body, and one edge per node with its premises as predecessors.

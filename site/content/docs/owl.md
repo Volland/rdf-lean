@@ -26,9 +26,9 @@ The conditions are a recorded subset of the specification, and a few are kept on
 |---|---|---|
 | `Owl.owlRLDerivationRules` | 49 | eq-ref, eq-sym, eq-trans, eq-rep-s/p/o; prp-fp, prp-ifp, prp-symp, prp-trp, prp-eqp1/2, prp-inv1/2; cls-svf1/2, cls-avf, cls-hv1/2, cls-maxc2, cls-maxqc3/4; cax-eqc1/2; the scm-* schema rules |
 | `Owl.owlRLRules` | 60 | the derivation rules and 11 axiom rules (prp-ap, cls-thing, cls-nothing1) |
-| `Owl.owlRules` | 127 | `RDFS.rdfsRules ++ owlRLRules` |
+| `Owl.owlRules` | 140 | `RDFS.rdfsRules ++ owlRLRules` |
 | `Owl.elRules` | 10 | el-int-e1, el-int-e2, el-int-e1-3, el-int-e2-3, el-int-e3, el-int-i2, el-int-i3, el-ex, el-ex-sub, el-ex-bot |
-| `Owl.owlELRules` | 137 | `owlRules ++ elRules` |
+| `Owl.owlELRules` | 150 | `owlRules ++ elRules` |
 
 Left out: the rules whose premises run over an `rdf:List` (prp-key, prp-spo2, cls-int1, cls-int2, cls-uni, cls-oo, scm-int, scm-uni, prp-adp, cax-adc, eq-diff2, eq-diff3) and the rules that conclude `false`. The EL rules cover intersections of two or three classes with fixed-length lists instead.
 

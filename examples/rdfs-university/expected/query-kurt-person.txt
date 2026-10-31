@@ -1,5 +1,5 @@
 LeanRDF: 12 data triples, 1 query triples
-Elpi closure under 67 rules: 209 triples
+Elpi closure under 80 rules: 226 triples
 Certificate: 7 nodes, goals [6]
   [0] <http://example.org/uni#Lecturer> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/uni#Staff>  (fact)
   [1] <http://example.org/uni#Professor> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://example.org/uni#Lecturer>  (fact)

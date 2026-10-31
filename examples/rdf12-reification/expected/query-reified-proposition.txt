@@ -1,0 +1,10 @@
+LeanRDF: 7 data triples, 2 query triples
+Elpi closure under 80 rules: 199 triples
+Query instance: _:p ↦ <<( <http://example.org/alice> <http://example.org/worksAt> <http://example.org/acme> )>>
+Query instance: _:r ↦ <http://example.org/claim1>
+Certificate: 3 nodes, goals [2, 0]
+  [0] <http://example.org/claim1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <http://example.org/alice> <http://example.org/worksAt> <http://example.org/acme> )>>  (fact)
+  [1] <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2000/01/rdf-schema#Proposition>  (axiom <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2000/01/rdf-schema#Proposition>)
+  [2] <<( <http://example.org/alice> <http://example.org/worksAt> <http://example.org/acme> )>> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Proposition>  (rdfs3 [1, 0])
+Verdict: ENTAILED. The certificate was accepted by the verified checker (compiled).
+# exit 0
