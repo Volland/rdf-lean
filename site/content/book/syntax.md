@@ -1,7 +1,7 @@
 ---
 title: Reading and writing RDF
 order: 3
-summary: Native N-Triples and Turtle parsers, canonical output, IRI resolution and the W3C test suites.
+summary: Native N-Triples and Turtle parsers for RDF 1.2, canonical output, reification, IRI resolution and the W3C test suites.
 ---
 # Reading and writing RDF
 
@@ -49,6 +49,21 @@ A few details matter for meaning:
 - **Numbers keep their lexical form.** `1E3` becomes `"1E3"^^xsd:double`, not `"1e3"`; `:s :p 1.` ends the statement after the integer `1`.
 - **Anonymous nodes** are named `genid1`, `genid2`, … and never collide with labels the document uses.
 
+### Reification in Turtle 1.2
+
+Turtle 1.2 writes statements about statements. A reified triple `<< s p o ~ r >>` names one occurrence of a triple with the reifier `r` without asserting it; an annotation `s p o ~ r {| … |}` asserts the triple and describes it. Both are expanded while parsing into ordinary `rdf:reifies` triples:
+
+```lean
+#eval Turtle.parse "PREFIX : <http://example.org/>
+:alice :name \"Alice\" ~ :t {| :statedBy :bob |} .
+<< :alice :age 42 >> :source :census ."
+-- :alice :name "Alice" .
+-- :t rdf:reifies <<( :alice :name "Alice" )>> .  :t :statedBy :bob .
+-- _:genid1 rdf:reifies <<( :alice :age 42 )>> .  _:genid1 :source :census .
+```
+
+The second statement does not claim that Alice is 42: the triple appears only inside the triple term.
+
 ## Datasets: N-Quads and TriG
 
 SPARQL and named graphs need more than one graph. An RDF dataset is a default graph and any number of named graphs, each named by an IRI or a blank node. In LeanRDF a `Dataset` is a set of `Quad`s, a triple with `g : Option Term` (`none` is the default graph), and like `Graph` it is used only through membership lemmas such as `mem_namedGraph : t ∈ d.namedGraph n ↔ Quad.ofTriple t (some n) ∈ d`.
@@ -76,6 +91,8 @@ Both parsers are tested against the W3C suites, vendored in `Tests/data/` and ru
 | RDF 1.1 N-Quads | 53 / 53 | 34 / 34 | |
 | RDF 1.1 TriG | 99 / 99 | 115 / 115 | 143 / 143 |
 | RDF 1.2 N-Triples | 8 / 8 | 26 / 26 | 41 / 41 canonicalization |
+| RDF 1.2 Turtle | 41 / 41 | 33 / 33 | 32 / 32 |
+| RDF 1.2 TriG | 24 / 24 | 11 / 11 | 26 / 26 |
 | RDF 1.2 N-Quads | 7 / 7 | 20 / 20 | 41 / 41 canonicalization |
 
 Evaluation tests compare the parsed graph (or dataset) with the expected N-Triples (or N-Quads) up to blank-node renaming.

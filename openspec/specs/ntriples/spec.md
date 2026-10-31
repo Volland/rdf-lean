@@ -1,7 +1,7 @@
 # ntriples Specification
 
 ## Purpose
-Reading and writing RDF graphs as N-Triples (RDF 1.1 N-Triples): a native parser that accepts exactly the W3C test suite's language and reports line and column on failure, a canonical serializer whose output always re-parses, and the shared term syntax that certificates reuse.
+Native parsing and canonical serialization of RDF 1.2 N-Triples in Lean: the document and term grammar (triple terms, base directions, version announcements), the canonical output form, and conformance with the W3C RDF 1.1 and RDF 1.2 N-Triples suites, including canonicalization and stable round-trips.
 
 ## Requirements
 

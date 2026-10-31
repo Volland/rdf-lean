@@ -1,7 +1,7 @@
 # rdf-core Specification
 
 ## Purpose
-The RDF 1.1 data model of LeanRDF: IRIs, blank nodes, literals and terms, generalized triples with strict well-formedness, opaque graphs used only through membership, blank-node isomorphism, and the `rdf:`, `rdfs:` and `xsd:` vocabulary. Every later capability (parsing, semantics, entailment, the Elpi bridge and certificates) is stated over these types.
+The RDF 1.2 data model of LeanRDF: IRIs, blank nodes, literals with optional base direction, triple terms, generalized triples with strict RDF 1.2 well-formedness, the Basic predicates of RDF 1.2 Basic conformance, opaque graphs used only through membership, blank-node isomorphism, and the `rdf:`, `rdfs:` and `xsd:` vocabulary. Every later capability (parsing, semantics, entailment, the Elpi bridge and certificates) is stated over these types.
 
 ## Requirements
 

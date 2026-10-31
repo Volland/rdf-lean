@@ -161,9 +161,9 @@ Capabilities `rdf-core`, `ntriples`, `datasets`, `rdf-semantics`, `elpi-bridge`,
 
 R2: Turtle and TriG 1.2, covering version directives, `LANG_DIR`, triple terms, reified triples and annotations desugared by §7.3, plus the W3C RDF 1.2 Turtle and TriG suites.
 
-Capabilities `turtle` and `datasets`. Depends on [[changes#add-rdf12-core]]. See [[rdf12#Reification as sugar in the statement parser]].
+Capabilities `turtle` and `datasets`. Depends on [[changes#add-rdf12-core]]. See [[decisions#Reification as sugar in the statement parser]].
 
-- status:: proposed
+- status:: archived
 
 ## add-rdf12-semantics
 

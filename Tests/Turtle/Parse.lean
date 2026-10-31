@@ -75,4 +75,17 @@ private def graph (src : String) (base : String := "") : Graph :=
 #guard (graph "@prefix ex: <http://example.org/> . ex:s ex:p \"v\" .").toNTriples.toOption ==
   some "<http://example.org/s> <http://example.org/p> \"v\" .\n"
 
+-- @tg: verifies:: [[openspec:turtle#Turtle parsing#Directional language strings]] {level: unit}
+#guard triples? "<s> <p> \"مرحبا\"@AR--rtl, \"hi\"@en--ltr ." "http://example.org/"
+  == some [T (ex "s") (ex "p") (.lit (.dirLang "مرحبا" "ar" .rtl)),
+           T (ex "s") (ex "p") (.lit (.dirLang "hi" "en" .ltr))]
+
+-- @tg: verifies:: [[openspec:turtle#Turtle parsing#Unknown base direction is rejected]] {level: unit}
+#guard (Turtle.parse "<s> <p> \"x\"@en--up ." "http://example.org/").toOption.isNone
+
+-- @tg: verifies:: [[openspec:turtle#Blank nodes#Generated reifiers avoid document labels]] {level: unit}
+#guard (graph "_:genid1 <p> << <a> <b> <c> >> ." "http://example.org/").toList
+  == (Graph.ofList [T (.bnode ⟨"genid2"⟩) (.iri rdf.reifies) (.triple (ex "a") (ex "b") (ex "c")),
+                    T (.bnode ⟨"genid1"⟩) (ex "p") (.bnode ⟨"genid2"⟩)]).toList
+
 end LeanRDF.Tests.TurtleParse

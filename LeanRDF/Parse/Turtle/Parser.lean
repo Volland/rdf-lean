@@ -7,12 +7,15 @@ import LeanRDF.Parse.Turtle.Iri
 /-!
 # Turtle and TriG parser
 
-A recursive-descent parser for the `turtleDoc` production of RDF 1.1 Turtle §6.5, and for the
-`trigDoc` production of RDF 1.1 TriG §5, which adds graph blocks to Turtle statements: `@prefix`,
-`@base` and their SPARQL forms, prefixed names, relative IRIs resolved against the base
-(RFC 3986 §5.2), `;` and `,` lists, `a`, blank-node property lists, collections, long strings,
-numeric and boolean literals. Terms are built with the Core smart constructors; blank nodes
-created by `[ ]` and collections get labels `genidN` that no label of the document uses.
+A recursive-descent parser for the `turtleDoc` production of RDF 1.2 Turtle §6.5, and for the
+`trigDoc` production of RDF 1.2 TriG §5, which adds graph blocks to Turtle statements: `@prefix`,
+`@base`, `@version` and their SPARQL forms, prefixed names, relative IRIs resolved against the
+base (RFC 3986 §5.2), `;` and `,` lists, `a`, blank-node property lists, collections, long
+strings, numeric and boolean literals, `LANG_DIR`, triple terms, reified triples and
+annotations. Reification is expanded while parsing, by the rules of RDF 1.2 Turtle §7.3, into
+`rdf:reifies` triples in the current graph. Terms are built with the Core smart constructors;
+blank nodes created by `[ ]`, collections and reifiers get labels `genidN` that no label of the
+document uses, inside triple terms too.
 -/
 
 namespace LeanRDF.Turtle
@@ -37,6 +40,13 @@ private def bump : P Unit := modify fun s => { s with pos := s.pos + 1 }
 private def fail {α : Type} (msg : String) : P α := do throw ((← get).pos, msg)
 private def expect (c : Char) : P Unit := do
   if (← peek?) == some c then bump else fail s!"expected '{c}'"
+
+/-- Whether the input continues with `s`, without consuming anything. -/
+private def lookingAt (s : String) : P Bool := do
+  let cs ← read
+  let pos := (← get).pos
+  let ks := s.toList
+  return (List.range ks.length).all fun i => cs[pos + i]? == ks[i]?
 
 private def emit (t : Triple) : P Unit :=
   modify fun s => { s with quads := s.quads.push (Quad.ofTriple t s.graph) }
@@ -183,7 +193,9 @@ private def blankNodeLabel : P Term := do
     return .bnode ⟨name⟩
   | none => fail "invalid blank node label"
 
-private partial def langTag : P String := do
+/-- `LANG_DIR` after `@` (production [42]): a language tag and, after `--`, an optional base
+direction, which must be `ltr` or `rtl` (RDF 1.2 Concepts §3.4). -/
+private partial def langDir : P (String × Option Direction) := do
   let rec take (p : Char → Bool) (acc : String) : P String := do
     match ← peek? with
     | some c => if p c then bump; take p (acc.push c) else return acc
@@ -191,13 +203,21 @@ private partial def langTag : P String := do
   let first ← take Char.isAlpha ""
   if first.isEmpty then fail "invalid language tag"
   let rec subtags (acc : String) : P String := do
-    if (← peek?) == some '-' then
+    if (← peek?) == some '-' && (← peekAt? 1) != some '-' then
       bump
       let t ← take Char.isAlphanum ""
       if t.isEmpty then fail "invalid language tag"
       subtags (acc ++ "-" ++ t)
     else return acc
-  subtags first
+  let tag ← subtags first
+  if ← lookingAt "--" then
+    let start := (← get).pos
+    bump; bump
+    let d ← take Char.isAlpha ""
+    match Direction.ofString? d with
+    | some dir => return (tag, some dir)
+    | none => throw (start, s!"invalid base direction '{d}': expected ltr or rtl")
+  return (tag, none)
 
 private def echar (c : Char) : Option Char :=
   match c with
@@ -275,14 +295,18 @@ private def numeric : P Literal := do
 private def rdfLiteral : P Literal := do
   let lex ← stringLit ((← peek?).getD '"')
   match ← peek? with
-  | some '@' => bump; return Literal.lang' lex (← langTag)
+  | some '@' =>
+    bump
+    match ← langDir with
+    | (tag, none) => return Literal.lang' lex tag
+    | (tag, some dir) => return Literal.dirLang' lex tag dir
   | some '^' =>
     bump; expect '^'
     let start := (← get).pos
     let dt ← iri
     match Literal.mk? lex dt none with
     | some l => return l
-    | none => throw (start, "rdf:langString requires a language tag")
+    | none => throw (start, "rdf:langString and rdf:dirLangString require a language tag")
   | _ => return Literal.str lex
 
 /-- The next characters are a keyword (`a`, `true`, `false`) and not the start of a name. -/
@@ -299,21 +323,115 @@ private def keywordAhead (kw : String) : P Bool := do
 private def skipKeyword (kw : String) : P Unit := do
   for _ in kw.toList do bump
 
-mutual
-
-/-- `object` (production [12]); the term is returned, nested triples are emitted. -/
-private partial def object : P Term := do
+/-- `BlankNode` (production [137s]): a label, or `[]` (`ANON`), which is a fresh node. -/
+private def blankNode : P Term := do
   match ← peek? with
-  | some '<' => return .iri (← iriRef)
   | some '_' => blankNodeLabel
-  | some '[' => blankNodePropertyList
-  | some '(' => collection
+  | some '[' => bump; ws; expect ']'; freshNode
+  | _ => fail "expected a blank node"
+
+/-- A literal or a prefixed name: the `object` alternatives that need no recursion. -/
+private def literalOrName : P Term := do
+  match ← peek? with
   | some '"' | some '\'' => return .lit (← rdfLiteral)
   | some c =>
     if c.isDigit || c == '+' || c == '-' || c == '.' then return .lit (← numeric)
     else if ← keywordAhead "true" then skipKeyword "true"; return .lit (.typed "true" ⟨xsdNS ++ "boolean"⟩)
     else if ← keywordAhead "false" then skipKeyword "false"; return .lit (.typed "false" ⟨xsdNS ++ "boolean"⟩)
     else return .iri (← prefixedName)
+  | none => fail "expected a term"
+
+/-- `verb` (production [14]): a predicate IRI or `a`. -/
+private def verb : P Term := do
+  if ← keywordAhead "a" then skipKeyword "a"; return .iri rdf.type
+  else return .iri (← iri)
+
+/-- The IRI or blank node after `~` (production [28]), if one follows. -/
+private def reifierTerm? : P (Option Term) := do
+  match ← peek? with
+  | some '<' => if ← lookingAt "<<" then return none else return some (.iri (← iriRef))
+  | some '_' | some '[' => return some (← blankNode)
+  | some c => if isPNCharsBase c || c == ':' then return some (.iri (← prefixedName)) else return none
+  | none => return none
+
+/-- `tripleTerm` (productions [32]–[34]): `<<(`, a subject that is an IRI or a blank node, a
+verb, an object that is an IRI, a blank node, a literal or a triple term, then `)>>`. Built
+without emitting anything; collections, property lists and reified triples are syntax errors. -/
+private partial def tripleTerm : P Term := do
+  skipKeyword "<<("; ws
+  let s ← match ← peek? with
+    | some '<' =>
+      if ← lookingAt "<<" then fail "the subject of a triple term must be an IRI or a blank node"
+      else pure (.iri (← iriRef))
+    | some '_' | some '[' => blankNode
+    | _ => pure (.iri (← prefixedName))
+  ws
+  let p ← verb
+  ws
+  let o ← match ← peek? with
+    | some '<' =>
+      if ← lookingAt "<<(" then tripleTerm
+      else if ← lookingAt "<<" then fail "a reified triple cannot be inside a triple term"
+      else pure (.iri (← iriRef))
+    | some '_' | some '[' => blankNode
+    | some '(' => fail "a collection cannot be inside a triple term"
+    | _ => literalOrName
+  ws
+  unless ← lookingAt ")>>" do fail "expected ')>>'"
+  skipKeyword ")>>"
+  return .triple s p o
+
+/-- `reifiedTriple` (productions [29]–[31]): `<<`, a subject (IRI, blank node or reified triple),
+a verb, an object (IRI, blank node, literal, triple term or reified triple), an optional
+reifier, then `>>`. Yields `r rdf:reifies <<( s p o )>>` (§7.3.2), with a fresh blank node for
+`r` when no reifier is given, and returns `r`; the triple itself is not asserted. -/
+private partial def reifiedTriple : P Term := do
+  skipKeyword "<<"; ws
+  let rtTerm (subject : Bool) : P Term := do
+    match ← peek? with
+    | some '<' =>
+      if ← lookingAt "<<(" then
+        if subject then fail "a triple term cannot be the subject of a reified triple" else tripleTerm
+      else if ← lookingAt "<<" then reifiedTriple
+      else pure (.iri (← iriRef))
+    | some '_' | some '[' => blankNode
+    | some '(' => fail "a collection cannot be in a reified triple"
+    | some c =>
+      if subject && (c == '"' || c == '\'' || c.isDigit || c == '+' || c == '-' || c == '.') then
+        fail "the subject of a reified triple must be an IRI, a blank node or a reified triple"
+      else literalOrName
+    | none => fail "unterminated reified triple"
+  let s ← rtTerm true
+  ws
+  let p ← verb
+  ws
+  let o ← rtTerm false
+  ws
+  let r ← if (← peek?) == some '~' then do
+      bump; ws
+      match ← reifierTerm? with
+      | some r => pure r
+      | none => freshNode
+    else freshNode
+  ws
+  unless ← lookingAt ">>" do fail "expected '>>'"
+  skipKeyword ">>"
+  emit ⟨r, .iri rdf.reifies, .triple s p o⟩
+  return r
+
+mutual
+
+/-- `object` (production [17]); the term is returned, nested triples are emitted. -/
+private partial def object : P Term := do
+  match ← peek? with
+  | some '<' =>
+    if ← lookingAt "<<(" then tripleTerm
+    else if ← lookingAt "<<" then reifiedTriple
+    else return .iri (← iriRef)
+  | some '_' => blankNodeLabel
+  | some '[' => blankNodePropertyList
+  | some '(' => collection
+  | some _ => literalOrName
   | none => fail "expected an object"
 
 /-- `blankNodePropertyList` (production [14]) or `ANON`: a fresh blank node. -/
@@ -345,18 +463,45 @@ private partial def collection : P Term := do
     rest := cell
   return rest
 
-/-- `objectList` (production [8]). -/
+/-- `objectList` (production [13]): each object is asserted, then its `annotation`. -/
 private partial def objectList (s p : Term) : P Unit := do
   ws
   let o ← object
   emit ⟨s, p, o⟩
+  annotation s p o none
   ws
   if (← peek?) == some ',' then bump; objectList s p
 
-/-- `verb` (production [9]): a predicate IRI or `a`. -/
-private partial def verb : P Term := do
-  if ← keywordAhead "a" then skipKeyword "a"; return .iri rdf.type
-  else return .iri (← iri)
+/-- `annotation` (productions [35], [36]) after the object of `s p o` (§7.3.1, §7.3.3, §7.3.4):
+each reifier `~ r` yields `r rdf:reifies <<( s p o )>>`; each block `{| … |}` is a predicate
+object list about the reifier just before it, or about a fresh blank node, which also yields
+its `rdf:reifies` triple, when no reifier comes just before it. -/
+private partial def annotation (s p o : Term) (cur : Option Term) : P Unit := do
+  ws
+  match ← peek? with
+  | some '~' =>
+    bump; ws
+    let r ← match ← reifierTerm? with
+      | some r => pure r
+      | none => freshNode
+    emit ⟨r, .iri rdf.reifies, .triple s p o⟩
+    annotation s p o (some r)
+  | some '{' =>
+    if (← peekAt? 1) == some '|' then
+      bump; bump
+      let r ← match cur with
+        | some r => pure r
+        | none => do
+          let r ← freshNode
+          emit ⟨r, .iri rdf.reifies, .triple s p o⟩
+          pure r
+      predicateObjectList r
+      ws
+      unless ← lookingAt "|}" do fail "expected '|}'"
+      bump; bump
+      annotation s p o none
+    else pure ()
+  | _ => pure ()
 
 /-- `predicateObjectList` (production [7]). -/
 private partial def predicateObjectList (s : Term) : P Unit := do
@@ -369,21 +514,28 @@ private partial def predicateObjectList (s : Term) : P Unit := do
       bump
       ws
       match ← peek? with
-      | some '.' | some ']' | some '}' | some ';' | none => more
+      | some '.' | some ']' | some '}' | some '|' | some ';' | none => more
       | _ => let p ← verb; objectList s p; more
     else pure ()
   more
 
 end
 
-/-- `triples` (production [6]). -/
+/-- `triples` (production [11]), with a reified triple as subject and an optional predicate
+object list after it. -/
 private def triples : P Unit := do
   match ← peek? with
   | some '[' =>
     let node ← blankNodePropertyList
     ws
     if (← peek?) != some '.' && (← peek?) != some '}' then predicateObjectList node
-  | some '<' => predicateObjectList (.iri (← iriRef))
+  | some '<' =>
+    if ← lookingAt "<<(" then fail "a triple term cannot be a subject"
+    else if ← lookingAt "<<" then
+      let r ← reifiedTriple
+      ws
+      if (← peek?) != some '.' && (← peek?) != some '}' then predicateObjectList r
+    else predicateObjectList (.iri (← iriRef))
   | some '_' => predicateObjectList (← blankNodeLabel)
   | some '(' => predicateObjectList (← collection)
   | some _ => predicateObjectList (.iri (← prefixedName))
@@ -405,16 +557,30 @@ private def baseDecl : P Unit := do
   let b ← iriRef
   modify fun s => { s with base := b.val }
 
-/-- A SPARQL-style keyword (`PREFIX`, `BASE`), case-insensitive, not followed by `:`. -/
+/-- A SPARQL-style keyword (`PREFIX`, `BASE`, `VERSION`), case-insensitive, not followed by `:`. -/
 private def sparqlKeyword (kw : String) : P Bool := do
   let cs := (← read)
   let pos := (← get).pos
   let ks := kw.toList
   if (List.range ks.length).all fun i => (cs[pos + i]?.map Char.toUpper) == ks[i]? then
     match cs[pos + ks.length]? with
-    | some c => return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '<' || c == '#'
+    | some c =>
+      return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '<' || c == '#' ||
+        c == '"' || c == '\''
     | none => return false
   else return false
+
+/-- `VersionSpecifier` (production [10]): a short single- or double-quoted string, read and
+discarded, since the version is only a hint (§2.4). -/
+private def versionSpecifier : P Unit := do
+  ws
+  match ← peek? with
+  | some q =>
+    if q != '"' && q != '\'' then fail "expected a version string"
+    if (← peekAt? 1) == some q && (← peekAt? 2) == some q then
+      fail "a version must be a short string"
+    discard <| stringLit q
+  | none => fail "expected a version string"
 
 /-- A `directive` (production [3]), if one comes next; `true` when one was read. -/
 private def directive : P Bool := do
@@ -430,12 +596,16 @@ private def directive : P Bool := do
       skipKeyword "prefix"; prefixDecl; ws; expect '.'
     else if ← atKeyword "base" then
       skipKeyword "base"; baseDecl; ws; expect '.'
+    else if ← atKeyword "version" then
+      skipKeyword "version"; versionSpecifier; ws; expect '.'
     else fail "unknown directive"
     return true
   else if ← sparqlKeyword "PREFIX" then
     skipKeyword "PREFIX"; prefixDecl; return true
   else if ← sparqlKeyword "BASE" then
     skipKeyword "BASE"; baseDecl; return true
+  else if ← sparqlKeyword "VERSION" then
+    skipKeyword "VERSION"; versionSpecifier; return true
   else return false
 
 /-- `statement` (production [2]). -/
@@ -451,7 +621,7 @@ private partial def document : P Unit := do
   statement
   document
 
-/-! ## TriG (RDF 1.1 TriG §5) -/
+/-! ## TriG (RDF 1.2 TriG §5) -/
 
 /-- The keyword `GRAPH`, case-insensitive, not the start of a prefixed name. -/
 private def graphKeyword : P Bool := do
@@ -516,6 +686,19 @@ private def block : P Unit := do
   | some '(' =>
     let c ← collection
     predicateObjectList c; ws; expect '.'
+  | some '<' =>
+    if ← lookingAt "<<(" then fail "a triple term cannot be a subject"
+    else if ← lookingAt "<<" then
+      -- a reified triple as subject, with an optional predicate object list
+      let r ← reifiedTriple
+      ws
+      if (← peek?) != some '.' then predicateObjectList r
+      ws; expect '.'
+    else
+      let s ← labelOrSubject
+      ws
+      if (← peek?) == some '{' then wrappedGraph (some s)
+      else predicateObjectList s; ws; expect '.'
   | _ =>
     if ← graphKeyword then
       skipKeyword "GRAPH"; ws
@@ -534,38 +717,52 @@ private partial def trigDocument : P Unit := do
   unless ← directive do block
   trigDocument
 
+private def isGen (b : BlankNode) : Bool := b.label.startsWith "\x00"
+
+/-- The labels of the document's own blank nodes in a term, inside triple terms too. -/
+private def docLabels (acc : Std.HashSet String) : Term → Std.HashSet String
+  | .bnode b => if isGen b then acc else acc.insert b.label
+  | .triple s p o => docLabels (docLabels (docLabels acc s) p) o
+  | _ => acc
+
+/-- The renaming state: names given so far and the next candidate number. -/
+private abbrev Ren := StateM (Std.HashMap String String × Nat)
+
+/-- Rename the generated blank nodes of a term, inside triple terms too. -/
+private def renameTerm (used : Std.HashSet String) : Term → Ren Term
+  | .bnode b =>
+    if isGen b then do
+      let (names, next) ← get
+      match names[b.label]? with
+      | some n => return .bnode ⟨n⟩
+      | none =>
+        let mut k := next
+        while used.contains s!"genid{k}" do k := k + 1
+        let n := s!"genid{k}"
+        set (names.insert b.label n, k + 1)
+        return .bnode ⟨n⟩
+    else return .bnode b
+  | .triple s p o => do
+    let s ← renameTerm used s
+    let p ← renameTerm used p
+    let o ← renameTerm used o
+    return .triple s p o
+  | t => return t
+
 -- @tg: implements:: [[openspec:turtle#Blank nodes]]
-/-- Rename generated blank nodes to `genidN`, avoiding every label of the document; graph names
-are renamed with the same map. -/
+/-- Rename generated blank nodes to `genidN`, in output order, avoiding every label of the
+document, inside triple terms too; graph names are renamed with the same map. -/
 private def renameFresh (qs : Array Quad) : Array Quad := Id.run do
-  let isGen (b : BlankNode) := b.label.startsWith "\x00"
   let terms (q : Quad) : List Term := [q.s, q.p, q.o] ++ q.g.toList
-  let used : Std.HashSet String := qs.foldl (init := {}) fun acc q =>
-    (terms q).foldl (init := acc) fun acc term =>
-      match term with
-      | .bnode b => if isGen b then acc else acc.insert b.label
-      | _ => acc
-  let mut names : Std.HashMap String String := {}
-  let mut next := 1
-  let mut out : Array Quad := #[]
-  for q in qs do
-    let mut ns : Array Term := #[]
-    for term in terms q do
-      match term with
-      | .bnode b =>
-        if isGen b then
-          match names[b.label]? with
-          | some n => ns := ns.push (.bnode ⟨n⟩)
-          | none =>
-            while used.contains s!"genid{next}" do next := next + 1
-            let n := s!"genid{next}"
-            next := next + 1
-            names := names.insert b.label n
-            ns := ns.push (.bnode ⟨n⟩)
-        else ns := ns.push term
-      | _ => ns := ns.push term
-    out := out.push ⟨ns[0]!, ns[1]!, ns[2]!, if q.g.isSome then some ns[3]! else none⟩
-  return out
+  let used : Std.HashSet String :=
+    qs.foldl (init := {}) fun acc q => (terms q).foldl docLabels acc
+  let go : Ren (Array Quad) := qs.mapM fun q => do
+    let s ← renameTerm used q.s
+    let p ← renameTerm used q.p
+    let o ← renameTerm used q.o
+    let g ← q.g.mapM (renameTerm used)
+    return ⟨s, p, o, g⟩
+  return (go.run ({}, 1)).1
 
 private def position (chars : Array Char) (pos : Nat) : Nat × Nat := Id.run do
   let mut line := 1
@@ -575,7 +772,11 @@ private def position (chars : Array Char) (pos : Nat) : Nat × Nat := Id.run do
   return (line, col)
 
 -- @tg: implements:: [[openspec:turtle#Turtle parsing]]
-/-- Parse a Turtle document (RDF 1.1 Turtle §6.5, §7) into its triples, relative IRIs resolved
+-- @tg: implements:: [[openspec:turtle#Triple terms in Turtle]] {since: "0.2.0"}
+-- @tg: implements:: [[openspec:turtle#Reified triples]] {since: "0.2.0"}
+-- @tg: implements:: [[openspec:turtle#Annotations]] {since: "0.2.0"}
+-- @tg: implements:: [[openspec:turtle#Version directives]] {since: "0.2.0"}
+/-- Parse a Turtle document (RDF 1.2 Turtle §6.5, §7) into its triples, relative IRIs resolved
 against `base`. -/
 def parseTriples (src : String) (base : String := "") : Except ParseError (Array Triple) :=
   let chars := src.toList.toArray
@@ -587,7 +788,8 @@ def parseTriples (src : String) (base : String := "") : Except ParseError (Array
     .error { line, col, msg }
 
 -- @tg: implements:: [[openspec:datasets#TriG]]
-/-- Parse a TriG document (RDF 1.1 TriG §5, §6) into its quads, relative IRIs resolved against
+-- @tg: implements:: [[openspec:datasets#RDF 1.2 TriG conformance]] {since: "0.2.0"}
+/-- Parse a TriG document (RDF 1.2 TriG §5, §6) into its quads, relative IRIs resolved against
 `base`. -/
 def parseTriG (src : String) (base : String := "") : Except ParseError (Array Quad) :=
   let chars := src.toList.toArray
@@ -599,6 +801,7 @@ def parseTriG (src : String) (base : String := "") : Except ParseError (Array Qu
     .error { line, col, msg }
 
 -- @tg: implements:: [[openspec:turtle#W3C conformance]]
+-- @tg: implements:: [[openspec:turtle#RDF 1.2 Turtle conformance]] {since: "0.2.0"}
 /-- Parse a Turtle document into a graph. -/
 def parse (src : String) (base : String := "") : Except ParseError Graph :=
   (parseTriples src base).map (fun ts => Graph.ofList ts.toList)

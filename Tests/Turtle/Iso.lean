@@ -1,6 +1,6 @@
 import LeanRDF
 
-/-! Graph isomorphism by backtracking over blank-node bijections, for comparing parser output
+/-! Graph isomorphism by backtracking over blank-node bijections, inside triple terms too, for comparing parser output
 with expected results in tests. Untrusted test code: a wrong answer can only fail a test. -/
 
 namespace LeanRDF.Tests.Iso
@@ -13,13 +13,21 @@ private def matchTerm (μ : Map) (a b : Term) : Option Map :=
     match μ.lookup x.label with
     | some y' => if y' == y.label then some μ else none
     | none => if μ.any (·.2 == y.label) then none else some ((x.label, y.label) :: μ)
+  | .triple s p o, .triple s' p' o' => do
+    matchTerm (← matchTerm (← matchTerm μ s s') p p') o o'
   | _, _ => if a == b then some μ else none
+
+/-- The blank nodes of a term, inside triple terms too. -/
+private def termBNodes : Term → Nat
+  | .bnode _ => 1
+  | .triple s p o => termBNodes s + termBNodes p + termBNodes o
+  | _ => 0
 
 private def matchTriple (μ : Map) (a b : Triple) : Option Map := do
   matchTerm (← matchTerm (← matchTerm μ a.s b.s) a.p b.p) a.o b.o
 
 private def bnodes (t : Triple) : Nat :=
-  [t.s, t.p, t.o].countP fun | .bnode _ => true | _ => false
+  termBNodes t.s + termBNodes t.p + termBNodes t.o
 
 private partial def go (h : List Triple) (μ : Map) : List Triple → Bool
   | [] => true

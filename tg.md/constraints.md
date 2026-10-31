@@ -297,7 +297,7 @@ Full conformance supports triple terms. Basic conformance supports only graphs a
 - source:: RDF 1.2 Concepts §2 (Conformance) and §2.1 (Version Labels)
 - constrains:: [[decisions#Strict well-formedness is recursive; Triple stays generalized]] {strength: must}
 - constrains:: [[decisions#Opaque pass-through downstream]] {strength: should}
-- constrains:: [[rdf12#Version announcements are hints]] {strength: should}
+- constrains:: [[decisions#Version announcements are hints]] {strength: should}
 
 ## Triple-term denotation
 
@@ -332,15 +332,15 @@ Turtle 1.2 adds `@version`/`VERSION`, `LANG_DIR`, triple terms with `ttSubject`/
 The keyword case rules are those of §6.5, and the version announcement is a hint (§2.4).
 
 - source:: RDF 1.2 Turtle §2.4, §2.10, §6.5 productions [3], [6], [9]–[11], [13], [17], [22], [28]–[36], [42]; Working Draft, 23 October 2026
-- constrains:: [[rdf12#Triple terms parsed by restricted productions]] {strength: must}
-- constrains:: [[rdf12#Version announcements are hints]] {strength: must}
+- constrains:: [[decisions#Triple terms parsed by restricted productions]] {strength: must}
+- constrains:: [[decisions#Version announcements are hints]] {strength: must}
 
 ## Turtle 1.2 reification mapping
 
 Each reifier yields one `rdf:reifies` triple, and a missing reifier is a fresh blank node. A reified triple does not assert its triple. An annotation asserts it, and an annotation block without a reifier gets its own fresh one.
 
 - source:: RDF 1.2 Turtle §2.11, §2.11.1, §7.2, §7.3.1–§7.3.4
-- constrains:: [[rdf12#Reification as sugar in the statement parser]] {strength: must}
+- constrains:: [[decisions#Reification as sugar in the statement parser]] {strength: must}
 
 ## TriG 1.2 grammar
 
