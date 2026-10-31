@@ -266,3 +266,137 @@ OWL 2 EL allows intersections, existential restrictions, `owl:Thing`, `owl:Nothi
 
 - source:: OWL 2 Web Ontology Language Profiles (W3C Recommendation, 11 December 2012) §2; OWL 2 Mapping to RDF Graphs §3
 - constrains:: [[decisions#EL classification by fixed-length lists and certified subsumptions]] {strength: must}
+
+## RDF 1.2 triples and triple terms
+
+A triple's subject is an IRI or blank node, its predicate an IRI, and its object an IRI, blank node, literal or triple; a triple used as an object is a triple term. Isomorphism maps blank nodes inside triple terms.
+
+Triple terms are equal when their triples are equal. A triple appears in a graph if it is asserted or occurs as a triple term, and a triple term is not asserted by occurring. Symmetric and generalized RDF (§7) relax the positions non-normatively.
+
+- source:: RDF 1.2 Concepts §3.1 (Triples), §3.6 (Triple Terms), §3.7 (Graph Comparison), §7.2 (Generalized RDF); Candidate Recommendation, 7 April 2026
+- constrains:: [[rdf12#Triple terms are a recursive Term constructor]] {strength: must}
+- constrains:: [[statement-graphs#Reifier export is primary]] {strength: must}
+
+## Directional language-tagged strings
+
+A literal with datatype `rdf:dirLangString` has a language tag and a base direction, `ltr` or `rtl`. Tags compare case-insensitively, and a tag is present exactly for `rdf:langString` and `rdf:dirLangString`.
+
+- source:: RDF 1.2 Concepts §3.4 (Literals) and §5 (Datatypes)
+- constrains:: [[rdf12#Directional literals are a third Literal constructor]] {strength: must}
+
+## RDF 1.2 conformance levels
+
+Full conformance supports triple terms. Basic conformance supports only graphs and datasets without them. The version labels are `1.2`, `1.2-basic` and `1.1`, and each level's data is valid at the next.
+
+- source:: RDF 1.2 Concepts §2 (Conformance) and §2.1 (Version Labels)
+- constrains:: [[rdf12#Strict well-formedness is recursive; Triple stays generalized]] {strength: must}
+- constrains:: [[rdf12#Opaque pass-through downstream]] {strength: should}
+- constrains:: [[rdf12#Version announcements are hints]] {strength: should}
+
+## Triple-term denotation
+
+A simple interpretation has an injective `IT` from `IR × IP × IR` into `IR`. A ground triple term denotes `IT(I(s), I(p), I(o))`, and blank nodes inside a triple term are interpreted by the same assignment.
+
+The propositions of an interpretation are the image of `IT`.
+
+- source:: RDF 1.2 Semantics §5 (Simple Interpretations), §5.1 (Blank nodes), §5.3; Candidate Recommendation Draft, 24 September 2026
+- constrains:: [[rdf12#IT is part of SimpleInterp from the first change]] {strength: must}
+- constrains:: [[rdf12#Small models become free triple-term extensions]] {strength: must}
+
+## RDF 1.2 N-Triples grammar
+
+N-Triples 1.2 statements are triples or a case-sensitive `VERSION` directive. Objects may be triple terms `<<( s p o )>>`, and literals take `LANG_DIR` with an optional `--` direction.
+
+Canonical N-Triples has no `VERSION`, lowercase `LANG_DIR` and single spaces inside triple terms. The version is a hint.
+
+- source:: RDF 1.2 N-Triples §3 (Canonical), §5.3 (Grammar), §6 (Parsing); Working Draft, 23 October 2026
+- constrains:: [[rdf12#N-Triples and N-Quads 1.2 move with the core]] {strength: must}
+
+## RDF 1.2 N-Quads grammar
+
+N-Quads 1.2 is N-Triples 1.2 statements with an optional graph label, an IRI or a blank node, before the final dot.
+
+- source:: RDF 1.2 N-Quads; Working Draft, 10 October 2026
+- constrains:: [[rdf12#N-Triples and N-Quads 1.2 move with the core]] {strength: must}
+
+## Turtle 1.2 grammar
+
+Turtle 1.2 adds `@version`/`VERSION`, `LANG_DIR`, triple terms with `ttSubject`/`ttObject`, reified triples `<< s p o ~ r >>`, and annotations `~ r` and `{| … |}` after an object.
+
+The keyword case rules are those of §6.5, and the version announcement is a hint (§2.4).
+
+- source:: RDF 1.2 Turtle §2.4, §2.10, §6.5 productions [3], [6], [9]–[11], [13], [17], [22], [28]–[36], [42]; Working Draft, 23 October 2026
+- constrains:: [[rdf12#Triple terms parsed by restricted productions]] {strength: must}
+- constrains:: [[rdf12#Version announcements are hints]] {strength: must}
+
+## Turtle 1.2 reification mapping
+
+Each reifier yields one `rdf:reifies` triple, and a missing reifier is a fresh blank node. A reified triple does not assert its triple. An annotation asserts it, and an annotation block without a reifier gets its own fresh one.
+
+- source:: RDF 1.2 Turtle §2.11, §2.11.1, §7.2, §7.3.1–§7.3.4
+- constrains:: [[rdf12#Reification as sugar in the statement parser]] {strength: must}
+
+## TriG 1.2 grammar
+
+TriG 1.2 is Turtle 1.2 statements in the default graph or in graph blocks, with directives only outside blocks.
+
+- source:: RDF 1.2 TriG §5, §6; Working Draft, 7 October 2026
+- constrains:: [[decisions#TriG on the Turtle statement parser]] {strength: must}
+
+## Statement Graph definition
+
+A Statement Graph is a directed acyclic graph of leaves, which hold values, and internal vertices, which hold statement identifiers. Each internal vertex has exactly three edges, labelled subject, predicate and object.
+
+The subject and object may point at another statement; the predicate may not. It is a logical model with no physical layout.
+
+- source:: Gelling, Fletcher and Schmidt, arXiv 2304.13097 and DOI 10.1007/978-981-97-5575-2_27; as restated in Pavlyshyn, *When Is a Temporal Statement Store a Statement Graph?*, rev. 4, Zenodo 10.5281/zenodo.23335652
+- constrains:: [[statement-graphs#Vendored abstract proofs, concrete layer on top]] {strength: must}
+- constrains:: [[statement-graphs#Executable kernel proven against K]] {strength: must}
+- constrains:: [[statement-graphs#Admit tiramemsu's sets]] {strength: should}
+
+## tiramemsu record model
+
+A tiramemsu record is `(eid, s, p, o, tAdd, tRet?, vFrom?, vTo?)`. Its subject or object can be another record's eid. Rows are never deleted, and only self-reference is forbidden, so snapshots may dangle and replays may cycle.
+
+Views combine `now`, `asOf t` or `history` with an optional valid-time point. The namespaces `urn:tiramemsu:sys:` and `urn:tiramemsu:tm:` are reserved, and statements are named `urn:tiramemsu:stmt:N`.
+
+- source:: tiramemsu `lean/Tiramemsu/Store/Types.lean`, `crates/tm-sparql/src/dataset.rs`; tiramemsu.com, *Statement Graphs* and *Statement-store export*
+- constrains:: [[statement-graphs#Bitemporal records with eid references]] {strength: must}
+- constrains:: [[statement-graphs#Assertion is derived from a view]] {strength: must}
+- constrains:: [[statement-graphs#Exact decoder and the reserved names]] {strength: must}
+- constrains:: [[statement-graphs#Admit tiramemsu's sets]] {strength: must}
+
+## RDF 1.2 RDF interpretations
+
+D-interpretations recognize `rdf:langString`, `rdf:dirLangString` and `xsd:string`. A directional literal denotes `⟨sss, ttt', bbb⟩` with the tag lowercased, and the RDF axioms include `rdf:reifies rdf:type rdf:Property`.
+
+The special datatypes `rdf:langString` and `rdf:dirLangString` have no ill-typed literals.
+
+- source:: RDF 1.2 Semantics §7.1 (D-interpretations) and §8 (RDF Interpretations)
+- constrains:: [[rdf12#Three recognized datatypes with abstract values]] {strength: must}
+
+## RDF 1.2 RDFS conditions
+
+RDFS interpretations add `ICEXT(I(rdf:dirLangString))`, put every `IT(x, y, z)` in the class `rdfs:Proposition`, and add three axioms.
+
+The axioms are `rdf:reifies rdfs:domain rdfs:Resource`, `rdf:reifies rdfs:range rdfs:Proposition` and `rdfs:Proposition rdfs:subClassOf rdfs:Resource`.
+
+- source:: RDF 1.2 Semantics §9 (RDFS Interpretations)
+- constrains:: [[rdf12#Propositions are the image of IT on its domain]] {strength: must}
+
+## RDF 1.2 entailment patterns
+
+RDF entailment has the patterns rdfD1, rdfD1a and rdfD2. RDFS adds rdfs14, which replaces a triple term with a blank node typed `rdfs:Proposition`, and rdfs14a, which says some proposition exists.
+
+- source:: RDF 1.2 Semantics §8.1.1 (RDF entailment patterns) and §9.2.1 (RDFS entailment patterns)
+- constrains:: [[rdf12#rdfs14 as generalized Horn rules plus graph queries]] {strength: must}
+- constrains:: [[rdf12#Triple-term patterns in rules]] {strength: must}
+- constrains:: [[rdf12#Regime rule sets for simple and RDF entailment]] {strength: must}
+
+## RDF 1.2 semantics test suite
+
+The W3C RDF 1.2 semantics suite has 29 active positive and negative entailment tests in the simple, RDF, RDFS and RDFS-Plus regimes. It is distributed under the W3C Test Suite and 3-clause BSD licences.
+
+- source:: w3c/rdf-tests `rdf/rdf12/rdf-semantics/manifest.ttl`
+- constrains:: [[rdf12#The W3C semantics suite in the bridge package]] {strength: must}
+- constrains:: [[rdf12#Vacuity with propositions]] {strength: should}

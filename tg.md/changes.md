@@ -148,3 +148,35 @@ P6: EL completion rules proven sound and certified classification with `leanrdf-
 Capability `owl-el`. Depends on [[changes#add-owl-rl]]. See [[decisions#EL classification by fixed-length lists and certified subsumptions]].
 
 - status:: archived
+
+## add-rdf12-core
+
+R1: `Term.triple`, `Literal.dirLang`, recursive `WellFormed`, `Basic`, isomorphism through triple terms, `IT` in simple interpretations, N-Triples and N-Quads 1.2, and opaque pass-through in every package.
+
+Capabilities `rdf-core`, `ntriples`, `datasets`, `rdf-semantics`, `elpi-bridge`, `certificates`, `sparql-algebra`, `sparql-syntax`, `shacl-core`, `oxilite-bridge`. Depends on [[changes#add-owl-el]]. See [[rdf12]].
+
+- status:: proposed
+
+## add-rdf12-syntax
+
+R2: Turtle and TriG 1.2, covering version directives, `LANG_DIR`, triple terms, reified triples and annotations desugared by §7.3, plus the W3C RDF 1.2 Turtle and TriG suites.
+
+Capabilities `turtle` and `datasets`. Depends on [[changes#add-rdf12-core]]. See [[rdf12#Reification as sugar in the statement parser]].
+
+- status:: proposed
+
+## add-rdf12-semantics
+
+R3: the RDF and RDFS layers of RDF 1.2 Semantics: `rdf:dirLangString` recognized, `rdfs:Proposition`, the new axioms, rdfs14 and rdfs14a proven sound, and the W3C RDF 1.2 semantics tests. Release v0.2.0.
+
+Capabilities `rdf-semantics`, `rdfs-entailment` and the bridge capabilities. Depends on [[changes#add-rdf12-syntax]]. See [[rdf12]].
+
+- status:: proposed
+
+## add-statement-graphs
+
+S1: package `leanrdf-statements`, adding bitemporal statement records, views, the exact reifier export to RDF 1.2, the paper's kernel, criterion, history and quoting results, and `leanrdf-sg`. Release v0.3.0.
+
+Capabilities `statement-graphs` and `xsd-values`. Depends on [[changes#add-rdf12-semantics]]. See [[statement-graphs]] and [[concepts]].
+
+- status:: proposed
