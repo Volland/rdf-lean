@@ -16,6 +16,19 @@ private def terms : List Term :=
 #guard terms.all fun t => (decodeTriple (encodeTriple ⟨t, .iri ⟨"http://example.org/p"⟩, t⟩)).toOption
   == some ⟨t, .iri ⟨"http://example.org/p"⟩, t⟩
 
+private def terms12 : List Term :=
+  [.lit (.dirLang "مرحبا" "ar" .rtl),
+   .triple (.iri ⟨"http://example.org/a"⟩) (.iri ⟨"http://example.org/p"⟩)
+     (.triple (.bnode ⟨"b"⟩) (.iri ⟨"http://example.org/q"⟩) (.lit (.dirLang "x" "en" .ltr)))]
+
+private def k (n : String) : Elpi.Term := .const (Elpi.constIdOf n)
+
+-- @tg: verifies:: [[openspec:elpi-bridge#Term encoding#RDF 1.2 terms round-trip]] {level: unit}
+#guard terms12.all (fun t => (decodeTerm (encodeTerm t)).toOption == some t &&
+    (decodeTriple (encodeTriple ⟨t, .iri ⟨"http://example.org/p"⟩, t⟩)).toOption
+      == some ⟨t, .iri ⟨"http://example.org/p"⟩, t⟩) &&
+  (decodeTerm (.app (k "rdf.dirlang") #[.lit (.str "x"), .lit (.str "en"), .lit (.str "up")])).toOption.isNone
+
 -- @tg: verifies:: [[openspec:elpi-bridge#Term encoding#A malformed term is a decoding error]] {level: unit}
 #guard (decodeTerm (.lit (.str "not a term"))).toOption.isNone
 

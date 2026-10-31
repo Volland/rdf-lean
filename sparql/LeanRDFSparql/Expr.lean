@@ -69,7 +69,7 @@ def ebv (t : Term) : Except String Bool :=
       | _ =>
         if isIntegerType dt || ["decimal", "double", "float"].any (fun n => dt == xsdIRI n) then .ok false
         else .error "no effective boolean value"
-  | .lit (.lang lex _) => .ok (!lex.isEmpty)
+  | .lit (.lang lex _) | .lit (.dirLang lex _ _) => .ok (!lex.isEmpty)
   | _ => .error "no effective boolean value"
 
 /-- The effective boolean value of a value, errors as `false` (for FILTER). -/
@@ -96,7 +96,8 @@ def termEq (a b : Term) : Except String Bool :=
             | _, _ => .error "incomparable literals"
       | _, _ =>
         match la, lb with
-        | .lang _ _, .lang _ _ => .ok false
+        | .lang _ _, .lang _ _ | .lang _ _, .dirLang _ _ _ | .dirLang _ _ _, .lang _ _
+        | .dirLang _ _ _, .dirLang _ _ _ => .ok false
         | _, _ => .error "literals of unknown datatypes are not the same term"
     | _, _ => .ok false
 
@@ -219,8 +220,9 @@ def castTo (dt : String) (t : Term) : Value := do
   let lex ← match t with
     | .iri i => if dt == "string" then pure i.val else throw "an IRI casts only to a string"
     | .lit (.typed l _) => pure l
-    | .lit (.lang _ _) => throw "a language-tagged string does not cast"
+    | .lit (.lang _ _) | .lit (.dirLang _ _ _) => throw "a language-tagged string does not cast"
     | .bnode _ => throw "a blank node does not cast"
+    | .triple _ _ _ => throw "a triple term does not cast"
   let src := termValue? t
   match dt with
   | "string" =>
@@ -294,7 +296,9 @@ private def dateTimeArg (t : Term) : Except String DateTime :=
   | some (.dateTime d) => .ok d
   | _ => .error "not a dateTime"
 
-/-- A built-in function on evaluated arguments (§17.4). -/
+-- @tg: implements:: [[openspec:sparql-algebra#Triple terms in evaluation]] {since: "0.2.0"}
+/-- A built-in function on evaluated arguments (§17.4). A triple term is an opaque term: the term
+tests are false on it and `STR`, `LANG` and `DATATYPE` are errors. -/
 def callBuiltin (f : String) (args : List Term) : Value := do
   let one : Except String Term := match args with | [a] => .ok a | _ => .error s!"{f}: one argument expected"
   let two : Except String (Term × Term) := match args with | [a, b] => .ok (a, b) | _ => .error s!"{f}: two arguments expected"
@@ -304,9 +308,10 @@ def callBuiltin (f : String) (args : List Term) : Value := do
     | .iri i => return strTerm i.val
     | .lit l => return strTerm l.lexical
     | .bnode _ => throw "STR of a blank node"
+    | .triple _ _ _ => throw "STR of a triple term"
   | "LANG" =>
     match ← one with
-    | .lit (.lang _ tag) => return strTerm tag
+    | .lit (.lang _ tag) | .lit (.dirLang _ tag _) => return strTerm tag
     | .lit _ => return strTerm ""
     | _ => throw "LANG of a non-literal"
   | "DATATYPE" =>

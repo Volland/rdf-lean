@@ -31,6 +31,19 @@ private def replay (s : String) (mode : Mode := .both) (results : Option System.
         sol.lookup "n" == some (.lit (.lang "Rex" "en")) && sol.lookup "b" == some (.bnode ⟨"b0"⟩)
   | .error _ => false
 
+-- @tg: verifies:: [[openspec:oxilite-bridge#Results reading#Triple bindings become triple terms]] {level: unit}
+#guard
+  let uri (n : String) := s!"\{\"type\":\"uri\",\"value\":\"http://example.org/{n}\"}"
+  let inner := s!"\{\"type\":\"triple\",\"value\":\{\"subject\":{uri "b"},\"predicate\":{uri "q"},\"object\":\{\"type\":\"literal\",\"value\":\"x\",\"xml:lang\":\"en\",\"its:dir\":\"rtl\"}}}"
+  let outer := s!"\{\"type\":\"triple\",\"value\":\{\"subject\":{uri "a"},\"predicate\":{uri "p"},\"object\":{inner}}}"
+  let broken := s!"\{\"type\":\"triple\",\"value\":\{\"subject\":{uri "a"},\"object\":{uri "b"}}}"
+  let doc (b : String) := s!"\{\"head\":\{\"vars\":[\"t\"]},\"results\":\{\"bindings\":[\{\"t\":{b}}]}}"
+  (match parseResults (doc outer) with
+    | .ok r => r.solutions.all fun sol => sol.lookup "t" ==
+        some (.triple (ex "a") (ex "p") (.triple (ex "b") (ex "q") (.lit (.dirLang "x" "en" .rtl))))
+    | .error _ => false) &&
+  (parseResults (doc broken)).toOption.isNone
+
 -- @tg: verifies:: [[openspec:oxilite-bridge#Results reading#Malformed results are rejected]] {level: unit}
 #guard (parseResults "{\"head\":{\"vars\":[]}}").toOption.isNone &&
   (parseResults "not json").toOption.isNone

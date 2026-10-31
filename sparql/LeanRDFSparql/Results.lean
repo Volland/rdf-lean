@@ -4,8 +4,11 @@ import Lean.Data.Json
 /-!
 # Query results
 
-The answer to a query (solutions, a boolean or a graph) and its formats: SPARQL 1.1 Query
-Results JSON, XML, CSV and TSV are written, and JSON, XML and TSV are read (for the W3C tests).
+The answer to a query (solutions, a boolean or a graph) and its formats: SPARQL Query Results
+JSON, XML, CSV and TSV are written, and JSON, XML and TSV are read (for the W3C tests). Triple
+terms and directional literals use the RDF 1.2 forms of the SPARQL 1.2 result drafts: JSON
+`{"type": "triple", "value": {"subject", "predicate", "object"}}` and `its:dir`, XML `<triple>`
+and an `its:dir` attribute, TSV and CSV `<<( s p o )>>`.
 A small XML reader is included for the XML format. Untrusted code.
 -/
 
@@ -22,17 +25,22 @@ inductive Answer
 
 /-! ## Writers -/
 
-private def jsonTerm (t : Term) : Json :=
-  match t with
+private def jsonTerm : Term → Json
   | .iri i => Json.mkObj [("type", "uri"), ("value", Json.str i.val)]
   | .bnode b => Json.mkObj [("type", "bnode"), ("value", Json.str b.label)]
   | .lit (.lang s tag) => Json.mkObj [("type", "literal"), ("value", Json.str s), ("xml:lang", Json.str tag)]
+  | .lit (.dirLang s tag dir) =>
+    Json.mkObj [("type", "literal"), ("value", Json.str s), ("xml:lang", Json.str tag),
+      ("its:dir", Json.str dir.toString)]
   | .lit (.typed s dt) =>
     if dt == Vocab.xsd.string then Json.mkObj [("type", "literal"), ("value", Json.str s)]
     else Json.mkObj [("type", "literal"), ("value", Json.str s), ("datatype", Json.str dt.val)]
+  | .triple s p o =>
+    Json.mkObj [("type", "triple"), ("value", Json.mkObj
+      [("subject", jsonTerm s), ("predicate", jsonTerm p), ("object", jsonTerm o)])]
 
 -- @tg: implements:: [[openspec:sparql-syntax#Result formats]]
-/-- SPARQL 1.1 Query Results JSON. -/
+/-- SPARQL Query Results JSON, with the RDF 1.2 forms for triple terms and directions. -/
 def Answer.toJson : Answer → String
   | .solutions vars rows =>
     let bindings := rows.map fun μ => Json.mkObj (vars.filterMap fun v => (μ.find? v).map fun t => (v, jsonTerm t))
@@ -46,14 +54,18 @@ def xmlEscape (s : String) : String :=
     | '<' => acc ++ "&lt;" | '>' => acc ++ "&gt;" | '&' => acc ++ "&amp;" | '"' => acc ++ "&quot;"
     | c => acc.push c) ""
 
-private def xmlTerm (t : Term) : String :=
-  match t with
+private def xmlTerm : Term → String
   | .iri i => s!"<uri>{xmlEscape i.val}</uri>"
   | .bnode b => s!"<bnode>{xmlEscape b.label}</bnode>"
   | .lit (.lang s tag) => s!"<literal xml:lang=\"{xmlEscape tag}\">{xmlEscape s}</literal>"
+  | .lit (.dirLang s tag dir) =>
+    s!"<literal xml:lang=\"{xmlEscape tag}\" its:dir=\"{dir.toString}\">{xmlEscape s}</literal>"
   | .lit (.typed s dt) =>
     if dt == Vocab.xsd.string then s!"<literal>{xmlEscape s}</literal>"
     else s!"<literal datatype=\"{xmlEscape dt.val}\">{xmlEscape s}</literal>"
+  | .triple s p o =>
+    "<triple><subject>" ++ xmlTerm s ++ "</subject><predicate>" ++ xmlTerm p ++
+      "</predicate><object>" ++ xmlTerm o ++ "</object></triple>"
 
 /-- SPARQL Query Results XML. -/
 def Answer.toXml : Answer → String
@@ -62,7 +74,7 @@ def Answer.toXml : Answer → String
     let res := String.join (rows.map fun μ =>
       "<result>" ++ String.join (vars.filterMap fun v => (μ.find? v).map fun t =>
         s!"<binding name=\"{v}\">{xmlTerm t}</binding>") ++ "</result>")
-    s!"<?xml version=\"1.0\"?>\n<sparql xmlns=\"http://www.w3.org/2005/sparql-results#\"><head>{head}</head><results>{res}</results></sparql>\n"
+    s!"<?xml version=\"1.0\"?>\n<sparql xmlns=\"http://www.w3.org/2005/sparql-results#\" xmlns:its=\"http://www.w3.org/2005/11/its\"><head>{head}</head><results>{res}</results></sparql>\n"
   | .boolean b => s!"<?xml version=\"1.0\"?>\n<sparql xmlns=\"http://www.w3.org/2005/sparql-results#\"><head/><boolean>{b}</boolean></sparql>\n"
   | .graph _ => ""
 
@@ -79,6 +91,7 @@ def Answer.toCsv : Answer → String
       | some (.iri i) => csvField i.val
       | some (.bnode b) => "_:" ++ b.label
       | some (.lit l) => csvField l.lexical
+      | some t@(.triple ..) => csvField t.toNTriples
       | none => ""))
   | .boolean b => toString b ++ "\r\n"
   | .graph _ => ""
@@ -239,13 +252,25 @@ def XmlNode.childElems (n : XmlNode) (name : String) : List XmlNode :=
 
 /-! ## Readers -/
 
-private def termOfXml (n : XmlNode) : Except String Term :=
+private partial def termOfXml (n : XmlNode) : Except String Term :=
   match n.localName with
   | "uri" => .ok (.iri ⟨n.textContent⟩)
   | "bnode" => .ok (.bnode ⟨n.textContent⟩)
+  | "triple" => do
+    let part (name : String) : Except String Term := do
+      let some c := (n.childElems name).head? | throw s!"triple without {name}"
+      let some k := c.kids.find? (fun k => match k with | .elem .. => true | _ => false)
+        | throw s!"empty {name}"
+      termOfXml k
+    return .triple (← part "subject") (← part "predicate") (← part "object")
   | "literal" =>
     match n.attr "xml:lang", n.attr "datatype" with
-    | some tag, _ => .ok (.lit (Literal.lang' n.textContent tag))
+    | some tag, _ =>
+      match n.attr "its:dir" with
+      | none => .ok (.lit (Literal.lang' n.textContent tag))
+      | some d => match Direction.ofString? d with
+        | some dir => .ok (.lit (Literal.dirLang' n.textContent tag dir))
+        | none => .error s!"bad base direction {d}"
     | none, some dt => match Literal.mk? n.textContent ⟨dt⟩ none with
       | some l => .ok (.lit l)
       | none => .error "bad literal"
@@ -267,15 +292,24 @@ def Answer.ofXml (s : String) : Except String Answer := do
       return μ.insert v (← termOfXml tn)) Mapping.empty
   return .solutions vars rows
 
-private def termOfJson (j : Json) : Except String Term := do
+private partial def termOfJson (j : Json) : Except String Term := do
   let ty ← j.getObjValAs? String "type"
+  if ty == "triple" then
+    let v ← j.getObjVal? "value"
+    return .triple (← termOfJson (← v.getObjVal? "subject")) (← termOfJson (← v.getObjVal? "predicate"))
+      (← termOfJson (← v.getObjVal? "object"))
   let v ← j.getObjValAs? String "value"
   match ty with
   | "uri" => return .iri ⟨v⟩
   | "bnode" => return .bnode ⟨v⟩
   | "literal" | "typed-literal" =>
     match j.getObjValAs? String "xml:lang" with
-    | .ok tag => return .lit (Literal.lang' v tag)
+    | .ok tag =>
+      match j.getObjValAs? String "its:dir" with
+      | .error _ => return .lit (Literal.lang' v tag)
+      | .ok d => match Direction.ofString? d with
+        | some dir => return .lit (Literal.dirLang' v tag dir)
+        | none => throw s!"bad base direction {d}"
     | .error _ =>
       match j.getObjValAs? String "datatype" with
       | .ok dt => match Literal.mk? v ⟨dt⟩ none with
@@ -284,7 +318,7 @@ private def termOfJson (j : Json) : Except String Term := do
       | .error _ => return .lit (Literal.str v)
   | t => throw s!"unknown type {t}"
 
-/-- Read SPARQL 1.1 Query Results JSON. -/
+/-- Read SPARQL Query Results JSON, with the RDF 1.2 forms for triple terms and directions. -/
 def Answer.ofJson (s : String) : Except String Answer := do
   let j ← Json.parse s
   if let .ok b := j.getObjValAs? Bool "boolean" then return .boolean b

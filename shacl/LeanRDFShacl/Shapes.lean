@@ -27,7 +27,8 @@ inductive NodeKind
   | iriOrLiteral
   deriving BEq, Repr, Inhabited
 
-/-- Whether a term has the node kind. -/
+-- @tg: implements:: [[openspec:shacl-core#Triple terms in validation]]
+/-- Whether a term has the node kind; a triple term has none of them. -/
 def NodeKind.holds : NodeKind → Term → Bool
   | .iri, .iri _ | .bnode, .bnode _ | .literal, .lit _ => true
   | .bnodeOrIri, .iri _ | .bnodeOrIri, .bnode _ => true
@@ -136,11 +137,11 @@ def termCompare? (a b : Term) : Option Ordering := do
 def termStr? : Term → Option String
   | .iri i => some i.val
   | .lit l => some l.lexical
-  | .bnode _ => none
+  | .bnode _ | .triple _ _ _ => none
 
 /-- The language tag of a term. -/
 def langOf : Term → Option String
-  | .lit (.lang _ t) => some t
+  | .lit (.lang _ t) | .lit (.dirLang _ t _) => some t
   | _ => none
 
 /-- Whether a value node passes a term test (§4). -/

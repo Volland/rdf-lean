@@ -13,6 +13,8 @@ type rdf.iri string -> rdfterm.
 type rdf.bnode string -> rdfterm.
 type rdf.typed string -> string -> rdfterm.
 type rdf.lang string -> string -> rdfterm.
+type rdf.dirlang string -> string -> string -> rdfterm.
+type rdf.tt rdfterm -> rdfterm -> rdfterm -> rdfterm.
 
 kind rdftriple type.
 type rdf.t rdfterm -> rdfterm -> rdfterm -> rdftriple.

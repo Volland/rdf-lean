@@ -140,6 +140,8 @@ def termKey : Option Term → Key
     | none =>
       match l with
       | .lang s tag => ⟨7, 0, s ++ "@" ++ tag⟩
+      | .dirLang s tag dir => ⟨7, 0, s ++ "@" ++ tag ++ "--" ++ dir.toString⟩
       | .typed s dt => ⟨10, 0, dt.val ++ " " ++ s⟩
+  | some t@(.triple ..) => ⟨11, 0, t.toNTriples⟩
 
 end LeanRDF.Sparql

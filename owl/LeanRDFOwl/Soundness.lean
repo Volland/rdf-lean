@@ -560,10 +560,6 @@ theorem owlRules_sound : ∀ r ∈ owlRules, r.SoundIn OWLCore := by
     · exact owlRLDerivationRules_sound r hr
     · exact owlAxiomRules_sound r hr
 
-private theorem instantiate_bnode (t : Triple) : t.instantiate (fun b => .bnode b) = t := by
-  obtain ⟨s, p, o⟩ := t
-  cases s <;> cases p <;> cases o <;> rfl
-
 /-- Soundness: every triple derivable from `g` by `owlRules` is OWL-entailed by `g`. -/
 theorem _root_.LeanRDF.Derives.owl_sound {g : Graph} {t : Triple} (h : Derives owlRules g t) :
     g.OWLEntails (Graph.singleton t) := by
@@ -572,7 +568,7 @@ theorem _root_.LeanRDF.Derives.owl_sound {g : Graph} {t : Triple} (h : Derives o
     I.toSimpleInterp hI.toCore (fun _ hx => hI.1.1.IP_IR hx) hg
   rw [Graph.mem_singleton] at hu
   subst hu
-  rw [instantiate_bnode]
+  rw [Triple.instantiate_bnode]
   exact h
 
 /-- Soundness for graph queries: OWL entailment of `q` from derivations of its instance. -/

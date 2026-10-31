@@ -5,10 +5,12 @@ import LeanRDF.Parse.NTriples.Chars
 /-!
 # N-Triples and N-Quads parser
 
-A recursive-descent parser for the `ntriplesDoc` production of RDF 1.1 N-Triples §7, and, with
-an optional graph label after the object, for the `nquadsDoc` production of RDF 1.1 N-Quads §5.
-Terms are built with the Core smart constructors (§8.1), so the result is always a graph (or
-dataset) of well-formed triples. Errors carry the line and column where parsing stopped.
+A recursive-descent parser for the `ntriplesDoc` production of RDF 1.2 N-Triples §5.3, and, with
+an optional graph label after the object, for the `nquadsDoc` production of RDF 1.2 N-Quads:
+triple terms `<<( s p o )>>` as objects, `LANG_DIR` with an optional base direction, and the
+`VERSION` directive, read as a hint (§6.1). Terms are built with the Core smart constructors
+(§6.2), so the result is always a graph (or dataset) of well-formed triples. Errors carry the
+line and column where parsing stopped.
 -/
 
 namespace LeanRDF.NTriples
@@ -27,9 +29,25 @@ private abbrev P := ReaderT (Array Char) (StateT Nat (Except (Nat × String)))
 
 private def peek? : P (Option Char) := do return (← read)[← get]?
 
+/-- The character `k` places ahead, without consuming anything. -/
+private def peekAt? (k : Nat) : P (Option Char) := do return (← read)[(← get) + k]?
+
+/-- Whether the input continues with `s`, without consuming anything. -/
+private def lookingAt (s : String) : P Bool := do
+  let mut k := 0
+  for c in s.toList do
+    if (← peekAt? k) != some c then return false
+    k := k + 1
+  return true
+
+
 private def bump : P Unit := modify (· + 1)
 
 private def fail {α : Type} (msg : String) : P α := do throw (← get, msg)
+
+/-- Consume the keyword `s`, case-sensitively. -/
+private def keyword (s : String) : P Unit := do
+  if ← lookingAt s then set ((← get) + s.length) else fail s!"expected '{s}'"
 
 private def expect (c : Char) : P Unit := do
   if (← peek?) == some c then bump else fail s!"expected '{c}'"
@@ -129,37 +147,59 @@ private partial def takeWhile (p : Char → Bool) (acc : String) : P String := d
   | some c => if p c then bump; takeWhile p (acc.push c) else return acc
   | none => return acc
 
-/-- A `LANGTAG` after `@` (production [144s]). -/
-private partial def langTag : P String := do
+/-- A `LANG_DIR` after `@` (production [15]): a language tag and, after `--`, an optional base
+direction, which must be `ltr` or `rtl` (RDF 1.2 Concepts §3.4). Subtags are at most eight
+characters, as a well-formed BCP 47 tag requires (Concepts §3.4).
+-- SIMPLIFICATION: [[simplifications#Language tags checked only for subtag length]] -/
+private partial def langDir : P (String × Option Direction) := do
+  let start ← get
   let first ← takeWhile Char.isAlpha ""
-  if first.isEmpty then fail "invalid language tag"
+  if first.isEmpty || first.length > 8 then throw (start, "invalid language tag")
   let rec subtags (acc : String) : P String := do
-    if (← peek?) == some '-' then
+    if (← peek?) == some '-' && (← peekAt? 1) != some '-' then
       bump
       let t ← takeWhile Char.isAlphanum ""
-      if t.isEmpty then fail "invalid language tag"
+      if t.isEmpty || t.length > 8 then fail "invalid language tag"
       subtags (acc ++ "-" ++ t)
     else return acc
-  subtags first
+  let tag ← subtags first
+  if ← lookingAt "--" then
+    let start ← get
+    set (start + 2)
+    let d ← takeWhile Char.isAlpha ""
+    match Direction.ofString? d with
+    | some dir => return (tag, some dir)
+    | none => throw (start, s!"invalid base direction '{d}': expected ltr or rtl")
+  return (tag, none)
 
-/-- A `literal` (production [6]), built with the Core smart constructors (§8.1). -/
+/-- A `literal` (production [10]), built with the Core smart constructors (§6.2). The grammar is
+token-based, so white space may separate the string from `@` or `^^` and `^^` from the IRI. -/
 private def literal : P Literal := do
   expect '"'
   let lex ← stringBody ""
+  let afterString ← get
+  skipWS
   match ← peek? with
   | some '^' =>
     bump; expect '^'
+    skipWS
     let start ← get
     let dt ← iriRef
     match Literal.mk? lex dt none with
     | some l => return l
-    | none => throw (start, "rdf:langString requires a language tag")
-  | some '@' => bump; return Literal.lang' lex (← langTag)
-  | _ => return Literal.str lex
+    | none => throw (start, "rdf:langString and rdf:dirLangString require a language tag")
+  | some '@' =>
+    bump
+    match ← langDir with
+    | (tag, none) => return Literal.lang' lex tag
+    | (tag, some dir) => return Literal.dirLang' lex tag dir
+  | _ => set afterString; return Literal.str lex
 
 private def subject : P Term := do
   match ← peek? with
-  | some '<' => return .iri (← iriRef)
+  | some '<' =>
+    if (← peekAt? 1) == some '<' then fail "a triple term cannot be a subject"
+    return .iri (← iriRef)
   | some '_' => return .bnode (← blankNode)
   | _ => fail "expected an IRI or a blank node as subject"
 
@@ -167,12 +207,49 @@ private def predicate : P Term := do
   if (← peek?) == some '<' then return .iri (← iriRef)
   else fail "expected an IRI as predicate"
 
-private def object : P Term := do
+/-- An `object` (production [9]), a `tripleTerm` (production [11]) included: `<<(`, a subject,
+a predicate and an object, recursively, then `)>>`. -/
+private partial def object : P Term := do
   match ← peek? with
-  | some '<' => return .iri (← iriRef)
+  | some '<' =>
+    if ← lookingAt "<<(" then
+      keyword "<<("; skipWS
+      let s ← subject; skipWS
+      let p ← predicate; skipWS
+      let o ← object; skipWS
+      keyword ")>>"
+      return .triple s p o
+    else return .iri (← iriRef)
   | some '_' => return .bnode (← blankNode)
   | some '"' => return .lit (← literal)
-  | _ => fail "expected an IRI, a blank node or a literal as object"
+  | _ => fail "expected an IRI, a blank node, a literal or a triple term as object"
+
+/-- Any term in any position, triple terms with any components included: the generalized term
+syntax certificates use (`Term.toNTriples` writes it). -/
+private partial def anyTerm : P Term := do
+  match ← peek? with
+  | some '<' =>
+    if ← lookingAt "<<(" then
+      keyword "<<("; skipWS
+      let s ← anyTerm; skipWS
+      let p ← anyTerm; skipWS
+      let o ← anyTerm; skipWS
+      keyword ")>>"
+      return .triple s p o
+    else return .iri (← iriRef)
+  | some '_' => return .bnode (← blankNode)
+  | some '"' => return .lit (← literal)
+  | _ => fail "expected a term"
+
+/-- A `versionDirective` (production [4]): case-sensitive `VERSION` and a quoted version label,
+read and discarded, since the announcement is only a hint (§6.1). -/
+private def versionDirective : P Unit := do
+  keyword "VERSION"
+  let start ← get
+  skipWS
+  if (← get) == start then fail "expected a space after VERSION"
+  expect '"'
+  discard <| stringBody ""
 
 /-- A `graphLabel` (N-Quads production [6]): an IRI or a blank node. -/
 private def graphLabel : P Term := do
@@ -200,6 +277,14 @@ private partial def document (quads : Bool) (acc : Array Quad) : P (Array Quad) 
   | none => return acc
   | some '#' => skipComment; document quads acc
   | some '\n' | some '\r' => bump; document quads acc
+  | some 'V' =>
+    versionDirective
+    skipWS
+    match ← peek? with
+    | none => return acc
+    | some '#' => skipComment; document quads acc
+    | some '\n' | some '\r' => bump; document quads acc
+    | some _ => fail "expected end of line after VERSION directive"
   | some _ =>
     let t ← statement quads
     skipWS
@@ -221,7 +306,7 @@ private def position (chars : Array Char) (pos : Nat) : Nat × Nat := Id.run do
 
 -- @tg: implements:: [[openspec:ntriples#Document parsing]]
 -- @tg: implements:: [[openspec:ntriples#Term syntax]]
-/-- Parse an N-Triples document (RDF 1.1 N-Triples §7, §8) into its triples, in document
+/-- Parse an N-Triples document (RDF 1.2 N-Triples §5.3, §6) into its triples, in document
 order. -/
 def parseTriples (src : String) : Except ParseError (Array Triple) :=
   let chars := src.toList.toArray
@@ -232,7 +317,7 @@ def parseTriples (src : String) : Except ParseError (Array Triple) :=
     .error { line, col, msg }
 
 -- @tg: implements:: [[openspec:datasets#N-Quads]]
-/-- Parse an N-Quads document (RDF 1.1 N-Quads §5) into its quads, in document order. -/
+/-- Parse an N-Quads document (RDF 1.2 N-Quads) into its quads, in document order. -/
 def parseQuads (src : String) : Except ParseError (Array Quad) :=
   let chars := src.toList.toArray
   match (document true #[]).run chars |>.run 0 with
@@ -241,12 +326,13 @@ def parseQuads (src : String) : Except ParseError (Array Quad) :=
     let (line, col) := position chars pos
     .error { line, col, msg }
 
-/-- Parse one term in N-Triples syntax, in any position (an IRI, a blank node or a literal),
-with nothing after it. Certificates use this for generalized triples. -/
+/-- Parse one term in N-Triples syntax, in any position (an IRI, a blank node, a literal or a
+triple term with any components), with nothing after it. Certificates use this for generalized
+triples. -/
 def parseTerm (src : String) : Except ParseError Term :=
   let chars := src.toList.toArray
   let p : P Term := do
-    let t ← object
+    let t ← anyTerm
     if (← peek?).isSome then fail "unexpected text after term"
     return t
   match p.run chars |>.run 0 with
@@ -256,7 +342,7 @@ def parseTerm (src : String) : Except ParseError Term :=
     .error { line, col, msg }
 
 -- @tg: implements:: [[openspec:ntriples#W3C conformance]]
-/-- Parse an N-Triples document (RDF 1.1 N-Triples §7, §8) into a graph. -/
+/-- Parse an N-Triples document (RDF 1.2 N-Triples §5.3, §6) into a graph. -/
 def parse (src : String) : Except ParseError Graph :=
   (parseTriples src).map (fun ts => Graph.ofList ts.toList)
 

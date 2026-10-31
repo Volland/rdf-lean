@@ -40,6 +40,7 @@ def readPath : Nat → Term → Except String Path
     match t with
     | .iri p => .ok (.pred p)
     | .lit _ => .error "a literal is not a path"
+    | .triple _ _ _ => .error "a triple term is not a path"
     | .bnode _ =>
       if !(objs G t rdf.first).isEmpty then do
         let ms ← listOf G t

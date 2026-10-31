@@ -5,14 +5,17 @@ import Tests.Core.Triple
 import Tests.Core.Graph
 import Tests.Core.Iso
 import Tests.Core.Vocab
+import Tests.Core.Basic
 import Tests.Core.Axioms
 import Tests.NTriples.Parse
 import Tests.NTriples.Serialize
 import Tests.NTriples.W3C
+import Tests.NTriples.W3C12
 import Tests.Semantics.SmallModel
 import Tests.Semantics.Basics
 import Tests.Semantics.Vacuity
 import Tests.Semantics.HandProofs
+import Tests.Semantics.TripleTerms
 import Tests.Entailment.Rules
 import Tests.Entailment.FullRules
 import Tests.Entailment.Axioms

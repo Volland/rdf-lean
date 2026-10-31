@@ -88,6 +88,20 @@ theorem nodup_toList (g : Graph) : g.toList.Nodup := by
   refine (List.mergeSort_perm _ _).nodup_iff.mpr ?_
   exact g.triples.distinct_toList.imp fun h e => by subst e; simp at h
 
+-- @tg: implements:: [[openspec:rdf-core#RDF 1.2 Basic]]
+/-- No triple term occurs in the graph: the graphs of RDF 1.2 Basic conformance (RDF 1.2
+Concepts §2). -/
+def Basic (g : Graph) : Prop := ∀ t, t ∈ g → t.Basic
+
+instance (g : Graph) : Decidable g.Basic :=
+  decidable_of_iff (∀ t ∈ g.toList, t.Basic) (by simp [Basic])
+
+theorem Basic_union {g h : Graph} (hg : g.Basic) (hh : h.Basic) : (g ∪ h).Basic := by
+  intro t ht
+  rcases mem_union.mp ht with ht | ht
+  · exact hg t ht
+  · exact hh t ht
+
 end Graph
 
 end LeanRDF

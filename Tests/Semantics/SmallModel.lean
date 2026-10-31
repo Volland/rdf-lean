@@ -5,7 +5,9 @@ import LeanRDF
 
 One construction of concrete RDFS interpretations, used to show the semantics is not vacuous:
 the carrier is `Term`, every IRI denotes itself, literals denote themselves (with lowercased
-tags), every element is a resource and a property, and every class has every element as a
+tags), a triple term's denotation `IT` is the triple term of the denotations, which is injective
+because `Term` is closed under `Term.triple` (the free triple-term extension of tg.md decision
+"Small models become free triple-term extensions"), every element is a resource and a property, and every class has every element as a
 member except the two datatypes and a chosen set of *custom* classes. `rdfs:subClassOf` is
 inclusion of class extensions, so its conditions hold by construction; `rdfs:subPropertyOf` is
 the smallest relation the axioms and `rdfs:member` force. Non-vocabulary properties are total
@@ -93,6 +95,12 @@ abbrev interp : DInterp where
   IEXT_wt := fun _ _ _ _ => ⟨trivial, trivial, trivial⟩
   IS_wt := fun _ => .inl trivial
   IL_wt := fun _ _ _ => trivial
+  IT := Term.triple
+  IT_wt := fun _ _ _ _ _ _ => trivial
+  IT_inj := by
+    intro x y z x' y' z' _ _ _ _ _ _ h
+    simp only [Term.triple.injEq] at h
+    exact h
   langVal := fun s t => .lit (.lang s t)
   langVal_inj := by
     intro s t s' t' h

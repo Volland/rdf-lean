@@ -37,6 +37,18 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by nativ
 #guard (entailmentCertificate g ((NTriples.parse
   "<http://example.org/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Dog> .").toOption.getD ∅)).toOption.isNone
 
+private def exT (n : String) : Term := .iri ⟨"http://example.org/" ++ n⟩
+private def tt : Term := .triple (exT "b") (exT "q") (exT "c")
+private def g12 : Graph := Graph.ofList
+  [⟨exT "p", .iri Vocab.rdfs.range, exT "C"⟩, ⟨exT "a", exT "p", tt⟩]
+private def q12 : Graph := Graph.ofList [⟨tt, .iri Vocab.rdf.type, exT "C"⟩]
+
+-- @tg: verifies:: [[openspec:elpi-bridge#Term encoding#Rules match triple terms as opaque terms]] {level: integration}
+#guard
+  match entailmentCertificate g12 q12 with
+  | .ok c => (checkQuery RDFS.rdfsRules g12 q12 c).toOption.isSome
+  | .error _ => false
+
 /- A certificate from Elpi that is tampered with after the fact is rejected. -/
 #guard
   let bad := { cert with nodes := cert.nodes.map fun n => if n.rule == "rdfs9" then { n with rule := "rdfs11" } else n }

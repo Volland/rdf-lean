@@ -16,7 +16,15 @@ N-Triples is one triple per line, absolute IRIs only:
 -- a graph whose object is Literal.lang "Cheers" "en-uk"
 ```
 
-The serializer writes canonical N-Triples (RDF 1.1 N-Triples §4): sorted, one line per triple, no `\u` escapes, and `^^xsd:string` omitted. It refuses, with a reason, anything that would not parse back: a literal subject, a relative IRI, an invalid blank-node label.
+RDF 1.2 N-Triples adds triple terms as objects, base directions after the language tag, and a `VERSION` directive, which is read as a hint:
+
+```lean
+#eval NTriples.parse "VERSION \"1.2\"
+_:r <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <http://example/a> <http://example/p> \"x\"@en--rtl )>> ."
+-- a graph whose object is a triple term with a directional literal
+```
+
+The serializer writes canonical RDF 1.2 N-Triples (RDF 1.2 N-Triples §3): sorted, one line per triple, no `VERSION`, single spaces inside `<<( … )>>`, `^^xsd:string` omitted, and control characters escaped (`\t`, `\b`, `\f` and `\u0001`-style escapes, which RDF 1.1 left raw). It refuses, with a reason, anything that would not parse back: a literal subject, a relative IRI, an invalid blank-node label.
 
 ```lean
 #guard (Graph.ofList [⟨ex "s", ex "p", .lit (Literal.str "x")⟩]).toNTriples.toOption
@@ -67,6 +75,8 @@ Both parsers are tested against the W3C suites, vendored in `Tests/data/` and ru
 | RDF 1.1 Turtle | 74 / 74 | 94 / 94 | 145 / 145 |
 | RDF 1.1 N-Quads | 53 / 53 | 34 / 34 | |
 | RDF 1.1 TriG | 99 / 99 | 115 / 115 | 143 / 143 |
+| RDF 1.2 N-Triples | 8 / 8 | 26 / 26 | 41 / 41 canonicalization |
+| RDF 1.2 N-Quads | 7 / 7 | 20 / 20 | 41 / 41 canonicalization |
 
 Evaluation tests compare the parsed graph (or dataset) with the expected N-Triples (or N-Quads) up to blank-node renaming.
 

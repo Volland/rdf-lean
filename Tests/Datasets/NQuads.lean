@@ -15,6 +15,17 @@ private def dataset (src : String) : Dataset := (NQuads.parse src).toOption.getD
   d.size == 2 && (d.namedGraph (ex "g")).toList == [T (ex "s") (ex "p") (ex "o")] &&
     d.defaultGraph.toList == [T (ex "s") (ex "p") (ex "o")]
 
+-- @tg: verifies:: [[openspec:datasets#N-Quads#Triple term in a named graph]] {level: unit}
+#guard
+  let line := "_:r <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <http://example.org/a> <http://example.org/p> <http://example.org/b> )>> <http://example.org/g> .\n"
+  let d := dataset line
+  (d.namedGraph (ex "g")).toList ==
+      [T (.bnode ⟨"r"⟩) (.iri Vocab.rdf.reifies) (.triple (ex "a") (ex "p") (ex "b"))] &&
+    d.toNQuads.toOption == some line
+
+-- @tg: verifies:: [[openspec:datasets#N-Quads#Triple term as graph label is rejected]] {level: unit}
+#guard (NQuads.parse "<http://e/s> <http://e/p> <http://e/o> <<( <http://e/a> <http://e/p> <http://e/b> )>> .").toOption.isNone
+
 -- A literal cannot name a graph, and N-Triples still rejects graph labels.
 #guard (NQuads.parse "<http://e/s> <http://e/p> <http://e/o> \"g\" .").toOption.isNone
 #guard (NTriples.parse "<http://e/s> <http://e/p> <http://e/o> <http://e/g> .").toOption.isNone

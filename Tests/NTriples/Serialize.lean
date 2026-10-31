@@ -12,8 +12,17 @@ private def out? (ts : List Triple) : Option String := (Graph.ofList ts).toNTrip
 #guard out? [⟨ex "s", ex "p", .lit (Literal.str "x")⟩] == some "<http://example/s> <http://example/p> \"x\" .\n"
 
 -- @tg: verifies:: [[openspec:ntriples#Canonical serialization#Strings escape exactly four characters]] {level: unit}
-#guard out? [⟨ex "s", ex "p", .lit (Literal.str "\"\\\n\r\t")⟩]
-  == some "<http://example/s> <http://example/p> \"\\\"\\\\\\n\\r\t\" .\n"
+#guard out? [⟨ex "s", ex "p", .lit (Literal.str "\"\\\n\r")⟩]
+  == some "<http://example/s> <http://example/p> \"\\\"\\\\\\n\\r\" .\n"
+
+-- @tg: verifies:: [[openspec:ntriples#Canonical serialization#Strings escape quotes, backslashes and controls]] {level: unit}
+#guard out? [⟨ex "s", ex "p", .lit (Literal.str "\"\\\n\r\t\x01é")⟩]
+  == some "<http://example/s> <http://example/p> \"\\\"\\\\\\n\\r\\t\\u0001é\" .\n"
+
+-- @tg: verifies:: [[openspec:ntriples#Canonical serialization#Triple terms and directions are canonical]] {level: unit}
+#guard out? [⟨.bnode ⟨"r"⟩, .iri Vocab.rdf.reifies,
+    .triple (ex "a") (ex "p") (.lit (.dirLang "x" "en" .rtl))⟩]
+  == some "_:r <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <http://example/a> <http://example/p> \"x\"@en--rtl )>> .\n"
 
 -- @tg: verifies:: [[openspec:ntriples#Canonical serialization#Generalized triple is rejected]] {level: unit}
 #guard out? [⟨.lit (Literal.str "5"), ex "p", ex "o"⟩] == none

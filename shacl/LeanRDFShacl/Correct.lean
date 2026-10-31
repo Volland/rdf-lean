@@ -91,6 +91,7 @@ theorem allowedB_iff {allowed : List IRI} {p : Term} :
   | iri q => simp [allowedB]
   | bnode b => simp [allowedB]
   | lit l => simp [allowedB]
+  | triple s p o => simp [allowedB]
 
 theorem if_nil {c : Prop} [Decidable c] {r : Result} : (if c then [r] else []) = [] ↔ ¬ c := by
   by_cases h : c <;> simp [h]

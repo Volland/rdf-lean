@@ -3,8 +3,9 @@ import LeanRDF.Core.Graph
 /-!
 # Graph isomorphism
 
-Two graphs are isomorphic when a bijection on blank nodes maps one onto the other (RDF 1.1
-Concepts §3.6). Stated as a definition; deciding it is not needed in v0.x.
+Two graphs are isomorphic when a bijection on blank nodes maps one onto the other, inside
+triple terms too (RDF 1.2 Concepts §3.7). Stated as a definition; deciding it is not needed in
+v0.x.
 -/
 
 namespace LeanRDF
@@ -19,8 +20,9 @@ theorem bijective_id {α : Type} : Bijective (id : α → α) :=
 namespace Graph
 
 -- @tg: implements:: [[openspec:rdf-core#Blank node isomorphism]]
-/-- Graph isomorphism up to blank-node renaming (RDF 1.1 Concepts §3.6): a bijection `f` on
-blank nodes such that `t ∈ g` iff `t` renamed by `f` is in `h`. -/
+/-- Graph isomorphism up to blank-node renaming (RDF 1.2 Concepts §3.7): a bijection `f` on
+blank nodes such that `t ∈ g` iff `t` renamed by `f`, at any depth of its triple terms, is in
+`h`. -/
 def Iso (g h : Graph) : Prop :=
   ∃ f : BlankNode → BlankNode, Bijective f ∧ ∀ t : Triple, t ∈ g ↔ t.renameBNodes f ∈ h
 

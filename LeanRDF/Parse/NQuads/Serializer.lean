@@ -24,6 +24,7 @@ def Quad.toNQuads (q : Quad) : Except String String := do
       discard <| (Triple.mk g (.iri ⟨"urn:x"⟩) g).toNTriples
       return s!"{q.s.toNTriples} {q.p.toNTriples} {q.o.toNTriples} {g.toNTriples} .\n"
     | .lit _ => throw s!"a literal cannot name a graph: {g.toNTriples}"
+    | .triple _ _ _ => throw s!"a triple term cannot name a graph: {g.toNTriples}"
 
 -- @tg: implements:: [[openspec:datasets#N-Quads]]
 /-- A dataset as an N-Quads document, quads in `Dataset.toList` order. Fails on a quad that is

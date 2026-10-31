@@ -6,11 +6,15 @@ Proof DAG certificates for RDFS entailment: their JSON form with N-Triples terms
 ## Requirements
 
 ### Requirement: Certificate format
-A certificate SHALL consist of a version, nodes (an id, a conclusion triple, a rule name, premise ids), goal ids and an instance mapping from blank nodes to terms. Its JSON form SHALL write every term in N-Triples syntax, generalized triples included, and reading JSON SHALL return an error for malformed input.
+A certificate SHALL consist of a version, nodes (an id, a conclusion triple, a rule name, premise ids), goal ids and an instance mapping from blank nodes to terms. Its JSON form SHALL write every term in RDF 1.2 N-Triples term syntax, triple terms, directional literals and generalized triples included, and reading JSON SHALL return an error for malformed input.
 
 #### Scenario: JSON round-trips
 - **WHEN** a certificate with a mapping and a certificate with a literal subject are rendered to JSON and parsed back
 - **THEN** each parses to itself
+
+#### Scenario: RDF 1.2 terms in certificates
+- **WHEN** a certificate whose conclusion has a nested triple-term subject and a directional literal, and whose mapping sends a blank node to a triple term, is rendered to JSON and parsed back
+- **THEN** it parses to itself and the checker gives the same verdict on both
 
 ### Requirement: Checker
 `check`, `checkCert` and `checkQuery` SHALL accept a certificate only when node `i` has id `i`, every `fact` node has no premises and a conclusion in the graph, every other node names a rule of the rule list whose body matches its premises (earlier nodes only, in body order), whose guards check under the match, and whose instantiated head equals its conclusion, and, for `checkQuery`, every query triple instantiated by the mapping is an accepted conclusion.

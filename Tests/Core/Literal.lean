@@ -25,4 +25,16 @@ example : Literal.typed "1" xsdInteger ≠ Literal.typed "01" xsdInteger := by d
 /-- Smart-constructed literals are well-formed. -/
 example : (Literal.str "x").WellFormed := by decide
 
+-- @tg: verifies:: [[openspec:rdf-core#Literal forms#Directional literal has dirLangString datatype]] {level: unit}
+#guard
+  let l := Literal.dirLang' "مرحبا" "AR" .rtl
+  l.datatype == rdf.dirLangString && l.langTag? == some "ar" &&
+    l != Literal.lang' "مرحبا" "ar" && l != Literal.dirLang' "مرحبا" "ar" .ltr
+
+-- @tg: verifies:: [[openspec:rdf-core#Literal forms#Typed dirLangString literal is rejected]] {level: unit}
+example : Literal.mk? "x" rdf.dirLangString none = none := by decide
+
+/-- A tag with a direction needs `rdf:dirLangString`, and a direction needs a tag. -/
+example : Literal.mk? "x" rdf.langString none (some .ltr) = none := by decide
+
 end LeanRDF.Tests.Literal

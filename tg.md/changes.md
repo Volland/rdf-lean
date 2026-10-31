@@ -155,7 +155,7 @@ R1: `Term.triple`, `Literal.dirLang`, recursive `WellFormed`, `Basic`, isomorphi
 
 Capabilities `rdf-core`, `ntriples`, `datasets`, `rdf-semantics`, `elpi-bridge`, `certificates`, `sparql-algebra`, `sparql-syntax`, `shacl-core`, `oxilite-bridge`. Depends on [[changes#add-owl-el]]. See [[rdf12]].
 
-- status:: proposed
+- status:: archived
 
 ## add-rdf12-syntax
 

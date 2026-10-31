@@ -66,6 +66,32 @@ private def sameRows (a b : Answer) : Bool :=
   ((Answer.ofXml sample.toXml).toOption.map (sameRows sample)).getD false &&
   ((Answer.ofTsv sample.toTsv).toOption.map (sameRows sample)).getD false
 
+private def tt : Term :=
+  .triple (ex "a") (ex "p") (.triple (.bnode ⟨"b"⟩) (ex "q") (.lit (.dirLang "x" "en" .rtl)))
+private def sample12 : Answer :=
+  .solutions ["t", "d"] [Mapping.empty |>.insert "t" tt |>.insert "d" (.lit (.dirLang "مرحبا" "ar" .rtl))]
+
+-- @tg: verifies:: [[openspec:sparql-syntax#Result formats#Triple terms round-trip through each readable format]] {level: unit}
+#guard ((Answer.ofJson sample12.toJson).toOption.map (sameRows sample12)).getD false &&
+  ((Answer.ofXml sample12.toXml).toOption.map (sameRows sample12)).getD false &&
+  ((Answer.ofTsv sample12.toTsv).toOption.map (sameRows sample12)).getD false
+
+private def reified : Dataset := Dataset.ofGraph (Graph.ofList
+  [⟨ex "r", .iri Vocab.rdf.reifies, .triple (ex "a") (ex "p") (ex "b")⟩])
+
+-- @tg: verifies:: [[openspec:sparql-algebra#Triple terms in evaluation#A variable binds a triple term]] {level: unit}
+#guard
+  match (parseQuery "SELECT ?t WHERE { ?r <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> ?t }" "").toOption.bind
+      fun sq => (execute reified sq).toOption with
+  | some (.solutions _ r) => r.map (·.find? "t") == [some (.triple (ex "a") (ex "p") (ex "b"))]
+  | _ => false
+
+-- @tg: verifies:: [[openspec:sparql-algebra#Triple terms in evaluation#Term tests on a triple term]] {level: unit}
+#guard
+  let μ := Mapping.empty.insert "t" (.triple (ex "a") (ex "p") (ex "b"))
+  let ev (f : String) := (Expr.eval (fun _ => false) μ (.call f [.var "t"])).toOption
+  ev "ISIRI" == some (boolTerm false) && ev "ISLITERAL" == some (boolTerm false) && ev "STR" == none
+
 -- @tg: verifies:: [[openspec:sparql-syntax#SPARQL command line#Same flags as oxilite]] {level: e2e}
 #eval show IO Unit from do
   let (code, out) ← runCommand ["query", "--location", "../elpi/BridgeTests/data/oxilite/pets/data.ttl",

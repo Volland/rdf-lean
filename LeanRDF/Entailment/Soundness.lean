@@ -284,17 +284,25 @@ private theorem instAssign_IR (I : SimpleInterp) (hPR : ∀ x, I.IP x → I.IR x
       exact (I.IS_wt i).elim id (hPR _)
     | bnode b' => rw [hμ, denote_bnode, Option.some.injEq] at hd; subst hd; exact hA b'
     | lit l => rw [hμ, denote_lit] at hd; exact I.IL_wt l d hd
+    | triple s p o =>
+      rw [hμ] at hd
+      obtain ⟨x, y, z, -, -, -, hx, hy, hz, rfl⟩ := I.denote_triple.mp hd
+      exact I.IT_wt x y z hx hy hz
   · exact Classical.choose_spec I.IR_nonempty
 
 private theorem denote_instantiate (I : SimpleInterp) (A : BlankNode → I.Dom)
     (μ : BlankNode → Term) {u : Term} {d : I.Dom} (h : I.denote A (u.instantiate μ) = some d) :
     I.denote (instAssign I A μ) u = some d := by
-  cases u with
+  induction u generalizing d with
   | bnode b =>
     simp only [Term.instantiate] at h
     simp only [denote_bnode, instAssign, h]
   | iri i => exact h
   | lit l => exact h
+  | triple s p o ihs ihp iho =>
+    simp only [Term.instantiate] at h
+    obtain ⟨x, y, z, hs, hp, ho, hx, hy, hz, rfl⟩ := I.denote_triple.mp h
+    exact I.denote_triple.mpr ⟨x, y, z, ihs hs, ihp hp, iho ho, hx, hy, hz, rfl⟩
 
 private theorem holds_of_instantiate (I : SimpleInterp) (A : BlankNode → I.Dom)
     (μ : BlankNode → Term) {t : Triple} (h : I.Holds A (t.instantiate μ)) :

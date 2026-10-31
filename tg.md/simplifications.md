@@ -87,3 +87,13 @@ Subsumptions that need them are missed, never wrong. The semantic condition itse
 - source:: OWL 2 Profiles §2
 - impact:: incompleteness
 - deviates_from:: [[constraints#OWL 2 EL profile]]
+
+## Language tags checked only for subtag length
+
+A language tag is accepted when it matches the `LANG_DIR` production and every subtag has at most eight characters; it is not checked against the full BCP 47 grammar or the subtag registry.
+
+RDF 1.2 Concepts §3.4 requires tags well-formed by BCP 47 §2.2.9. The length bound is the part the W3C RDF 1.2 N-Triples suite tests (`ntriples-langdir-bad-4`); a tag such as `en-a-b` with a lone singleton is still accepted. Soundness is unaffected: a tag only names a literal.
+
+- source:: RDF 1.2 Concepts §3.4; BCP 47 §2.2.9
+- impact:: scope
+- deviates_from:: [[constraints#Directional language-tagged strings]]

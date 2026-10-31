@@ -40,6 +40,23 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := qcert) (by nati
 -- @tg: verifies:: [[openspec:certificates#Certificate format#JSON round-trips]] {level: unit}
 #guard (Certificate.parse qcert.render).toOption == some qcert
 
+/-- A nested triple term with a directional literal, typed by rdfs3 through a range. -/
+private def tt : Term :=
+  .triple (ex "b") (ex "q") (.triple (ex "c") (ex "r") (.lit (.dirLang "x" "en" .rtl)))
+private def g12 : Graph := Graph.ofList [T (ex "p") (.iri rdfs.range) (ex "C"), T (ex "a") (ex "p") tt]
+private def cert12 : Certificate :=
+  { nodes := [ ⟨0, T (ex "p") (.iri rdfs.range) (ex "C"), "fact", []⟩, ⟨1, T (ex "a") (ex "p") tt, "fact", []⟩,
+               ⟨2, T tt ty (ex "C"), "rdfs3", [0, 1]⟩ ]
+    goals := [2]
+    mapping := [(⟨"t"⟩, tt)] }
+
+-- @tg: verifies:: [[openspec:certificates#Certificate format#RDF 1.2 terms in certificates]] {level: unit}
+#guard
+  match Certificate.parse cert12.render with
+  | .ok c => c == cert12 && (check rdfsRules g12 c).toOption == (check rdfsRules g12 cert12).toOption &&
+      (check rdfsRules g12 c).toOption == some (T tt ty (ex "C"))
+  | .error _ => false
+
 /- Literal subjects (generalized triples) survive the JSON form. -/
 #guard
   let c : Certificate := { nodes := [⟨0, T (.lit (.lang "v" "en")) ty (ex "R"), "fact", []⟩], goals := [0] }

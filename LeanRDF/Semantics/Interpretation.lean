@@ -4,9 +4,10 @@ import LeanRDF.Core.Vocab
 /-!
 # Simple interpretations and D-interpretations
 
-Simple interpretations (RDF 1.1 Semantics §5) over one carrier `Dom`, with the sets `IR` and
-`IP` as predicates on it, so that one element can be both a resource and a property, and
-D-interpretations (§7.1) for `D = {rdf:langString, xsd:string}`.
+Simple interpretations (RDF 1.2 Semantics §5) over one carrier `Dom`, with the sets `IR` and
+`IP` as predicates on it, so that one element can be both a resource and a property, and the
+injective triple denotation `IT`; and D-interpretations (§7.1) for
+`D = {rdf:langString, xsd:string}`.
 -/
 
 namespace LeanRDF
@@ -14,10 +15,11 @@ namespace LeanRDF
 open Vocab
 
 -- @tg: implements:: [[openspec:rdf-semantics#Simple interpretations]]
-/-- A simple interpretation (RDF 1.1 Semantics §5): a non-empty set `IR` of resources, a set
+/-- A simple interpretation (RDF 1.2 Semantics §5): a non-empty set `IR` of resources, a set
 `IP` of properties that may overlap `IR`, `IEXT` from `IP` to binary relations on `IR`, `IS`
-from IRIs into `IR ∪ IP` and a partial `IL` from literals into `IR`. All of them live in one
-carrier `Dom`; `IEXT p x y` is `⟨x, y⟩ ∈ IEXT(p)`.
+from IRIs into `IR ∪ IP`, a partial `IL` from literals into `IR`, and an injective `IT` from
+`IR × IP × IR` into `IR`, the denotation of triple terms. All of them live in one carrier `Dom`;
+`IEXT p x y` is `⟨x, y⟩ ∈ IEXT(p)`. `IT` is total on `Dom` and constrained only on its domain.
 -- SIMPLIFICATION: [[simplifications#Interpretations in universe zero]] -/
 structure SimpleInterp where
   Dom : Type
@@ -30,17 +32,31 @@ structure SimpleInterp where
   IEXT_wt : ∀ p x y, IEXT p x y → IP p ∧ IR x ∧ IR y
   IS_wt : ∀ i, IR (IS i) ∨ IP (IS i)
   IL_wt : ∀ l x, IL l = some x → IR x
+  IT : Dom → Dom → Dom → Dom
+  IT_wt : ∀ x y z, IR x → IP y → IR z → IR (IT x y z)
+  IT_inj : ∀ x y z x' y' z', IR x → IP y → IR z → IR x' → IP y' → IR z' →
+    IT x y z = IT x' y' z' → x = x' ∧ y = y' ∧ z = z'
 
 namespace SimpleInterp
 
 variable (I : SimpleInterp)
 
-/-- `[I+A]` on terms (RDF 1.1 Semantics §5 and §5.1): `IS` on IRIs, `IL` on literals (possibly
-undefined), `A` on blank nodes. -/
-def denote (A : BlankNode → I.Dom) : Term → Option I.Dom
+open Classical in
+/-- `IT` where it is defined (RDF 1.2 Semantics §5): on `IR × IP × IR`, and nowhere else. -/
+noncomputable def ITon (x y z : I.Dom) : Option I.Dom :=
+  if I.IR x ∧ I.IP y ∧ I.IR z then some (I.IT x y z) else none
+
+/-- `[I+A]` on terms (RDF 1.2 Semantics §5 and §5.1): `IS` on IRIs, `IL` on literals (possibly
+undefined), `A` on blank nodes, and `IT` of the components on a triple term whose components
+denote into `IT`'s domain; otherwise a triple term has no referent. -/
+noncomputable def denote (A : BlankNode → I.Dom) : Term → Option I.Dom
   | .iri i => some (I.IS i)
   | .bnode b => some (A b)
   | .lit l => I.IL l
+  | .triple s p o =>
+    match denote A s, denote A p, denote A o with
+    | some x, some y, some z => I.ITon x y z
+    | _, _, _ => none
 
 @[simp] theorem denote_iri (A : BlankNode → I.Dom) (i : IRI) : I.denote A (.iri i) = some (I.IS i) :=
   rfl
@@ -51,7 +67,48 @@ def denote (A : BlankNode → I.Dom) : Term → Option I.Dom
 @[simp] theorem denote_lit (A : BlankNode → I.Dom) (l : Literal) : I.denote A (.lit l) = I.IL l :=
   rfl
 
-/-- `[I+A](s p o) = true` (RDF 1.1 Semantics §5): all three terms denote, `I(p)` is in `IP`
+/-- A triple term denotes `IT` of its components exactly when they denote into `IR × IP × IR`
+(RDF 1.2 Semantics §5). -/
+theorem denote_triple {A : BlankNode → I.Dom} {s p o : Term} {v : I.Dom} :
+    I.denote A (.triple s p o) = some v ↔
+      ∃ x y z, I.denote A s = some x ∧ I.denote A p = some y ∧ I.denote A o = some z ∧
+        I.IR x ∧ I.IP y ∧ I.IR z ∧ v = I.IT x y z := by
+  simp only [denote]
+  split
+  · rename_i x y z hs hp ho
+    simp only [ITon]
+    split
+    · rename_i h
+      constructor
+      · intro hv; injection hv with hv
+        exact ⟨x, y, z, hs, hp, ho, h.1, h.2.1, h.2.2, hv.symm⟩
+      · rintro ⟨x', y', z', hs', hp', ho', -, -, -, rfl⟩
+        rw [hs] at hs'; rw [hp] at hp'; rw [ho] at ho'
+        cases hs'; cases hp'; cases ho'; rfl
+    · rename_i h
+      simp only [reduceCtorEq, false_iff]
+      rintro ⟨x', y', z', hs', hp', ho', h1, h2, h3, -⟩
+      rw [hs] at hs'; rw [hp] at hp'; rw [ho] at ho'
+      cases hs'; cases hp'; cases ho'; exact h ⟨h1, h2, h3⟩
+  · rename_i hn
+    simp only [reduceCtorEq, false_iff]
+    rintro ⟨x, y, z, hs, hp, ho, -⟩
+    exact hn x y z hs hp ho
+
+/-- The denotation of a term is a resource, given a blank-node mapping into `IR`; a triple term's
+lands in `IR` by `IT_wt`. IRIs may denote properties that are not resources, so they are
+excluded. -/
+theorem denote_IR {A : BlankNode → I.Dom} (hA : ∀ b, I.IR (A b)) {t : Term} {v : I.Dom}
+    (ht : ∀ i, t ≠ .iri i) (h : I.denote A t = some v) : I.IR v := by
+  cases t with
+  | iri i => exact absurd rfl (ht i)
+  | bnode b => simp at h; subst h; exact hA b
+  | lit l => exact I.IL_wt l v h
+  | triple s p o =>
+    obtain ⟨x, y, z, -, -, -, hx, hy, hz, rfl⟩ := I.denote_triple.mp h
+    exact I.IT_wt x y z hx hy hz
+
+/-- `[I+A](s p o) = true` (RDF 1.2 Semantics §5): all three terms denote, `I(p)` is in `IP`
 and `⟨I(s), I(o)⟩ ∈ IEXT(I(p))`. Defined for generalized triples. -/
 def Holds (A : BlankNode → I.Dom) (t : Triple) : Prop :=
   ∃ s p o, I.denote A t.s = some s ∧ I.denote A t.p = some p ∧ I.denote A t.o = some o ∧

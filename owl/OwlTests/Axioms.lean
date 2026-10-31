@@ -8,7 +8,7 @@ import OwlTests.Model
 #print axioms LeanRDF.Owl.sameAs_iff
 
 -- @tg: verifies:: [[openspec:owl-rl#OWL soundness#Soundness theorem]] {level: unit}
-/-- info: 'LeanRDF.Owl.owlRules_sound' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'LeanRDF.Owl.owlRules_sound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms LeanRDF.Owl.owlRules_sound
 
@@ -25,7 +25,7 @@ import OwlTests.Model
 #print axioms LeanRDF.Owl.Tests.Model.type_not_sameAs
 
 -- @tg: verifies:: [[openspec:owl-el#EL soundness#Soundness theorem]] {level: unit}
-/-- info: 'LeanRDF.Owl.elRules_sound' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'LeanRDF.Owl.elRules_sound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms LeanRDF.Owl.elRules_sound
 

@@ -140,10 +140,10 @@ def canonicalDouble (f : Float) : String := Id.run do
 
 -- @tg: implements:: [[openspec:xsd-values#Lexical-to-value mapping]]
 /-- The lexical-to-value mapping of a literal: `none` for a lexical form outside its datatype's
-lexical space, for an out-of-range derived integer, for language-tagged literals and for every
-other datatype. -/
+lexical space, for an out-of-range derived integer, for language-tagged literals (directional or
+not) and for every other datatype. -/
 def _root_.LeanRDF.Literal.value? : Literal → Option XsdValue
-  | .lang _ _ => none
+  | .lang _ _ | .dirLang _ _ _ => none
   | .typed lex dt =>
     match localName? dt with
     | some "string" => some (.string lex)

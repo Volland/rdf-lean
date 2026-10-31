@@ -49,6 +49,8 @@ The RDFS entailment patterns are sound over generalized RDF, where any term may 
 
 A literal has a language tag if and only if its datatype IRI is `rdf:langString`; tags may be lowercased, and term equality compares them character by character.
 
+
+RDF 1.1 history since add-rdf12-core: [[constraints#Directional language-tagged strings]] replaces it, adding `rdf:dirLangString`.
 - source:: RDF 1.1 Concepts §3.3 (Literals)
 - constrains:: [[decisions#Literals are typed or language-tagged]] {strength: must}
 
@@ -63,6 +65,8 @@ An IRI in an RDF graph is a Unicode string conforming to RFC 3987, compared char
 
 N-Triples documents follow the `ntriplesDoc` grammar of RDF 1.1 N-Triples §7: absolute IRIs only, no prefixes or abbreviations; canonical output (§4) uses no UCHAR and ECHAR only for `"`, `\`, LF and CR.
 
+
+RDF 1.1 history since add-rdf12-core: [[constraints#RDF 1.2 N-Triples grammar]] replaces it; RDF 1.1 documents remain valid RDF 1.2 N-Triples.
 - source:: RDF 1.1 N-Triples (W3C Recommendation, 25 February 2014) §2, §4, §7
 - constrains:: [[decisions#N-Triples first, native Turtle later]] {strength: must}
 - constrains:: [[decisions#Canonical N-Triples output]] {strength: must}
@@ -78,6 +82,8 @@ Turtle documents follow the `turtleDoc` grammar of RDF 1.1 Turtle §6.5 and the 
 
 N-Quads documents follow the `nquadsDoc` grammar of RDF 1.1 N-Quads §5: N-Triples statements with an optional graph label, an IRI or a blank node, before the final dot.
 
+
+RDF 1.1 history since add-rdf12-core: [[constraints#RDF 1.2 N-Quads grammar]] replaces it.
 - source:: RDF 1.1 N-Quads (W3C Recommendation, 25 February 2014) §2, §5
 - constrains:: [[decisions#Datasets as sets of quads]] {strength: must}
 
@@ -274,7 +280,7 @@ A triple's subject is an IRI or blank node, its predicate an IRI, and its object
 Triple terms are equal when their triples are equal. A triple appears in a graph if it is asserted or occurs as a triple term, and a triple term is not asserted by occurring. Symmetric and generalized RDF (§7) relax the positions non-normatively.
 
 - source:: RDF 1.2 Concepts §3.1 (Triples), §3.6 (Triple Terms), §3.7 (Graph Comparison), §7.2 (Generalized RDF); Candidate Recommendation, 7 April 2026
-- constrains:: [[rdf12#Triple terms are a recursive Term constructor]] {strength: must}
+- constrains:: [[decisions#Triple terms are a recursive Term constructor]] {strength: must}
 - constrains:: [[statement-graphs#Reifier export is primary]] {strength: must}
 
 ## Directional language-tagged strings
@@ -282,15 +288,15 @@ Triple terms are equal when their triples are equal. A triple appears in a graph
 A literal with datatype `rdf:dirLangString` has a language tag and a base direction, `ltr` or `rtl`. Tags compare case-insensitively, and a tag is present exactly for `rdf:langString` and `rdf:dirLangString`.
 
 - source:: RDF 1.2 Concepts §3.4 (Literals) and §5 (Datatypes)
-- constrains:: [[rdf12#Directional literals are a third Literal constructor]] {strength: must}
+- constrains:: [[decisions#Directional literals are a third Literal constructor]] {strength: must}
 
 ## RDF 1.2 conformance levels
 
 Full conformance supports triple terms. Basic conformance supports only graphs and datasets without them. The version labels are `1.2`, `1.2-basic` and `1.1`, and each level's data is valid at the next.
 
 - source:: RDF 1.2 Concepts §2 (Conformance) and §2.1 (Version Labels)
-- constrains:: [[rdf12#Strict well-formedness is recursive; Triple stays generalized]] {strength: must}
-- constrains:: [[rdf12#Opaque pass-through downstream]] {strength: should}
+- constrains:: [[decisions#Strict well-formedness is recursive; Triple stays generalized]] {strength: must}
+- constrains:: [[decisions#Opaque pass-through downstream]] {strength: should}
 - constrains:: [[rdf12#Version announcements are hints]] {strength: should}
 
 ## Triple-term denotation
@@ -300,8 +306,8 @@ A simple interpretation has an injective `IT` from `IR × IP × IR` into `IR`. A
 The propositions of an interpretation are the image of `IT`.
 
 - source:: RDF 1.2 Semantics §5 (Simple Interpretations), §5.1 (Blank nodes), §5.3; Candidate Recommendation Draft, 24 September 2026
-- constrains:: [[rdf12#IT is part of SimpleInterp from the first change]] {strength: must}
-- constrains:: [[rdf12#Small models become free triple-term extensions]] {strength: must}
+- constrains:: [[decisions#IT is part of SimpleInterp from the first change]] {strength: must}
+- constrains:: [[decisions#Small models become free triple-term extensions]] {strength: must}
 
 ## RDF 1.2 N-Triples grammar
 
@@ -310,14 +316,14 @@ N-Triples 1.2 statements are triples or a case-sensitive `VERSION` directive. Ob
 Canonical N-Triples has no `VERSION`, lowercase `LANG_DIR` and single spaces inside triple terms. The version is a hint.
 
 - source:: RDF 1.2 N-Triples §3 (Canonical), §5.3 (Grammar), §6 (Parsing); Working Draft, 23 October 2026
-- constrains:: [[rdf12#N-Triples and N-Quads 1.2 move with the core]] {strength: must}
+- constrains:: [[decisions#N-Triples and N-Quads 1.2 move with the core]] {strength: must}
 
 ## RDF 1.2 N-Quads grammar
 
 N-Quads 1.2 is N-Triples 1.2 statements with an optional graph label, an IRI or a blank node, before the final dot.
 
 - source:: RDF 1.2 N-Quads; Working Draft, 10 October 2026
-- constrains:: [[rdf12#N-Triples and N-Quads 1.2 move with the core]] {strength: must}
+- constrains:: [[decisions#N-Triples and N-Quads 1.2 move with the core]] {strength: must}
 
 ## Turtle 1.2 grammar
 

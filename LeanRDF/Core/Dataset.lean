@@ -166,6 +166,14 @@ theorem graphNames_ofGraph {g : Graph} : (ofGraph g).graphNames = [] := by
   obtain ⟨t, ht⟩ := mem_graphNames.mp h
   simp [mem_ofGraph] at ht
 
+/-- No triple term occurs in the dataset, as a graph name included: the datasets of RDF 1.2
+Basic conformance (RDF 1.2 Concepts §2). -/
+def Basic (d : Dataset) : Prop := ∀ q, q ∈ d → q.triple.Basic ∧ ∀ n, q.g = some n → n.Basic
+
+instance (d : Dataset) : Decidable d.Basic :=
+  decidable_of_iff (∀ q ∈ d.toList, q.triple.Basic ∧ ∀ n ∈ q.g, n.Basic)
+    (by simp [Basic, Option.mem_def])
+
 end Dataset
 
 end LeanRDF

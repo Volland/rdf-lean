@@ -23,7 +23,7 @@ flowchart LR
   a -. "not asserted" .- b
 ```
 
-- defines:: [[rdf12#Triple terms are a recursive Term constructor]]
+- defines:: [[decisions#Triple terms are a recursive Term constructor]]
 
 ## Reifier
 
@@ -54,7 +54,7 @@ Data with no triple term anywhere: what RDF 1.2 Basic conformance supports, and 
 
 A Basic graph without directional literals serializes to the same canonical N-Triples as under RDF 1.1, so Basic is how RDF 1.1 guarantees survive inside the one RDF 1.2 model.
 
-- defines:: [[rdf12#Strict well-formedness is recursive; Triple stays generalized]]
+- defines:: [[decisions#Strict well-formedness is recursive; Triple stays generalized]]
 
 ## Statement record
 

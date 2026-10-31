@@ -109,4 +109,33 @@ theorem people_not_conform : ¬ DataConforms people (shapesOf nameShapes) := fun
   let (code, _) ← runCommand ["validate", "--data", "missing.ttl", "--shapes", "missing.ttl"]
   unless code == 3 do throw (IO.userError s!"a missing file gives exit {code}")
 
+/-! ## Triple terms -/
+
+/-- `ex:r rdf:reifies <<( ex:a ex:p ex:b )>>`, built directly: SHACL's own test data is Turtle,
+which reads triple terms only after `add-rdf12-syntax`. -/
+private def reifiedData : Graph := Graph.ofList
+  [⟨ex "r", .iri rdf.reifies, .triple (ex "a") (ex "p") (ex "b")⟩]
+
+private def reifiesShape (constraint : String) : List Shape := shapesOf (ttl
+  ("ex:S a sh:NodeShape ; sh:targetNode ex:r ; sh:property ex:P .\n" ++
+   "ex:P sh:path <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> ; " ++ constraint ++ " ."))
+
+-- @tg: verifies:: [[openspec:shacl-core#Triple terms in validation#nodeKind rejects a triple term]] {level: unit}
+#guard
+  let rep := validate reifiedData (reifiesShape "sh:nodeKind sh:BlankNodeOrIRI")
+  !rep.conforms && rep.results.length == 1 &&
+    rep.results.all fun r => r.component == ⟨"http://www.w3.org/ns/shacl#NodeKindConstraintComponent"⟩ &&
+      r.value == some (.triple (ex "a") (ex "p") (ex "b"))
+
+/-- `sh:hasValue` with a triple term: the shapes graph gets that triple added directly, for the
+same reason. -/
+private def hasValueShape : List Shape := shapesOf
+  (ttl ("ex:S a sh:NodeShape ; sh:targetNode ex:r ; sh:property ex:P .\n" ++
+    "ex:P sh:path <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> .") ∪
+   Graph.singleton ⟨ex "P", .iri ⟨"http://www.w3.org/ns/shacl#hasValue"⟩,
+     .triple (ex "a") (ex "p") (ex "b")⟩)
+
+-- @tg: verifies:: [[openspec:shacl-core#Triple terms in validation#hasValue matches a triple term]] {level: unit}
+#guard (validate reifiedData hasValueShape).conforms && hasValueShape.length == 1
+
 end LeanRDF.Shacl.Tests

@@ -11,7 +11,7 @@ import LeanRDF
 #guard_msgs in
 #print axioms LeanRDF.Derives.sound_graph
 
-/-- info: 'LeanRDF.rdfsRules_sound' depends on axioms: [propext, Quot.sound] -/
+/-- info: 'LeanRDF.rdfsRules_sound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in
 #print axioms LeanRDF.rdfsRules_sound
 

@@ -17,10 +17,10 @@ require «leanrdf-shacl» from git "https://github.com/Volland/rdf-lean" @ "main
 
 | Module | Main contents |
 |---|---|
-| `LeanRDF.Core.Term` | `IRI`, `BlankNode`, `Literal` (`typed`, `lang`), `Term` |
-| `LeanRDF.Core.Literal` | `Literal.datatype`, `mk?`, `lang'`, `str`, `WellFormed` |
-| `LeanRDF.Core.Triple` | `Triple`, `WellFormed`, `mk?`, `renameBNodes` |
-| `LeanRDF.Core.Graph` | `Graph`, `empty`, `insert`, `union`, `singleton`, `ofList`, `toList`, `size`, `mem_*` |
+| `LeanRDF.Core.Term` | `IRI`, `BlankNode`, `Direction`, `Literal` (`typed`, `lang`, `dirLang`), `Term` (`iri`, `bnode`, `lit`, `triple`), `Term.Basic` |
+| `LeanRDF.Core.Literal` | `Literal.datatype`, `mk?`, `lang'`, `dirLang'`, `direction?`, `str`, `WellFormed` |
+| `LeanRDF.Core.Triple` | `Triple`, `WellFormed` (strict RDF 1.2), `mk?`, `renameBNodes`, `toTerm`, `Basic`, `Term.asTriple?` |
+| `LeanRDF.Core.Graph` | `Graph`, `empty`, `insert`, `union`, `singleton`, `ofList`, `toList`, `size`, `mem_*`, `Basic`, `Basic_union` |
 | `LeanRDF.Core.Iso` | `Graph.Iso`, `Iso.refl` |
 | `LeanRDF.Core.Vocab` | `rdf.*`, `rdfs.*`, `xsd.string`, `rdf.member n` |
 | `LeanRDF.Parse.NTriples.*` | `NTriples.parse`, `parseTriples`, `parseTerm`, `ParseError`, `Graph.toNTriples`, `Term.toNTriples` |

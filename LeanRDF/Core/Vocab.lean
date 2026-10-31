@@ -46,6 +46,11 @@ def nil : IRI := mk "nil"
 def List : IRI := mk "List"
 /-- `rdf:langString`, the datatype of language-tagged literals (RDF 1.1 Semantics §8). -/
 def langString : IRI := mk "langString"
+/-- `rdf:dirLangString`, the datatype of directional language-tagged strings (RDF 1.2
+Semantics §8). -/
+def dirLangString : IRI := mk "dirLangString"
+/-- `rdf:reifies`, the predicate of reifying triples (RDF 1.2 Semantics §8, Concepts §1.5). -/
+def reifies : IRI := mk "reifies"
 /-- `rdf:Property` (RDF 1.1 Semantics §8). -/
 def Property : IRI := mk "Property"
 /-- `rdf:Statement` (RDFS axiomatic triples, RDF 1.1 Semantics §9.1). -/
@@ -97,6 +102,8 @@ def seeAlso : IRI := mk "seeAlso"
 def isDefinedBy : IRI := mk "isDefinedBy"
 /-- `rdfs:label` (RDF 1.1 Semantics §9). -/
 def label : IRI := mk "label"
+/-- `rdfs:Proposition`, the class of what triple terms denote (RDF 1.2 Semantics §9). -/
+def Proposition : IRI := mk "Proposition"
 
 end rdfs
 

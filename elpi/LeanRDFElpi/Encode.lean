@@ -5,7 +5,8 @@ import Elpi
 # Term encoding
 
 RDF terms and triples as Elpi terms, in the signature of `elpi/saturate.elpi`:
-`rdf.iri S`, `rdf.bnode L`, `rdf.typed Lex Dt`, `rdf.lang Lex Tag` and `rdf.t S P O`. Hand-written
+`rdf.iri S`, `rdf.bnode L`, `rdf.typed Lex Dt`, `rdf.lang Lex Tag`, `rdf.dirlang Lex Tag Dir`
+(`Dir` is `"ltr"` or `"rtl"`), the triple term `rdf.tt S P O` and the triple `rdf.t S P O`. Hand-written
 rather than derived, so that the Elpi names cannot clash with lean-elpi's own (`term`, `lit`).
 Decoding is untrusted: a malformed term is an error, and a wrong one is rejected by the checker.
 -/
@@ -19,12 +20,14 @@ private def app (n : String) (args : Array Elpi.Term) : Elpi.Term := .app (k n) 
 private def str (s : String) : Elpi.Term := .lit (.str s)
 
 -- @tg: implements:: [[openspec:elpi-bridge#Term encoding]]
-/-- An RDF term as an Elpi `rdfterm`. -/
+/-- An RDF term as an Elpi `rdfterm`; a triple term recursively as `rdf.tt`. -/
 def encodeTerm : Term → Elpi.Term
   | .iri i => app "rdf.iri" #[str i.val]
   | .bnode b => app "rdf.bnode" #[str b.label]
   | .lit (.typed lex dt) => app "rdf.typed" #[str lex, str dt.val]
   | .lit (.lang lex tag) => app "rdf.lang" #[str lex, str tag]
+  | .lit (.dirLang lex tag dir) => app "rdf.dirlang" #[str lex, str tag, str dir.toString]
+  | .triple s p o => app "rdf.tt" #[encodeTerm s, encodeTerm p, encodeTerm o]
 
 /-- A triple as an Elpi `rdftriple`. -/
 def encodeTriple (t : Triple) : Elpi.Term :=
@@ -40,7 +43,7 @@ private def getStr : Elpi.Term → Except String String
   | t => .error s!"expected a string, got {Elpi.showTerm t}"
 
 /-- Decode an Elpi `rdfterm`. -/
-def decodeTerm (t : Elpi.Term) : Except String Term :=
+partial def decodeTerm (t : Elpi.Term) : Except String Term :=
   match t with
   | .app h #[a] =>
     if isConst h "rdf.iri" then return .iri ⟨← getStr a⟩
@@ -49,6 +52,13 @@ def decodeTerm (t : Elpi.Term) : Except String Term :=
   | .app h #[a, b] =>
     if isConst h "rdf.typed" then return .lit (.typed (← getStr a) ⟨← getStr b⟩)
     else if isConst h "rdf.lang" then return .lit (.lang (← getStr a) (← getStr b))
+    else .error s!"not an RDF term: {Elpi.showTerm t}"
+  | .app h #[a, b, c] =>
+    if isConst h "rdf.dirlang" then do
+      match Direction.ofString? (← getStr c) with
+      | some dir => return .lit (.dirLang (← getStr a) (← getStr b) dir)
+      | none => .error s!"not a base direction: {Elpi.showTerm c}"
+    else if isConst h "rdf.tt" then return .triple (← decodeTerm a) (← decodeTerm b) (← decodeTerm c)
     else .error s!"not an RDF term: {Elpi.showTerm t}"
   | _ => .error s!"not an RDF term: {Elpi.showTerm t}"
 
@@ -76,5 +86,8 @@ def termSrc : Term → String
   | .bnode b => s!"(rdf.bnode {Elpi.quoteArg b.label})"
   | .lit (.typed lex dt) => s!"(rdf.typed {Elpi.quoteArg lex} {Elpi.quoteArg dt.val})"
   | .lit (.lang lex tag) => s!"(rdf.lang {Elpi.quoteArg lex} {Elpi.quoteArg tag})"
+  | .lit (.dirLang lex tag dir) =>
+    s!"(rdf.dirlang {Elpi.quoteArg lex} {Elpi.quoteArg tag} {Elpi.quoteArg dir.toString})"
+  | .triple s p o => s!"(rdf.tt {termSrc s} {termSrc p} {termSrc o})"
 
 end LeanRDF.Bridge

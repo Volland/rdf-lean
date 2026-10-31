@@ -4,8 +4,9 @@ import Lean.Data.Json
 /-!
 # SPARQL results from oxilite
 
-Read SPARQL 1.1 Query Results JSON (W3C Recommendation, 2013), the format of
-`oxilite query --results-format json`, into solution mappings. Terms are built with the Core
+Read SPARQL Query Results JSON (the 2013 Recommendation, with the RDF 1.2 `triple` bindings and
+`its:dir` of the SPARQL 1.2 drafts), the format of `oxilite query --results-format json`, into
+solution mappings. Terms are built with the Core
 smart constructors. Untrusted: a misread answer can only fail certification.
 -/
 
@@ -22,17 +23,27 @@ structure Results where
   solutions : List Solution
   deriving Inhabited
 
-/-- One RDF term binding (`uri`, `bnode`, `literal` with `xml:lang` or `datatype`, or the older
-`typed-literal`). -/
-def termOfBinding (j : Json) : Except String Term := do
+/-- One RDF term binding (`uri`, `bnode`, `literal` with `xml:lang` (and `its:dir`) or `datatype`,
+the older `typed-literal`, or `triple` with `subject`, `predicate` and `object` bindings). -/
+partial def termOfBinding (j : Json) : Except String Term := do
   let ty ← j.getObjValAs? String "type"
+  if ty == "triple" then
+    let v ← j.getObjVal? "value"
+    return .triple (← termOfBinding (← v.getObjVal? "subject"))
+      (← termOfBinding (← v.getObjVal? "predicate")) (← termOfBinding (← v.getObjVal? "object"))
   let v ← j.getObjValAs? String "value"
   match ty with
   | "uri" => return .iri ⟨v⟩
   | "bnode" => return .bnode ⟨v⟩
   | "literal" | "typed-literal" =>
     match j.getObjValAs? String "xml:lang" with
-    | .ok tag => return .lit (Literal.lang' v tag)
+    | .ok tag =>
+      match j.getObjValAs? String "its:dir" with
+      | .error _ => return .lit (Literal.lang' v tag)
+      | .ok d =>
+        match Direction.ofString? d with
+        | some dir => return .lit (Literal.dirLang' v tag dir)
+        | none => throw s!"literal \"{v}\" has an invalid base direction '{d}'"
     | .error _ =>
       match j.getObjValAs? String "datatype" with
       | .ok dt =>
@@ -43,7 +54,7 @@ def termOfBinding (j : Json) : Except String Term := do
   | t => throw s!"unknown binding type '{t}'"
 
 -- @tg: implements:: [[openspec:oxilite-bridge#Results reading]]
-/-- Parse a SPARQL 1.1 Query Results JSON document. -/
+/-- Parse a SPARQL Query Results JSON document. -/
 def parseResults (s : String) : Except String Results := do
   let j ← Json.parse s
   let vars ← (← j.getObjVal? "head").getObjValAs? (Array String) "vars"

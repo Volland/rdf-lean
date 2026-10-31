@@ -68,4 +68,33 @@ private def errorLine? (src : String) : Option Nat :=
 /- Labels may contain inner dots, and a 1-character label is fine before the final dot. -/
 #guard triples? "_:a.b <http://example/p> _:c." == some [⟨.bnode ⟨"a.b"⟩, ex "p", .bnode ⟨"c"⟩⟩]
 
+-- @tg: verifies:: [[openspec:ntriples#Document parsing#Version directive is a hint]] {level: unit}
+#guard triples? "VERSION \"1.2\"\n<http://example/s> <http://example/p> <http://example/o> ."
+    == some [⟨ex "s", ex "p", ex "o"⟩] &&
+  (triples? "VERSION \"1.2-basic\"\n<http://example/s> <http://example/p> <<( <http://example/a> <http://example/p> <http://example/b> )>> .").isSome
+
+-- @tg: verifies:: [[openspec:ntriples#Document parsing#Lowercase version is rejected]] {level: unit}
+#guard errorLine? "version \"1.2\"\n<http://example/s> <http://example/p> <http://example/o> ." == some 1
+
+-- @tg: verifies:: [[openspec:ntriples#Term syntax#Directional language tag]] {level: unit}
+#guard object? "\"Hello\"@EN--ltr" == some (.lit (.dirLang "Hello" "en" .ltr)) &&
+  object? "\"x\"@en--up" == none && object? "\"x\"@en--LTR" == none
+
+-- @tg: verifies:: [[openspec:ntriples#Term syntax#White space between literal tokens]] {level: unit}
+#guard object? "\"Alice\" @en" == some (.lit (.lang "Alice" "en")) &&
+  object? "\"2\" ^^ <http://www.w3.org/2001/XMLSchema#integer>"
+    == some (.lit (.typed "2" ⟨"http://www.w3.org/2001/XMLSchema#integer"⟩))
+
+-- @tg: verifies:: [[openspec:ntriples#Term syntax#Overlong subtag is rejected]] {level: unit}
+#guard rejects "<http://example/s> <http://example/p> \"Hello\"@cantbethislong ."
+
+-- @tg: verifies:: [[openspec:ntriples#Term syntax#Nested triple term object]] {level: unit}
+#guard object? "<<( <http://example/a> <http://example/p> <<( _:b <http://example/q> \"c\" )>> )>>"
+  == some (.triple (ex "a") (ex "p") (.triple (.bnode ⟨"b"⟩) (ex "q") (.lit (Literal.str "c"))))
+
+-- @tg: verifies:: [[openspec:ntriples#Term syntax#Triple term as subject is rejected]] {level: unit}
+#guard match parse "<<( <http://example/a> <http://example/p> <http://example/b> )>> <http://example/q> <http://example/c> ." with
+  | .error e => e.line == 1 && e.col == 1
+  | .ok _ => false
+
 end LeanRDF.Tests.NTriplesParse

@@ -12,4 +12,10 @@ example : LeanRDF.Vocab.rdfs.subClassOf = ⟨"http://www.w3.org/2000/01/rdf-sche
 example : LeanRDF.Vocab.rdf.member 3 = ⟨"http://www.w3.org/1999/02/22-rdf-syntax-ns#_3"⟩ := by
   decide
 
+-- @tg: verifies:: [[openspec:rdf-core#Vocabulary constants#RDF 1.2 vocabulary]] {level: unit}
+example : LeanRDF.Vocab.rdf.reifies = ⟨"http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies"⟩ ∧
+    LeanRDF.Vocab.rdf.dirLangString = ⟨"http://www.w3.org/1999/02/22-rdf-syntax-ns#dirLangString"⟩ ∧
+    LeanRDF.Vocab.rdfs.Proposition = ⟨"http://www.w3.org/2000/01/rdf-schema#Proposition"⟩ := by
+  decide
+
 end LeanRDF.Tests.Vocab

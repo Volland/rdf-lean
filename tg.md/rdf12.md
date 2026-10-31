@@ -19,139 +19,6 @@ flowchart LR
   core --> syntax --> sem --> sg
 ```
 
-## Triple terms are a recursive Term constructor
-
-`Term` gains `triple (s p o : Term)`, a direct recursive constructor rather than one holding a `Triple`, so `Term` and `Triple` are not mutually inductive and `deriving` keeps working.
-
-**Context.** RDF 1.2 Concepts makes a triple usable as a term. About 34 files in five packages match on `Term` exhaustively.
-
-**Decision.** `inductive Term | iri | bnode | lit | triple (s p o : Term)` with `DecidableEq`, `Hashable`, `Ord` and `Repr` derived. `Triple.toTerm` and `Term.asTriple?` convert. Rejected:
-- `triple (t : Triple)`, which brings mutual induction and hand-written instances;
-- a separate `Term12`, which means two models, with every proof needed twice;
-- a generic `Term α`, which changes every signature.
-
-**Consequences.** Every exhaustive match gains a case in one change. Blank-node renaming and isomorphism recurse into triple terms.
-
-- motivated_by:: [[constraints#RDF 1.2 triples and triple terms]] {weight: primary}
-- supersedes:: [[decisions#Generalized triples inside]] {reason: "Triple stays generalized, WellFormed becomes recursive"}
-- introduced_by:: [[changes#add-rdf12-core]]
-
-## Strict well-formedness is recursive; Triple stays generalized
-
-`Triple` still allows any term anywhere. `Triple.WellFormed` is the strict RDF 1.2 condition, recursive on the object, and `Basic` separately says "no triple term anywhere".
-
-**Context.** RDF 1.2 allows a triple term only as an object, and its subject must be an IRI or a blank node. Closure under rdfs14 needs triple terms in subject position.
-
-**Decision.** In a well-formed triple, the subject is an IRI or a blank node and the predicate is an IRI. The object is an IRI, a blank node, a literal, or `.triple s p o` with `⟨s, p, o⟩` well formed. Decidable `Term.Basic`, `Triple.Basic`, `Graph.Basic` and `Dataset.Basic` say "no triple term". Parsers build only well-formed triples.
-
-**Consequences.** A well-formed Basic triple is an RDF 1.1 triple, apart from directional literals. One model serves both RDF 1.2 Basic and RDF 1.2 Full conformance.
-
-- motivated_by:: [[constraints#Entailment rules use generalized RDF]] {weight: primary}
-- motivated_by:: [[constraints#RDF 1.2 conformance levels]]
-- introduced_by:: [[changes#add-rdf12-core]]
-
-## Directional literals are a third Literal constructor
-
-`Literal` gains `dirLang lex tag (dir : Direction)` with `Direction := ltr | rtl`, so each constructor has exactly one datatype: the given IRI, `rdf:langString` or `rdf:dirLangString`.
-
-**Context.** RDF 1.2 adds a base direction to language-tagged strings, with the datatype `rdf:dirLangString`. Tags compare case-insensitively.
-
-**Decision.** `Literal.mk?` rejects `typed _ rdf:dirLangString` as it rejects `typed _ rdf:langString`. Smart constructors lowercase tags. Value-level code reads the tag of `dirLang` like that of `lang`. Rejected:
-- an `Option Direction` on `lang`, which changes the arity of every pattern;
-- rejecting `--ltr`, which the W3C suites use.
-
-**Consequences.** No well-formedness hypothesis travels with literals. `"a"@EN--ltr` and `"a"@en--ltr` are one term.
-
-- motivated_by:: [[constraints#Directional language-tagged strings]] {weight: primary}
-- supersedes:: [[decisions#Literals are typed or language-tagged]]
-- introduced_by:: [[changes#add-rdf12-core]]
-
-## IT is part of SimpleInterp from the first change
-
-Simple interpretations gain an injective `IT` on `IR × IP × IR` into `IR`. A triple term denotes `IT` of its components only when they denote inside that domain, and has no referent otherwise.
-
-**Context.** `denote` must be total over the new `Term`. Leaving triple terms without a referent would make every graph that holds one unsatisfiable, so it would entail everything.
-
-**Decision.** `IT : Dom → Dom → Dom → Dom`, with injectivity and `IT_IR` on the domain. `denote` returns `some (IT x y z)` when the components denote `x`, `y`, `z` with `IR x ∧ IP y ∧ IR z`, decided classically, and `none` otherwise. `IL` on `dirLang` literals stays unconstrained until [[changes#add-rdf12-semantics]].
-
-**Consequences.** Existing soundness theorems keep their statements. `denote` is noncomputable, which [[decisions#Axiom-clean library]] allows. rdfs14 can be proven sound later, because every denoted triple term lies in the image of `IT` on its domain.
-
-```mermaid
-flowchart LR
-  tt["&lt;&lt;( s p o )&gt;&gt;"] --> ds{"denote s, p, o"}
-  ds -- "x ∈ IR, y ∈ IP, z ∈ IR" --> it["some (IT x y z) ∈ IR"]
-  ds -- "a component undefined<br/>or outside the domain" --> none["none: a triple using it is false"]
-```
-
-- motivated_by:: [[constraints#Triple-term denotation]] {weight: primary}
-- amends:: [[decisions#Single-carrier interpretations]] {note: "adds IT on the single carrier"}
-- introduced_by:: [[changes#add-rdf12-core]]
-
-## Small models become free triple-term extensions
-
-The vacuity models' carriers become `Free D := base d | tt x y z`, with `IT = tt`, because an injective `IT` has no finite model once `IR` has two elements.
-
-**Context.** Every countermodel in `Tests/Semantics/` is built over a finite carrier.
-
-**Decision.** `IR` is the old `IR` on `base` plus every `tt` whose components qualify. `IEXT` is the old relation on `base` and empty on `tt`. Injectivity of `IT` is constructor injectivity.
-
-**Consequences.** Every existing countermodel survives unchanged. The same family gives the countermodel for "a triple term is not asserted".
-
-- motivated_by:: [[constraints#Triple-term denotation]] {weight: primary}
-- amends:: [[decisions#Small-model family for vacuity]] {note: "carriers become Free D"}
-- introduced_by:: [[changes#add-rdf12-core]]
-
-## N-Triples and N-Quads 1.2 move with the core
-
-The N-Triples and N-Quads parsers and the canonical serializer move to RDF 1.2 in the core change, because certificates, bridges and fixtures all exchange terms in N-Triples.
-
-**Context.** [[decisions#Canonical N-Triples output]] makes N-Triples the shared term syntax. Opaque pass-through needs it to carry triple terms.
-
-**Decision.**
-- The parser gains `tripleTerm` objects and `LANG_DIR`, where a direction other than `ltr`/`rtl` is an error.
-- It also gains a case-sensitive `VERSION` directive, recorded and ignored.
-- The serializer writes canonical 1.2: lowercase `LANG_DIR`, single spaces inside `<<( … )>>`, no `VERSION`.
-
-**Consequences.** A Basic graph without directional literals serializes byte-identically to RDF 1.1, so the old round-trip tests run unchanged. The W3C RDF 1.2 `rdf-n-triples` (with `c14n`) and `rdf-n-quads` suites run.
-
-- motivated_by:: [[constraints#RDF 1.2 N-Triples grammar]] {weight: primary}
-- motivated_by:: [[constraints#RDF 1.2 N-Quads grammar]]
-- amends:: [[decisions#Canonical N-Triples output]] {note: "canonical 1.2 forms"}
-- amends:: [[decisions#Recursive-descent N-Triples parser]] {note: "tripleTerm, LANG_DIR, VERSION"}
-- introduced_by:: [[changes#add-rdf12-core]]
-
-## Opaque pass-through downstream
-
-Every downstream package accepts triple terms and directional literals with the least behaviour their specs define, and adds no RDF 1.2 features.
-
-**Context.** The interview deferred SPARQL 1.2 and wanted nothing to break on RDF 1.2 input.
-
-**Decision.**
-- Elpi encodes `rdf.tt` and `rdf.dirlang`, and certificates use N-Triples 1.2.
-- SPARQL binds triple terms and compares them by equality. `isIRI`, `isBlank` and `isLiteral` are false on them. Results use the RDF 1.2 result forms.
-- SHACL gives them no node kind.
-- OWL rules bind them like any term.
-- The oxilite bridge reads `triple` bindings.
-
-Rejected: rejecting non-Basic input at package boundaries, and a full SPARQL 1.2 upgrade now.
-
-**Consequences.** Downstream proofs gain a case and keep their statements. RDF 1.2 features above the data model come in later changes.
-
-```mermaid
-flowchart LR
-  T["Term.triple / Literal.dirLang"] --> NT["N-Triples 1.2"]
-  NT --> CJ["certificates JSON"]
-  T --> EL["elpi: rdf.tt, rdf.dirlang"]
-  NT --> SP["sparql: bind, compare, results"]
-  T --> SH["shacl: no node kind"]
-  T --> OW["owl: rules bind any term"]
-  NT --> OX["oxilite: triple bindings"]
-```
-
-- motivated_by:: [[constraints#RDF 1.2 conformance levels]] {weight: primary}
-- amends:: [[decisions#Hand-written Elpi term encoding]] {note: "rdf.tt and rdf.dirlang"}
-- introduced_by:: [[changes#add-rdf12-core]]
-
 ## Reification as sugar in the statement parser
 
 Reified triples and annotations are expanded while parsing, into `rdf:reifies` triples in the current graph. No reified-triple node exists in any data structure.
@@ -263,7 +130,7 @@ The RDFS proposition condition is transcribed one way, as its table row states i
 
 **Context.** §9's prose calls the class "exactly the set of propositions", but its condition is one-way. Quantifying over all of `IT`'s image would narrow the class of interpretations.
 
-**Decision.** `RDFSConditions.proposition` and `RDFSCore.proposition` over the domain. Rule soundness relies on `denote` giving triple terms referents only on that domain ([[rdf12#IT is part of SimpleInterp from the first change]]).
+**Decision.** `RDFSConditions.proposition` and `RDFSCore.proposition` over the domain. Rule soundness relies on `denote` giving triple terms referents only on that domain ([[decisions#IT is part of SimpleInterp from the first change]]).
 
 **Consequences.** Every denoted triple term is a proposition in every RDFS interpretation. That is exactly what rdfs14 needs, without strengthening the entailment relation beyond the spec's.
 

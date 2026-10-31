@@ -35,4 +35,18 @@ example : Graph.Iso (Graph.singleton ta) (Graph.singleton tb) := by
 -- @tg: verifies:: [[openspec:rdf-core#Blank node isomorphism#Isomorphism is reflexive]] {level: unit}
 example (g : Graph) : Graph.Iso g g := Graph.Iso.refl g
 
+private def reifies : Term := .iri LeanRDF.Vocab.rdf.reifies
+private def r : Term := .iri ⟨"http://example.org/r"⟩
+private def qa : Triple := ⟨r, reifies, .triple (.bnode a) p o⟩
+private def qb : Triple := ⟨r, reifies, .triple (.bnode b) p o⟩
+
+-- @tg: verifies:: [[openspec:rdf-core#Blank node isomorphism#Renaming reaches into triple terms]] {level: unit}
+example : qa.renameBNodes swap = qb ∧ Graph.Iso (Graph.singleton qa) (Graph.singleton qb) := by
+  refine ⟨by decide, swap, ⟨fun x y h => ?_, fun y => ⟨swap y, swap_swap y⟩⟩, fun t => ?_⟩
+  · rw [← swap_swap x, h, swap_swap]
+  · simp only [Graph.mem_singleton]
+    constructor
+    · rintro rfl; decide
+    · intro h; rw [← rename_rename t, h]; decide
+
 end LeanRDF.Tests.Iso
