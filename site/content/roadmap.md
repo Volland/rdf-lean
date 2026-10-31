@@ -37,6 +37,7 @@ Each phase below is an OpenSpec change, implemented, archived (`openspec/changes
 | R2 RDF 1.2 syntax | `add-rdf12-syntax` | `leanrdf` | Turtle and TriG 1.2: triple terms, reified triples, annotations | Done: W3C RDF 1.2 Turtle and TriG suites pass |
 | R3 RDF 1.2 semantics | `add-rdf12-semantics` | `leanrdf`, `leanrdf-elpi` | `rdf:dirLangString`, `rdfs:Proposition`, rdfs14 proven sound; simple and RDF regimes; `v0.2.0` | Done: 80 RDFS rules; 20 W3C RDF 1.2 semantics tests run (16 certified, 4 not derived), 9 listed as needing other datatypes |
 | S1 Statement graphs | `add-statement-graphs` | `leanrdf-statements` | tiramemsu's bitemporal records, an exact RDF 1.2 export, the export criterion and kernel proven; `v0.3.0` | Done: `decode_toRDF`, `toRDF_decode`, `criterion`, `kernel_greatest`; 406,901 small graphs checked exhaustively |
+| S2 tiramemsu alignment | `align-sg-with-tiramemsu` | `leanrdf-statements` | tiramemsu's `tm export --format sg-nt12` checked byte for byte; valid time as `tm:validFromMs`; `v0.3.1` | Done: 8 recorded tiramemsu exports decode and re-export exactly |
 
 ## Proven, not just certified
 
@@ -44,4 +45,4 @@ A certificate proves that a found answer is right. It cannot prove that nothing 
 
 ## Later
 
-A matching `tm export --format sg-nt12` in tiramemsu, so the statement-graph goldens are cross-checked against the store. Certificates for oxilite's Datalog programs, SHACL-SPARQL, a SPARQL HTTP endpoint, certifying oxilite's SPARQL-to-SQL translation itself, an ALC tableau, and lean-elpi's LF proof terms as a second certificate backend.
+Certificates for oxilite's Datalog programs, SHACL-SPARQL, a SPARQL HTTP endpoint, certifying oxilite's SPARQL-to-SQL translation itself, an ALC tableau, and lean-elpi's LF proof terms as a second certificate backend.

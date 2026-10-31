@@ -171,8 +171,8 @@ def recordAt (ts : List Triple) (e : Nat) : Option Record := do
   let tx ← (findMeta ts e tm.txAdded).bind (litNat? ·.o)
   some { eid := e, s := nodeOf s', p, o := nodeOf o', txAdded := tx
          txRetracted := (findMeta ts e tm.txRetracted).bind (litNat? ·.o)
-         validFrom := (findMeta ts e tm.validFrom).bind (litInt? ·.o)
-         validTo := (findMeta ts e tm.validTo).bind (litInt? ·.o) }
+         validFrom := (findMeta ts e tm.validFromMs).bind (litInt? ·.o)
+         validTo := (findMeta ts e tm.validToMs).bind (litInt? ·.o) }
 
 /-- Why `g` is not the export of `sg`: a triple of `g` it lacks, or one of its own `g` lacks. -/
 def mismatch (v : View) (sg : StatementGraph) (g : Graph) : String :=
@@ -276,8 +276,8 @@ private theorem metaPreds_iri {P : IRI} (h : P ∈ metaPreds) : isMeta (.iri P) 
 private theorem clock_pred {r : Record} {t : Triple} (hc : t ∈ r.clocks) :
     (t.p = .iri tm.txAdded → t = ⟨r.stmt, .iri tm.txAdded, intLit r.txAdded⟩) ∧
     (t.p = .iri tm.txRetracted → ∃ d, r.txRetracted = some d ∧ t = ⟨r.stmt, .iri tm.txRetracted, intLit d⟩) ∧
-    (t.p = .iri tm.validFrom → ∃ d, r.validFrom = some d ∧ t = ⟨r.stmt, .iri tm.validFrom, intLit d⟩) ∧
-    (t.p = .iri tm.validTo → ∃ d, r.validTo = some d ∧ t = ⟨r.stmt, .iri tm.validTo, intLit d⟩) ∧
+    (t.p = .iri tm.validFromMs → ∃ d, r.validFrom = some d ∧ t = ⟨r.stmt, .iri tm.validFromMs, intLit d⟩) ∧
+    (t.p = .iri tm.validToMs → ∃ d, r.validTo = some d ∧ t = ⟨r.stmt, .iri tm.validToMs, intLit d⟩) ∧
     t.p ≠ .iri rdf.reifies := by
   simp only [Record.clocks, List.mem_cons, List.mem_append, List.mem_map, Option.mem_toList] at hc
   rcases hc with ((rfl | ⟨d, hd, rfl⟩) | ⟨d, hd, rfl⟩) | ⟨d, hd, rfl⟩ <;>
@@ -355,8 +355,8 @@ private theorem recordAt_toRDF (hw : sg.WellFormed) {r : Record} (hr : r ∈ sg.
         | some d =>
           rw [hd] at hy; cases hy
           exact ⟨.inr (by simp [Record.clocks, hd]), rfl⟩)
-  have hvf : findMeta (sg.toRDF v).toList r.eid tm.validFrom =
-      r.validFrom.map fun d => ⟨r.stmt, .iri tm.validFrom, intLit d⟩ :=
+  have hvf : findMeta (sg.toRDF v).toList r.eid tm.validFromMs =
+      r.validFrom.map fun d => ⟨r.stmt, .iri tm.validFromMs, intLit d⟩ :=
     findMeta_eq hw hr (by decide) _ (fun x hx hp => by
       rcases hx with rfl | hx
       · exact absurd hp (by rw [reifying_p]; decide)
@@ -367,8 +367,8 @@ private theorem recordAt_toRDF (hw : sg.WellFormed) {r : Record} (hr : r ∈ sg.
         | some d =>
           rw [hd] at hy; cases hy
           exact ⟨.inr (by simp [Record.clocks, hd]), rfl⟩)
-  have hvt : findMeta (sg.toRDF v).toList r.eid tm.validTo =
-      r.validTo.map fun d => ⟨r.stmt, .iri tm.validTo, intLit d⟩ :=
+  have hvt : findMeta (sg.toRDF v).toList r.eid tm.validToMs =
+      r.validTo.map fun d => ⟨r.stmt, .iri tm.validToMs, intLit d⟩ :=
     findMeta_eq hw hr (by decide) _ (fun x hx hp => by
       rcases hx with rfl | hx
       · exact absurd hp (by rw [reifying_p]; decide)

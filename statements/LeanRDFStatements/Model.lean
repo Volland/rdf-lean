@@ -142,14 +142,15 @@ namespace tm
 def txAdded : IRI := ⟨tmNS ++ "txAdded"⟩
 /-- `tm:txRetracted`: the transaction that retracted the record. -/
 def txRetracted : IRI := ⟨tmNS ++ "txRetracted"⟩
-/-- `tm:validFrom`: the start of the valid-time interval, epoch milliseconds. -/
-def validFrom : IRI := ⟨tmNS ++ "validFrom"⟩
-/-- `tm:validTo`: the end of the valid-time interval, epoch milliseconds. -/
-def validTo : IRI := ⟨tmNS ++ "validTo"⟩
+/-- `tm:validFromMs`: the start of the valid-time interval, epoch milliseconds. tiramemsu's own
+`tm:validFrom` is an `xsd:dateTime`, so the export uses a name of its own. -/
+def validFromMs : IRI := ⟨tmNS ++ "validFromMs"⟩
+/-- `tm:validToMs`: the end of the valid-time interval, epoch milliseconds. -/
+def validToMs : IRI := ⟨tmNS ++ "validToMs"⟩
 end tm
 
 /-- The predicates the export uses for its own triples. -/
-def metaPreds : List IRI := [rdf.reifies, tm.txAdded, tm.txRetracted, tm.validFrom, tm.validTo]
+def metaPreds : List IRI := [rdf.reifies, tm.txAdded, tm.txRetracted, tm.validFromMs, tm.validToMs]
 
 /-- An IRI in the statement namespace. -/
 def isStmtIRI (i : IRI) : Bool := i.val.toList.take stmtNS.length == stmtNS.toList

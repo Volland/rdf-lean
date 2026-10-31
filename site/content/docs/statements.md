@@ -64,10 +64,21 @@ For each record `e`, with every reference to eid `n` written as `<urn:tiramemsu:
 |---|---|
 | `stmt:e rdf:reifies <<( s p o )>>` | always |
 | `stmt:e tm:txAdded N` | always |
-| `stmt:e tm:txRetracted N`, `tm:validFrom N`, `tm:validTo N` | when the record has them |
+| `stmt:e tm:txRetracted N`, `tm:validFromMs N`, `tm:validToMs N` | when the record has them |
 | `s p o` | when the record is live in the view |
 
-`tm:` is `urn:tiramemsu:tm:`, and every clock is an `xsd:integer`. The output is canonical RDF 1.2 N-Triples. tiramemsu's own `tm export` does not write this format yet, so the golden files in `statements/StatementsTests/data/golden/` are marked "pending tm cross-check".
+`tm:` is `urn:tiramemsu:tm:`, and every clock is an `xsd:integer`. The output is canonical RDF 1.2 N-Triples. Valid time uses `tm:validFromMs` and `tm:validToMs` because tiramemsu's own `tm:validFrom` and `tm:validTo` are `xsd:dateTime` virtual predicates; v0.3.0 used those names, and v0.3.1 renamed them.
+
+## Checking tiramemsu's export
+
+tiramemsu writes this format itself:
+
+```bash
+tm export memory.db --format sg-nt12 --history > memory.nt
+cd statements && lake exe leanrdf-sg decode ../memory.nt --history
+```
+
+`decode` accepts a file only if it is exactly the export of a well-formed statement graph (`toRDF_decode`). `statements/StatementsTests/data/tm/` holds exports recorded from tiramemsu's tests. `lake test` checks that each one decodes in its view and exports back byte for byte, and `scripts/statements-tm-record.sh TIRAMEMSU` records them again.
 
 ## Limits
 

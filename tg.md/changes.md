@@ -180,3 +180,11 @@ S1: package `leanrdf-statements`, adding bitemporal statement records, views, th
 Capabilities `statement-graphs` and `release`. Depends on [[changes#add-rdf12-semantics]]. See [[decisions]] and [[concepts]].
 
 - status:: archived
+
+## align-sg-with-tiramemsu
+
+S2: valid time exported as `tm:validFromMs` and `tm:validToMs`, apart from tiramemsu's `xsd:dateTime` virtual predicates; tiramemsu's `tm export --format sg-nt12` recorded and checked byte for byte. Release v0.3.1.
+
+Capabilities `statement-graphs` and `release`. Depends on [[changes#add-statement-graphs]]. See [[decisions#Valid time under its own names]].
+
+- status:: archived

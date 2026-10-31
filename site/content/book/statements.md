@@ -83,6 +83,8 @@ A quoted triple can sit in subject position, so the result is generalized RDF 1.
 
 The paper's abstract Lean development is vendored into `statements/LeanRDFStatements/Abstract/` unchanged except for imports, with its DOI and source commit. The concrete layer instantiates it with `Term` for leaves and labels and `Nat` for eids. Everything uses only the three standard axioms. An exhaustive check in `lake test` runs all 406,901 statement graphs of at most four records over a small alphabet. For each one it compares `kernel` with brute force, `quote` with the kernel, and `decode` with `toRDF` in three views.
 
+tiramemsu now writes this format itself, with `tm export --format sg-nt12`, in the same order and with the same escapes. LeanRDF's tests decode tiramemsu's recorded exports and reproduce them byte for byte, so the Rust exporter and the Lean definition are checked against each other on every build.
+
 Try it on [`examples/statement-graphs/`](https://github.com/Volland/rdf-lean/tree/main/examples/statement-graphs), a flight route whose distance was corrected:
 
 ```bash

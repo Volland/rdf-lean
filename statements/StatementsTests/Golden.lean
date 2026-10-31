@@ -30,6 +30,38 @@ def runGoldens : IO Nat := do
 #guard_msgs in
 #eval runGoldens
 
+private def tmDir : System.FilePath := "StatementsTests/data/tm"
+
+/-- tiramemsu's recorded `tm export --format sg-nt12` files (`StatementsTests/data/tm`, recorded by
+`scripts/statements-tm-record.sh`): each must decode in its view and export back byte for byte.
+The number checked, or throw. -/
+def runTm : IO Nat := do
+  let mut fails : Array String := #[]
+  let mut n := 0
+  for line in ← IO.FS.lines (tmDir / "index.txt") do
+    match line.splitOn " " with
+    | file :: flags =>
+      n := n + 1
+      let src ← IO.FS.readFile (tmDir / file)
+      let some v := Cli.parseView flags {} | fails := fails.push s!"{file}: bad view {flags}"
+      match NTriples.parse src with
+      | .error e => fails := fails.push s!"{file}: does not parse: {e}"
+      | .ok g =>
+        match decode v g with
+        | .error e => fails := fails.push s!"{file}: rejected: {e}"
+        | .ok sg =>
+          unless (sg.toRDF v).toNTriples.toOption == some src do
+            fails := fails.push s!"{file}: decodes, but exports back differently"
+    | _ => pure ()
+  unless fails.isEmpty do
+    throw <| IO.userError s!"{fails.size} tiramemsu export(s) fail:\n{"\n".intercalate fails.toList}"
+  return n
+
+-- @tg: verifies:: [[openspec:statement-graphs#Statement graph test corpus#tiramemsu exports round-trip]] {level: integration}
+/-- info: 8 -/
+#guard_msgs in
+#eval runTm
+
 -- @tg: verifies:: [[openspec:statement-graphs#Statement graph command line#Export from the command line]] {level: e2e}
 /-- info: (0, 6) -/
 #guard_msgs in

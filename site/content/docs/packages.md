@@ -16,7 +16,7 @@ LeanRDF is split into packages so that you build only what you use. A Lake `requ
 | `leanrdf-statements` | `statements/` | `leanrdf` | tiramemsu's bitemporal statement records, their exact RDF 1.2 export and decoder, the Statement Graph criterion, the export kernel, history closure, the quoting view and `leanrdf-sg` |
 | `leanrdf-elpi` | `elpi/` | `leanrdf`, `leanrdf-owl`, lean-elpi v0.3.3 | Elpi saturation from the proven rules, certificates from closures, `leanrdf-demo`, `leanrdf-oxilite` and `leanrdf-classify` |
 
-All packages use Lean 4.35.0, are version 0.3.0 and are licensed MIT OR Apache-2.0.
+All packages use Lean 4.35.0, are version 0.3.1 and are licensed MIT OR Apache-2.0.
 
 ## Depending on LeanRDF
 
@@ -36,7 +36,7 @@ require «leanrdf-statements» from git "https://github.com/Volland/rdf-lean" @ 
 require «leanrdf-elpi» from git "https://github.com/Volland/rdf-lean" @ "main" / "elpi"
 ```
 
-Use the same `lean-toolchain` as LeanRDF (`leanprover/lean4:v4.35.0`), then run `lake update` and `lake build`. Pin a commit hash instead of `main` for reproducible builds. The tag `v0.1.0` marks the first release, which had the core and Elpi packages only; `v0.2.0` moved every package to RDF 1.2, and `v0.3.0` added `leanrdf-statements`.
+Use the same `lean-toolchain` as LeanRDF (`leanprover/lean4:v4.35.0`), then run `lake update` and `lake build`. Pin a commit hash instead of `main` for reproducible builds. The tag `v0.1.0` marks the first release, which had the core and Elpi packages only; `v0.2.0` moved every package to RDF 1.2, `v0.3.0` added `leanrdf-statements`, and `v0.3.1` aligned it with tiramemsu.
 
 ## Imports
 

@@ -4,7 +4,7 @@
 Offline checks (run in CI): licence files and README, package metadata in both lakefiles, the
 CI workflow's jobs and the Pages workflow's action versions. With `--online` it also asks GitHub,
 through `gh`, that the repository is public, that the latest CI run on `main` succeeded and that
-the `v0.1.0`, `v0.2.0` and `v0.3.0` releases exist.
+the `v0.1.0`, `v0.2.0`, `v0.3.0` and `v0.3.1` releases exist.
 Usage: python3 scripts/check_release.py [--online]
 """
 import json, re, subprocess, sys
@@ -12,8 +12,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "Volland/rdf-lean"
-VERSION = "0.3.0"
-RELEASES = ("0.1.0", "0.2.0", "0.3.0")
+VERSION = "0.3.1"
+RELEASES = ("0.1.0", "0.2.0", "0.3.0", "0.3.1")
 PACKAGES = ("lakefile.lean", "elpi/lakefile.lean", "sparql/lakefile.lean", "owl/lakefile.lean",
             "shacl/lakefile.lean", "statements/lakefile.lean")
 LICENCE = "MIT OR Apache-2.0"
@@ -79,6 +79,8 @@ def gh(*args):
 # @tg: implements:: [[openspec:release#Statement graphs release]] {note: "checks the release made with gh"}
 # @tg: verifies:: [[openspec:release#RDF 1.2 release#Release v0.2.0 exists]] {level: e2e}
 # @tg: verifies:: [[openspec:release#Statement graphs release#Release v0.3.0 exists]] {level: e2e}
+# @tg: implements:: [[openspec:release#tiramemsu alignment release]] {note: "checks the release made with gh"}
+# @tg: verifies:: [[openspec:release#tiramemsu alignment release#Release v0.3.1 exists]] {level: e2e}
 def check_online():
     errs = []
     if json.loads(gh("repo", "view", REPO, "--json", "visibility"))["visibility"] != "PUBLIC":

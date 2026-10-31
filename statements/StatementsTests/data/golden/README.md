@@ -12,7 +12,8 @@ compares the output byte for byte.
 | `replay-cycle.jsonl` | a correction replay whose two records reference each other, and a record with a valid-time interval |
 | `dangling-snapshot.jsonl` | a snapshot whose records reference a retracted record no longer present |
 
-**Status: pending tm cross-check.** These outputs are LeanRDF's reference export, written by hand
-from the paper's examples and checked by eye. tiramemsu's `tm export` does not yet write this
-format; once `tm export --format sg-nt12` exists, the goldens are to be regenerated from tiramemsu
-stores and compared with these files.
+These outputs are LeanRDF's reference export, written by hand from the paper's examples. tiramemsu
+now writes the format (`tm export --format sg-nt12`): its export of the route store is byte-identical
+to `routes.now.nt` and `routes.history.nt`, and its recorded exports in `../tm/` are checked to
+decode and export back byte for byte. The other goldens use eids and transactions that tiramemsu's
+write rules do not produce (a two-cycle, a snapshot), so they stay hand-written.

@@ -6,7 +6,7 @@ import LeanRDFStatements.View
 A statement graph as an RDF 1.2 graph. Each record `e` becomes:
 - `<urn:tiramemsu:stmt:e> rdf:reifies <<( s' p o' )>>`, where an eid reference `x` in subject
   or object becomes `<urn:tiramemsu:stmt:x>`;
-- its clocks, `tm:txAdded` always and `tm:txRetracted`, `tm:validFrom`, `tm:validTo` when
+- its clocks, `tm:txAdded` always and `tm:txRetracted`, `tm:validFromMs`, `tm:validToMs` when
   present, as `xsd:integer` literals (valid times in epoch milliseconds);
 - the base triple `s' p o'` exactly when the record is live in the view.
 
@@ -47,8 +47,8 @@ def reifying (r : Record) : Triple := ⟨r.stmt, .iri rdf.reifies, r.base.toTerm
 def clocks (r : Record) : List Triple :=
   ⟨r.stmt, .iri tm.txAdded, intLit r.txAdded⟩ ::
     (r.txRetracted.toList.map fun d => ⟨r.stmt, .iri tm.txRetracted, intLit d⟩) ++
-    (r.validFrom.toList.map fun d => ⟨r.stmt, .iri tm.validFrom, intLit d⟩) ++
-    (r.validTo.toList.map fun d => ⟨r.stmt, .iri tm.validTo, intLit d⟩)
+    (r.validFrom.toList.map fun d => ⟨r.stmt, .iri tm.validFromMs, intLit d⟩) ++
+    (r.validTo.toList.map fun d => ⟨r.stmt, .iri tm.validToMs, intLit d⟩)
 
 /-- The triples the export writes for one record in a view. -/
 def triples (v : View) (r : Record) : List Triple :=
@@ -62,7 +62,7 @@ theorem mem_triples {v : View} {r : Record} {t : Triple} :
 /-- A clock triple has the record's statement IRI as subject, a time predicate and an integer
 literal as object. -/
 theorem mem_clocks {r : Record} {t : Triple} (h : t ∈ r.clocks) :
-    t.s = r.stmt ∧ ∃ (P : IRI) (n : Int), P ∈ [tm.txAdded, tm.txRetracted, tm.validFrom, tm.validTo] ∧
+    t.s = r.stmt ∧ ∃ (P : IRI) (n : Int), P ∈ [tm.txAdded, tm.txRetracted, tm.validFromMs, tm.validToMs] ∧
       t.p = .iri P ∧ t.o = intLit n := by
   simp only [clocks, List.mem_cons, List.mem_append, List.mem_map, Option.mem_toList] at h
   rcases h with ((rfl | ⟨d, -, rfl⟩) | ⟨d, -, rfl⟩) | ⟨d, -, rfl⟩

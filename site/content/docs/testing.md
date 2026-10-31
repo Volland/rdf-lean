@@ -15,7 +15,7 @@ Tests in LeanRDF are mostly Lean code that must compile: `#guard` checks evaluat
 | `leanrdf-sparql` | `SparqlTests` | mappings and the algebra semantics; the evaluator against the semantics; the parser; the W3C SPARQL 1.1 query suite (syntax and evaluation); the guide examples |
 | `leanrdf-owl` | `OwlTests` | the OWL model and countermodels; OWL 2 RL and EL certificates; rule counts; axiom guards |
 | `leanrdf-shacl` | `shaclW3C` | shape reading and the semantics on scenarios; the oxilite comparison; axiom guards; the guide examples; then the W3C SHACL Core suite as compiled code |
-| `leanrdf-statements` | `statementsTests` | every spec scenario; golden exports per view; the `leanrdf-sg` scenarios; the guide example; then, compiled, an exhaustive check over all 406,901 statement graphs of at most four records (kernel against brute force, quoting, `decode` against `toRDF`) |
+| `leanrdf-statements` | `statementsTests` | every spec scenario; golden exports per view; tiramemsu's recorded `tm export --format sg-nt12` files, decoded and exported back byte for byte; the `leanrdf-sg` scenarios; the guide example; then, compiled, an exhaustive check over all 406,901 statement graphs of at most four records (kernel against brute force, quoting, `decode` against `toRDF`) |
 | `leanrdf-elpi` | `BridgeTests` | Elpi encoding and decoding; saturation, including cycles; every RDFS rule through Elpi; end-to-end certificates; the demo; oxilite replay under RDFS and OWL; classification; the custom-rule example |
 
 Scenario tests carry `@tg: verifies::` annotations that point to the OpenSpec scenario they prove, so `tg trace --gaps` reports any scenario that no test proves.

@@ -9,7 +9,7 @@ checker never build lean-elpi. -/
 -- @tg: implements:: [[openspec:release#Release version]]
 package leanrdf where
   testDriver := "Tests"
-  version := v!"0.3.0"
+  version := v!"0.3.1"
   description := "Native RDF 1.2 model with formal entailment semantics and a verified certificate checker."
   keywords := #["rdf", "rdfs", "semantic-web", "knowledge-graph", "certificates"]
   homepage := "https://volland.github.io/rdf-lean/"

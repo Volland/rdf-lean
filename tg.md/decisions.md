@@ -999,10 +999,25 @@ All four clocks are exported as `xsd:integer` literals: transaction numbers as t
 
 **Decision.** Integer literals, whose round trip is `parseInteger_canonical`, already proven in the core. Chosen by the user on 2026-10-31 over proving the calendar (open-ended) and over a tested-only date codec (the decoder theorems would rest on an unproven lemma).
 
-**Consequences.** Both decoder theorems are proven with no hypothesis about dates. Readers that want dates convert the milliseconds.
+**Consequences.** Both decoder theorems are proven with no hypothesis about dates. Readers that want dates convert the milliseconds. The names of the two valid-time predicates changed in v0.3.1; see [[decisions#Valid time under its own names]].
 
 - motivated_by:: [[constraints#tiramemsu record model]]
 - introduced_by:: [[changes#add-statement-graphs]]
+- changed_by:: [[changes#align-sg-with-tiramemsu]]
+
+## Valid time under its own names
+
+Valid time is exported as `tm:validFromMs` and `tm:validToMs`, not `tm:validFrom` and `tm:validTo`.
+
+**Context.** In tiramemsu's SPARQL and Cypher, `tm:validFrom` and `tm:validTo` are virtual predicates whose values are `xsd:dateTime`. v0.3.0 used the same IRIs for `xsd:integer` milliseconds, so one IRI had two datatypes. This came to light when tiramemsu implemented the export.
+
+**Decision.** Rename the export's two predicates, and reserve the new names in `WellFormed`. The user chose this on 2026-10-31, over keeping the integer meaning on `tm:validFrom` and over proving a calendar codec so that the export could use `xsd:dateTime`. The transaction predicates already agreed and are unchanged.
+
+**Consequences.** No IRI means two things across the two systems. This is a format change in a patch release, recorded in the v0.3.1 notes. No proof changed beyond the names.
+
+- motivated_by:: [[decisions#Clocks are integer literals]] {note: "keeps its integers, renames two predicates"}
+- motivated_by:: [[constraints#tiramemsu record model]]
+- introduced_by:: [[changes#align-sg-with-tiramemsu]]
 
 ## Executable kernel proven against K
 
@@ -1044,13 +1059,13 @@ flowchart LR
 
 ## LeanRDF's export is the reference format
 
-LeanRDF's `toRDF` (the export; `export` is a Lean keyword) defines the RDF 1.2 form of a tiramemsu store. tiramemsu later adds a matching `tm export`, and until then the goldens are hand-written and tagged `pending tm cross-check`.
+LeanRDF's `toRDF` (the export; `export` is a Lean keyword) defines the RDF 1.2 form of a tiramemsu store. tiramemsu follows it with `tm export --format sg-nt12`, and LeanRDF checks tiramemsu's recorded exports byte for byte.
 
-**Context.** `tm export` writes only live, flat statements today: no reifiers, no `stmt:` names and no clocks.
+**Context.** Before v0.3.1, `tm export` wrote only live, flat statements: no reifiers, no `stmt:` names and no clocks.
 
-**Decision.** The spec in `openspec/specs/statement-graphs` is the contract. A script later regenerates the goldens from `tm` and diffs them.
+**Decision.** The spec in `openspec/specs/statement-graphs` is the contract. tiramemsu copies LeanRDF's triple order and string escapes. `scripts/statements-tm-record.sh` records the outputs of tiramemsu's export tests into `statements/StatementsTests/data/tm/`. `lake test` decodes each one in its view and requires the re-export to equal it byte for byte.
 
-**Consequences.** No blocking dependency on the Rust side. LeanRDF plays the same role towards tiramemsu as towards oxilite.
+**Consequences.** The Rust exporter and the Lean definition are checked against each other on every build, with no Rust toolchain in LeanRDF's CI. tiramemsu's route export equals the hand-written golden. LeanRDF plays the same role towards tiramemsu as towards oxilite.
 
 - motivated_by:: [[decisions#LeanRDF is the proof layer for oxilite]] {note: "same role towards tiramemsu"}
 - introduced_by:: [[changes#add-statement-graphs]]

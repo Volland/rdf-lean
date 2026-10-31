@@ -27,7 +27,7 @@ Statement graphs in LeanRDF: tiramemsu's bitemporal statement records over RDF 1
 - it does not reference its own eid;
 - `txAdded < txRetracted` when retracted, and `validFrom < validTo` when both are present;
 - no IRI in its content, at any depth of a triple term, starts with `urn:tiramemsu:stmt:`;
-- its predicate is not `rdf:reifies`, `tm:txAdded`, `tm:txRetracted`, `tm:validFrom` or `tm:validTo`.
+- its predicate is not `rdf:reifies`, `tm:txAdded`, `tm:txRetracted`, `tm:validFromMs` or `tm:validToMs`.
 
 `check` SHALL report every violation with the eid and the rule broken.
 
@@ -68,7 +68,7 @@ Liveness SHALL be decidable.
 `export v sg` SHALL be the RDF 1.2 graph containing, for every record `e` of `sg`:
 - `<urn:tiramemsu:stmt:e> rdf:reifies <<( s' p o' )>>`, where an eid reference `x` in subject or object becomes `<urn:tiramemsu:stmt:x>`;
 - `tm:txAdded` with an `xsd:integer`, and `tm:txRetracted` when present;
-- `tm:validFrom` and `tm:validTo` with `xsd:integer` epoch milliseconds when present;
+- `tm:validFromMs` and `tm:validToMs` with `xsd:integer` epoch milliseconds when present; tiramemsu's `tm:validFrom` and `tm:validTo` are `xsd:dateTime` virtual predicates and are not used;
 - the base triple `s' p o'` exactly when `e` is live in `v`.
 
 The `tm:` prefix SHALL be `urn:tiramemsu:tm:`. For a well-formed statement graph, every triple of the export SHALL be RDF 1.2 well formed, whether or not the graph is closed or acyclic.
@@ -187,7 +187,8 @@ Input SHALL be JSON lines, one record per line: `eid`, `s`, `p`, `o` (a term in 
 ### Requirement: Statement graph test corpus
 `lake test` in `statements/` SHALL run:
 - the scenarios above;
-- golden files, each a JSON-lines input with its expected N-Triples export per view, taken from the paper's examples and tiramemsu's test stores and marked `pending tm cross-check` until tiramemsu can produce them;
+- golden files, each a JSON-lines input with its expected N-Triples export per view, taken from the paper's examples;
+- tiramemsu's recorded exports: files written by `tm export --format sg-nt12` from tiramemsu's test stores, each with its view, which SHALL decode in that view and export back byte for byte;
 - an exhaustive check over every statement graph of at most four records over a small term alphabet and interval set, covering `decode ∘ export`, `kernel` against brute force, `WellFormed` of every export, and `quote` against the kernel.
 
 #### Scenario: Goldens
@@ -197,3 +198,7 @@ Input SHALL be JSON lines, one record per line: `eid`, `s`, `p`, `o` (a term in 
 #### Scenario: Exhaustive small graphs
 - **WHEN** the exhaustive check runs
 - **THEN** every enumerated graph passes all four properties, and the number of graphs checked is printed
+
+#### Scenario: tiramemsu exports round-trip
+- **WHEN** each recorded `tm export --format sg-nt12` file is decoded in its view and the result exported in the same view
+- **THEN** decoding succeeds and the output equals the recorded file byte for byte

@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | 1 | `:FRA :route :LHR` | tx 1 | | |
 | 2 | `(eid 1) :distance 665` | tx 2 | tx 4 | |
-| 3 | `:LHR :route :JFK` | tx 3 | | 2026-03-30 to 2026-10-25 (epoch ms) |
+| 3 | `:LHR :route :JFK` | tx 3 | | 2026-03-30 to 2026-10-24, end excluded (epoch ms) |
 | 4 | `(eid 1) :distance 655` | tx 4 | | |
 | 5 | `(eid 4) :source :airlineDB` | tx 4 | | |
 

@@ -23,7 +23,7 @@ private def usage : String :=
   "       leanrdf-sg quote FILE"
 
 /-- Read a view from the flags. -/
-private def parseView : List String → View → Option View
+def parseView : List String → View → Option View
   | [], v => some v
   | "--now" :: r, v => parseView r { v with tx := .now }
   | "--history" :: r, v => parseView r { v with tx := .history }

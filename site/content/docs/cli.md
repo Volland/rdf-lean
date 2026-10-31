@@ -145,6 +145,7 @@ Exit codes: `0` success, and for `check` well formed, possibly with warnings; `1
 |---|---|
 | `scripts/examples.sh [--update] [GROUP]` | run the examples and compare their outputs with `expected/`; `GROUP` is `all` (the default), `sparql`, `shacl`, `elpi` or `statements`; `--update` records them |
 | `scripts/examples-record.sh OXILITE` | record oxilite's outputs for the oxilite examples |
+| `scripts/statements-tm-record.sh TIRAMEMSU` | record tiramemsu's `tm export --format sg-nt12` outputs for the statement-graph tests |
 | `scripts/oxilite-fixtures.sh OXILITE` | record oxilite's outputs for the bridge tests |
 | `scripts/shacl-oxilite-fixtures.sh OXILITE` | record oxilite's SHACL reports for the SHACL tests |
 | `scripts/sparql-diff.sh OXILITE` | run the W3C SPARQL suite on oxilite too and write `sparql/diff-report.md` |
