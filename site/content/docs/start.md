@@ -31,6 +31,7 @@ lake build && lake test                      # leanrdf: model, parsers, semantic
 (cd sparql && lake build && lake test)       # leanrdf-sparql: algebra, evaluator, W3C suite
 (cd owl && lake build && lake test)          # leanrdf-owl: OWL 2 RL and EL rules
 (cd shacl && lake build && lake test)        # leanrdf-shacl: validator, W3C SHACL Core suite
+(cd statements && lake build && lake test)   # leanrdf-statements: statement graphs, exhaustive check
 (cd elpi && lake build && lake test)         # leanrdf-elpi: Elpi search, demo, oxilite, classifier
 ```
 

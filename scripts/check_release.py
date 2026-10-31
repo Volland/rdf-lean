@@ -4,7 +4,7 @@
 Offline checks (run in CI): licence files and README, package metadata in both lakefiles, the
 CI workflow's jobs and the Pages workflow's action versions. With `--online` it also asks GitHub,
 through `gh`, that the repository is public, that the latest CI run on `main` succeeded and that
-the `v0.1.0` and `v0.2.0` releases exist.
+the `v0.1.0`, `v0.2.0` and `v0.3.0` releases exist.
 Usage: python3 scripts/check_release.py [--online]
 """
 import json, re, subprocess, sys
@@ -12,10 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "Volland/rdf-lean"
-VERSION = "0.2.0"
-RELEASES = ("0.1.0", "0.2.0")
+VERSION = "0.3.0"
+RELEASES = ("0.1.0", "0.2.0", "0.3.0")
 PACKAGES = ("lakefile.lean", "elpi/lakefile.lean", "sparql/lakefile.lean", "owl/lakefile.lean",
-            "shacl/lakefile.lean")
+            "shacl/lakefile.lean", "statements/lakefile.lean")
 LICENCE = "MIT OR Apache-2.0"
 # The first major version of each action that runs on Node 24, not Node 20.
 NODE24 = {"actions/checkout": 5, "actions/setup-python": 6, "actions/upload-pages-artifact": 4,
@@ -55,7 +55,8 @@ def check_metadata():
 def check_ci_workflow():
     s, errs = read(".github/workflows/ci.yaml"), []
     for needle in ("branches: [main]", "pull_request:", "leanprover/lean-action@v1",
-                   "lake-package-directory: elpi", "test: true",
+                   "lake-package-directory: elpi", "lake-package-directory: statements",
+                   "test: true", "scripts/examples.sh statements",
                    "lake exe leanrdf-demo examples/pets.nt examples/query-mammal-owner.nt"):
         if needle not in s:
             errs.append(f"ci.yaml lacks `{needle}`")
@@ -75,7 +76,9 @@ def gh(*args):
 # @tg: implements:: [[openspec:release#Tagged public release]] {note: "checks the release made with gh"}
 # @tg: implements:: [[openspec:release#RDF 1.2 release]] {note: "checks the release made with gh"}
 # @tg: verifies:: [[openspec:release#Tagged public release#Release exists]] {level: e2e}
+# @tg: implements:: [[openspec:release#Statement graphs release]] {note: "checks the release made with gh"}
 # @tg: verifies:: [[openspec:release#RDF 1.2 release#Release v0.2.0 exists]] {level: e2e}
+# @tg: verifies:: [[openspec:release#Statement graphs release#Release v0.3.0 exists]] {level: e2e}
 def check_online():
     errs = []
     if json.loads(gh("repo", "view", REPO, "--json", "visibility"))["visibility"] != "PUBLIC":

@@ -31,11 +31,11 @@ The repository SHALL be public after a secrets scan of the tree and history, and
 - **THEN** `v0.1.0` is listed with its notes, and the repository is public
 
 ### Requirement: Release version
-Every Lake package of the repository (`leanrdf`, `leanrdf-elpi`, `leanrdf-sparql`, `leanrdf-owl`, `leanrdf-shacl`) SHALL declare the version of the latest release, `0.2.0` since `add-rdf12-semantics`, together with a `description`, `keywords` and the site as `homepage`. The core package's description SHALL name RDF 1.2.
+Every Lake package of the repository (`leanrdf`, `leanrdf-elpi`, `leanrdf-sparql`, `leanrdf-owl`, `leanrdf-shacl`, `leanrdf-statements`) SHALL declare the version of the latest release, `0.3.0` since `add-statement-graphs`, together with a `description`, `keywords` and the site as `homepage`. The core package's description SHALL name RDF 1.2.
 
 #### Scenario: Every package has the release version
-- **WHEN** the five lakefiles are inspected
-- **THEN** each declares `version := v!"0.2.0"`, a description, keywords and the homepage, and the core description says "RDF 1.2"
+- **WHEN** the six lakefiles are inspected
+- **THEN** each declares `version := v!"0.3.0"`, a description, keywords and the homepage, and the core description says "RDF 1.2"
 
 ### Requirement: RDF 1.2 release
 `v0.2.0` SHALL be tagged on `main` after `add-rdf12-core`, `add-rdf12-syntax` and `add-rdf12-semantics` are archived, and published as a GitHub release whose notes list the RDF 1.2 capabilities, the breaking Lean API changes (`Term.triple`, `Literal.dirLang`, the new interpretation fields), what the version proves and what it trusts.
@@ -43,3 +43,10 @@ Every Lake package of the repository (`leanrdf`, `leanrdf-elpi`, `leanrdf-sparql
 #### Scenario: Release v0.2.0 exists
 - **WHEN** the release page of `Volland/rdf-lean` is opened
 - **THEN** `v0.2.0` is listed with its notes, after `v0.1.0`
+
+### Requirement: Statement graphs release
+`v0.3.0` SHALL be tagged on `main` after `add-statement-graphs` is archived, and published as a GitHub release whose notes list the `leanrdf-statements` package, its theorems, its command line, what the version proves and what it trusts. CI SHALL build and test `statements/` and run its examples.
+
+#### Scenario: Release v0.3.0 exists
+- **WHEN** the release page of `Volland/rdf-lean` is opened
+- **THEN** `v0.3.0` is listed with its notes, after `v0.2.0`

@@ -6,7 +6,7 @@ open Lake DSL
 compute it. Kept apart from `leanrdf` so that the core package stays small. -/
 package «leanrdf-sparql» where
   testDriver := "SparqlTests"
-  version := v!"0.2.0"
+  version := v!"0.3.0"
   description := "SPARQL 1.1 algebra semantics and a proven reference evaluator for LeanRDF."
   keywords := #["rdf", "sparql", "semantics", "verification"]
   homepage := "https://volland.github.io/rdf-lean/"

@@ -1,0 +1,6 @@
+kernel: [6]
+removed eid 4: dangling reference to eid 1
+removed eid 5: depends on removed eid 4
+removed eid 7: on a reference cycle
+removed eid 8: on a reference cycle
+# exit 0

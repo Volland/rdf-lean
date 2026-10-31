@@ -177,6 +177,6 @@ Capabilities `rdf-semantics`, `rdfs-entailment` and the bridge capabilities. Dep
 
 S1: package `leanrdf-statements`, adding bitemporal statement records, views, the exact reifier export to RDF 1.2, the paper's kernel, criterion, history and quoting results, and `leanrdf-sg`. Release v0.3.0.
 
-Capabilities `statement-graphs` and `xsd-values`. Depends on [[changes#add-rdf12-semantics]]. See [[statement-graphs]] and [[concepts]].
+Capabilities `statement-graphs` and `release`. Depends on [[changes#add-rdf12-semantics]]. See [[decisions]] and [[concepts]].
 
-- status:: proposed
+- status:: archived

@@ -1,12 +1,12 @@
 ---
 title: Roadmap
-summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core, OWL EL and RDF 1.2 (v0.2), and what comes next: statement graphs.
+summary: What LeanRDF built, phase by phase: a v0.1 release, datasets and XSD values, certificates for oxilite's answers, SPARQL, OWL 2 RL, SHACL Core, OWL EL RDF 1.2 (v0.2) and statement graphs (v0.3), and what comes next.
 ---
 # Roadmap
 
 LeanRDF will not become a second database. [oxilite](https://oxilitedb.com) already stores RDF in SQLite, answers SPARQL through an Oxigraph-compatible API, and reasons with RDFS, OWL 2 RL, Datalog and SHACL. LeanRDF is its proof layer: **oxilite finds and stores, LeanRDF proves.**
 
-Each phase below is an OpenSpec change, implemented, archived (`openspec/changes/archive/`) and committed in order. The seven phases of v0.1 and the three RDF 1.2 changes of v0.2 are done; statement graphs (v0.3) come next. A phase started only when the phases it needs were done. New layers are separate Lake packages in this repository, so the core stays free of dependencies.
+Each phase below is an OpenSpec change, implemented, archived (`openspec/changes/archive/`) and committed in order. The seven phases of v0.1, the three RDF 1.2 changes of v0.2 and statement graphs (v0.3) are done. A phase started only when the phases it needs were done. New layers are separate Lake packages in this repository, so the core stays free of dependencies.
 
 <figure><img src="{{BASE}}/assets/roadmap.svg" alt="Roadmap: P0 release, P1 core additions, P2 certify oxilite's RDFS answers, P3 SPARQL in Lean, P4 OWL 2 RL, P5 SHACL Core, P6 OWL EL, RDF 1.2 and statement graphs, with their dependencies"><figcaption>Nine phases in four lanes. An arrow means the later phase needs the earlier one.</figcaption></figure>
 
@@ -36,7 +36,7 @@ Each phase below is an OpenSpec change, implemented, archived (`openspec/changes
 | R1 RDF 1.2 core | `add-rdf12-core` | all | Triple terms and base directions in the model, `IT` in the semantics, N-Triples and N-Quads 1.2; every package accepts the new terms | Done: W3C RDF 1.2 N-Triples and N-Quads suites pass, canonicalization included |
 | R2 RDF 1.2 syntax | `add-rdf12-syntax` | `leanrdf` | Turtle and TriG 1.2: triple terms, reified triples, annotations | Done: W3C RDF 1.2 Turtle and TriG suites pass |
 | R3 RDF 1.2 semantics | `add-rdf12-semantics` | `leanrdf`, `leanrdf-elpi` | `rdf:dirLangString`, `rdfs:Proposition`, rdfs14 proven sound; simple and RDF regimes; `v0.2.0` | Done: 80 RDFS rules; 20 W3C RDF 1.2 semantics tests run (16 certified, 4 not derived), 9 listed as needing other datatypes |
-| S1 Statement graphs | `add-statement-graphs` | `leanrdf-statements` | tiramemsu's bitemporal records, an exact RDF 1.2 export, the export criterion and kernel proven; `v0.3.0` | Next |
+| S1 Statement graphs | `add-statement-graphs` | `leanrdf-statements` | tiramemsu's bitemporal records, an exact RDF 1.2 export, the export criterion and kernel proven; `v0.3.0` | Done: `decode_toRDF`, `toRDF_decode`, `criterion`, `kernel_greatest`; 406,901 small graphs checked exhaustively |
 
 ## Proven, not just certified
 
@@ -44,4 +44,4 @@ A certificate proves that a found answer is right. It cannot prove that nothing 
 
 ## Later
 
-Certificates for oxilite's Datalog programs, SHACL-SPARQL, a SPARQL HTTP endpoint, certifying oxilite's SPARQL-to-SQL translation itself, an ALC tableau, and lean-elpi's LF proof terms as a second certificate backend.
+A matching `tm export --format sg-nt12` in tiramemsu, so the statement-graph goldens are cross-checked against the store. Certificates for oxilite's Datalog programs, SHACL-SPARQL, a SPARQL HTTP endpoint, certifying oxilite's SPARQL-to-SQL translation itself, an ALC tableau, and lean-elpi's LF proof terms as a second certificate backend.

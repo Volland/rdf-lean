@@ -5,7 +5,7 @@ summary: Every executable, its arguments, input formats, output and exit codes.
 ---
 # Command-line tools
 
-Five executables ship with LeanRDF. Run them with `lake exe NAME` in their package directory, or call the binary in `.lake/build/bin/` after `lake build`. They share one convention for exit codes:
+Six executables ship with LeanRDF. Run them with `lake exe NAME` in their package directory, or call the binary in `.lake/build/bin/` after `lake build`. They share one convention for exit codes:
 
 | Code | Meaning |
 |---|---|
@@ -125,11 +125,25 @@ Validates the data graph against the SHACL Core shapes and prints a validation r
 
 Exit codes: `0` the data conforms, `1` it does not, `3` an input error or ill-formed shapes.
 
+## leanrdf-sg
+
+```
+leanrdf-sg check FILE.jsonl
+leanrdf-sg export FILE.jsonl [--now | --as-of T | --history] [--valid-at MS]
+leanrdf-sg decode FILE.nt [--now | --as-of T | --history] [--valid-at MS]
+leanrdf-sg kernel FILE.jsonl
+leanrdf-sg quote FILE.jsonl
+```
+
+Works on statement records, one JSON object per line (see [Statement graphs](/docs/statements/)). `check` lists well-formedness violations as `eid N: NAME`, where `NAME` is `subject-position`, `object-position`, `self-reference`, `tx-interval`, `valid-interval`, `reserved-iri` or `reserved-predicate`, and adds dangling references and reference cycles as warnings. `export` writes the RDF 1.2 export in the view as canonical N-Triples; the default view is `--now` with no valid-time filter. `decode` reads such an export back and writes the records as JSON lines, or names the first triple that does not fit. `kernel` writes the export kernel and the reason each other record was removed. `quote` writes each kernel record as a nested triple term.
+
+Exit codes: `0` success, and for `check` well formed, possibly with warnings; `1` `check` or `export` found violations; `2` `decode` rejected its input; `3` an unreadable file or a usage error.
+
 ## Scripts
 
 | Script | Purpose |
 |---|---|
-| `scripts/examples.sh [--update] [GROUP]` | run the examples and compare their outputs with `expected/`; `GROUP` is `all` (the default), `sparql`, `shacl` or `elpi`; `--update` records them |
+| `scripts/examples.sh [--update] [GROUP]` | run the examples and compare their outputs with `expected/`; `GROUP` is `all` (the default), `sparql`, `shacl`, `elpi` or `statements`; `--update` records them |
 | `scripts/examples-record.sh OXILITE` | record oxilite's outputs for the oxilite examples |
 | `scripts/oxilite-fixtures.sh OXILITE` | record oxilite's outputs for the bridge tests |
 | `scripts/shacl-oxilite-fixtures.sh OXILITE` | record oxilite's SHACL reports for the SHACL tests |

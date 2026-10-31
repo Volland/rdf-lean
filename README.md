@@ -18,6 +18,7 @@ LeanRDF is RDF semantics you can prove. It is a set of Lean 4 libraries with a n
 | `leanrdf-owl` | `owl/` | `Derives.owl_sound`, `Derives.el_sound`: 60 OWL 2 RL rules and 10 EL rules proven sound for the OWL 2 RDF-Based conditions |
 | `leanrdf-sparql` | `sparql/` | `evalN_perm`, `runQuery_answer`: the evaluator's solutions are the SPARQL 1.1 semantics, up to order |
 | `leanrdf-shacl` | `shacl/` | `validate_conforms`, `validate_sound`: "conforms" exactly when the data conforms, and every result is a real violation |
+| `leanrdf-statements` | `statements/` | `decode_toRDF`, `toRDF_decode`: tiramemsu's bitemporal statement records export to RDF 1.2 reification and decode back exactly; `criterion` and `kernel_greatest`: the paper's Statement Graph criterion and export kernel |
 | `leanrdf-elpi` | `elpi/` | the untrusted search: Elpi saturation, certificates, the demo, the oxilite bridge and the classifier |
 
 The libraries contain no `sorry` and no new axioms. They use only `propext`, `Quot.sound` and `Classical.choice`, and tests pin the axioms of every main theorem. There is no Mathlib dependency: the core package depends on nothing.
@@ -29,6 +30,7 @@ The libraries contain no `sorry` and no new axioms. They use only `propext`, `Qu
 | W3C RDF 1.2 Semantics | 20 run: 16 certified, 4 not derived; 9 need datatypes outside D |
 | W3C SPARQL 1.1 Query | 97 syntax and 257 evaluation tests pass |
 | W3C SHACL Core | 98 / 98 |
+| Statement graphs, exhaustive | all 406,901 graphs of at most 4 records |
 
 ## Quick start
 
@@ -66,6 +68,7 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by nativ
 | `leanrdf-classify ONTOLOGY` | `elpi/` | certified class hierarchy of an OWL 2 EL ontology |
 | `leanrdf-sparql query --location FILE --query Q` | `sparql/` | run a SPARQL 1.1 query with the proven evaluator |
 | `leanrdf-shacl validate --data DATA --shapes SHAPES` | `shacl/` | SHACL Core validation, report in Turtle |
+| `leanrdf-sg check\|export\|decode\|kernel\|quote FILE` | `statements/` | statement records to RDF 1.2 and back, the export kernel, the quoting view |
 
 Exit codes are the same for every tool: `0` proven or ran, `1` not derived or does not conform, `2` a certificate was rejected (a bug on the untrusted side), `3` input error. "Not derived" is never a claim that something is false, because the rules are proven sound, not complete.
 
@@ -75,6 +78,7 @@ Exit codes are the same for every tool: `0` proven or ran, `1` not derived or do
 
 - RDFS entailment on a university ontology;
 - RDF 1.2 reification: annotations, reified triples and propositions;
+- statement graphs: bitemporal records exported per view, decoded back, and their kernel;
 - six SPARQL queries over a library;
 - SHACL validation of employees;
 - oxilite's OWL 2 RL answers and closure, certified from a recording (including an explanation of oxilite's that LeanRDF rejects);
@@ -89,7 +93,7 @@ require leanrdf from git "https://github.com/Volland/rdf-lean" @ "main"
 require «leanrdf-shacl» from git "https://github.com/Volland/rdf-lean" @ "main" / "shacl"
 ```
 
-Sub-packages are named by their directory: `sparql`, `owl`, `shacl` or `elpi`. See [Packages and installation](https://volland.github.io/rdf-lean/docs/packages/).
+Sub-packages are named by their directory: `sparql`, `owl`, `shacl`, `statements` or `elpi`. See [Packages and installation](https://volland.github.io/rdf-lean/docs/packages/).
 
 ## Build and test everything
 
@@ -98,13 +102,14 @@ lake build && lake test                    # leanrdf
 (cd sparql && lake build && lake test)     # leanrdf-sparql, with the W3C SPARQL suite
 (cd owl && lake build && lake test)        # leanrdf-owl
 (cd shacl && lake build && lake test)      # leanrdf-shacl, with the W3C SHACL Core suite
+(cd statements && lake build && lake test) # leanrdf-statements, with the exhaustive check
 (cd elpi && lake build && lake test)       # leanrdf-elpi
 scripts/examples.sh                        # the runnable examples
 ```
 
 ## Read more
 
-- **[The book](https://volland.github.io/rdf-lean/book/)**: fifteen short chapters, from triples to model theory, rules, countermodels, Elpi, certificates, your own rules, certifying oxilite, SPARQL, OWL and SHACL, and what is proven and trusted.
+- **[The book](https://volland.github.io/rdf-lean/book/)**: sixteen short chapters, from triples to model theory, rules, countermodels, Elpi, certificates, your own rules, certifying oxilite, SPARQL, OWL, SHACL and statement graphs, and what is proven and trusted.
 - **[The documentation](https://volland.github.io/rdf-lean/docs/)**: installation, every tool, the library API of each package, the certificate format, testing and contributing.
 - **[The roadmap](https://volland.github.io/rdf-lean/roadmap/)**: what was built, phase by phase.
 - **Design and requirements**: decisions, constraints and simplifications are a typed graph in `tg.md/`, and the requirements are OpenSpec capabilities in `openspec/specs/`. Read them with `tg search`, `tg section` and `tg trace --gaps`.

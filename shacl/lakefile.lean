@@ -6,7 +6,7 @@ open Lake DSL
 validator proven to compute it. Requires only the core. -/
 package «leanrdf-shacl» where
   testDriver := "shaclW3C"
-  version := v!"0.2.0"
+  version := v!"0.3.0"
   description := "SHACL Core semantics and a validator proven to compute it, for LeanRDF."
   keywords := #["rdf", "shacl", "validation", "verification"]
   homepage := "https://volland.github.io/rdf-lean/"

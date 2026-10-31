@@ -1,6 +1,6 @@
 #!/bin/sh
 # Run the examples under examples/ and compare each output with its recorded copy.
-# Usage: scripts/examples.sh [--update] [all|sparql|shacl|elpi]
+# Usage: scripts/examples.sh [--update] [all|sparql|shacl|elpi|statements]
 # Every example writes examples/<dir>/expected/<name>.txt: the command's output, then a line
 # "# exit N" with its exit code. --update rewrites those files instead of comparing. The oxilite
 # examples replay outputs recorded with scripts/examples-record.sh, so oxilite is not needed.
@@ -69,6 +69,22 @@ if [ "$WHICH" = all ] || [ "$WHICH" = elpi ]; then
   check owl-rl-family materialized "$BIN/leanrdf-oxilite" data.ttl --materialized \
     --inferred recorded/inferred.tsv
   check owl-el-anatomy classify "$BIN/leanrdf-classify" anatomy.ttl
+fi
+
+if [ "$WHICH" = all ] || [ "$WHICH" = statements ]; then
+  build statements leanrdf-sg
+  SG="$ROOT/statements/.lake/build/bin/leanrdf-sg"
+  check statement-graphs check "$SG" check flights.jsonl
+  check statement-graphs export-now "$SG" export flights.jsonl --now
+  check statement-graphs export-as-of-3 "$SG" export flights.jsonl --as-of 3
+  check statement-graphs export-valid-at "$SG" export flights.jsonl --now --valid-at 1800000000000
+  check statement-graphs export-history "$SG" export flights.jsonl --history
+  check statement-graphs decode "$SG" decode flights.history.nt --history
+  check statement-graphs decode-tampered "$SG" decode tampered.nt --history
+  check statement-graphs quote "$SG" quote flights.jsonl
+  check statement-graphs check-snapshot "$SG" check snapshot.jsonl
+  check statement-graphs kernel-snapshot "$SG" kernel snapshot.jsonl
+  check statement-graphs check-bad "$SG" check bad.jsonl
 fi
 
 [ $UPDATE = 1 ] || { [ $FAIL = 0 ] && echo "examples: all match" || echo "examples: some differ"; }

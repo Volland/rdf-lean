@@ -74,7 +74,7 @@ classDiagram
   View ..> Record : live?
 ```
 
-`Node` and the record content match the paper's `Node T E` and `Content T E`, so instantiating the vendored theorems is a direct substitution. Transaction time is a `Nat`, because only its order matters to the history theorems. Valid time is `Int` epoch milliseconds, matching tiramemsu's storage. Time, provenance and confidence other than the four clocks are just more records whose subject is an eid.
+`Node` and the record content match the paper's `Node T E` and `Content T E`, so instantiating the vendored theorems is a direct substitution. Transaction time is a `Nat`, because only its order matters to the history theorems. Valid time is `Int` epoch milliseconds, matching tiramemsu's storage, and is exported as an `xsd:integer`. Time, provenance and confidence other than the four clocks are just more records whose subject is an eid.
 
 Rejected:
 - An atemporal model, with time as ordinary statements: the history theorems and the `tm:` export would then live outside LeanRDF.
@@ -196,9 +196,17 @@ Rejected:
 - motivated_by:: [[constraints#Statement Graph definition]] {weight: primary}
 - motivated_by:: [[constraints#Lean toolchain 4.35]]
 
+### Clocks are integer literals
+
+All four clocks are exported as `xsd:integer` literals: transaction numbers as they are, valid times as epoch milliseconds. The interview chose `xsd:dateTime` for valid time. Implementation showed that the exact decoder then needs a proven round trip between epoch milliseconds and the proleptic Gregorian calendar (Hinnant's civil-from-days inverse), which `omega` cannot prove directly and which a case analysis made slow and still incomplete. With integer literals, the round trip is `parseInteger_canonical`, already proven in the core.
+
+Rejected: `xsd:dateTime` with the calendar proven (open-ended proof work), and `xsd:dateTime` with the codec only tested (the decoder theorems would rest on an unproven lemma). Readers that want dates convert the milliseconds; tiramemsu's own SPARQL views still show dates.
+
+- motivated_by:: [[constraints#tiramemsu record model]]
+
 ### Executable kernel proven against K
 
-`kernel` is a Kahn-style peel. It keeps an in-degree count of unresolved references per record, starts from the records whose references are all resolved, and repeats until nothing changes. `mem_kernel_iff : e ∈ kernel sg ↔ K (crefs c) S e` links it to the vendored `K`. The paper's linear-time bound is not mechanized; the brute-force agreement test covers behaviour on small graphs. `isClosed` and `isAcyclic` are decided by the same machinery: closed means no dangling reference, and acyclic means `kernel` of the closed set is everything.
+`kernel` is a peel from below: starting from no records, it adds the records all of whose references are already in, and repeats, at most once per record. It is quadratic, not the paper's linear-time Kahn peel; the cost bound is not mechanized either way. `mem_kernel_iff : e ∈ kernel sg ↔ K (crefs c) S e` links it to the vendored `K`, and `isClosed` and `isAcyclic` are decided by the same machinery.
 
 ```mermaid
 stateDiagram-v2
@@ -221,7 +229,7 @@ stateDiagram-v2
 - the tests `StatementsTests`, whose test driver runs the exhaustive check as compiled code;
 - `lean_exe leanrdf-sg`.
 
-The core gains only what is general: `DateTime.ofEpochMs` and `toEpochMs?` with round-trip theorems (`xsd-values`). The `tm:` and `stmt:` IRIs live in the package, never in `LeanRDF.Vocab`.
+The core gains nothing: the clocks are integer literals (see *Clocks are integer literals*). The `tm:` and `stmt:` IRIs live in the package, never in `LeanRDF.Vocab`.
 
 JSON lines is the input format, because tiramemsu's rows map to it one to one and the existing JSON reader in `LeanRDF/Cert/Json.lean` can be reused. Terms inside it use N-Triples 1.2 syntax, read with the core term parser.
 
@@ -237,7 +245,7 @@ JSON lines is the input format, because tiramemsu's rows map to it one to one an
 ## Constraints
 
 - [[constraints#RDF 1.2 triples and triple terms]] binds the export (strict positions).
-- [[constraints#Lean toolchain 4.35]] binds the vendored port.
+- [[constraints#Lean toolchain 4.35]] binds the vendored port, which needed no edit beyond imports.
 - New:
   - `Statement Graph definition` (Gelling, Fletcher and Schmidt; arXiv 2304.13097, and DOI 10.1007/978-981-97-5575-2_27): a DAG of statement vertices with exactly three role edges, the predicate never a statement.
   - `tiramemsu record model` (tiramemsu `lean/Tiramemsu/Store/Types.lean`, tiramemsu.com *Statement Graphs* article): records, views, reserved namespaces, and only self-reference forbidden.

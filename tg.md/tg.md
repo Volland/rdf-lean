@@ -7,6 +7,5 @@ LeanRDF: a Lean 4 library with a native RDF 1.1 model and formal entailment sema
 - [[simplifications]] — knowing departures from the W3C texts
 - [[integration-contract]] — how LeanRDF uses lean-elpi (Task 0)
 - [[changes]] — the milestones as OpenSpec changes
-- [[statement-graphs]] — proposed decisions for statement graphs and tiramemsu (change S1)
 - [[concepts]] — triple terms, reifiers, statement records, views and the export kernel
 - [[code-ontology]] — shared vocabulary of intent types and typed edges between intent and code

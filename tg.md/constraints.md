@@ -283,7 +283,7 @@ Triple terms are equal when their triples are equal. A triple appears in a graph
 
 - source:: RDF 1.2 Concepts §3.1 (Triples), §3.6 (Triple Terms), §3.7 (Graph Comparison), §7.2 (Generalized RDF); Candidate Recommendation, 7 April 2026
 - constrains:: [[decisions#Triple terms are a recursive Term constructor]] {strength: must}
-- constrains:: [[statement-graphs#Reifier export is primary]] {strength: must}
+- constrains:: [[decisions#Reifier export is primary]] {strength: must}
 
 ## Directional language-tagged strings
 
@@ -358,9 +358,9 @@ A Statement Graph is a directed acyclic graph of leaves, which hold values, and 
 The subject and object may point at another statement; the predicate may not. It is a logical model with no physical layout.
 
 - source:: Gelling, Fletcher and Schmidt, arXiv 2304.13097 and DOI 10.1007/978-981-97-5575-2_27; as restated in Pavlyshyn, *When Is a Temporal Statement Store a Statement Graph?*, rev. 4, Zenodo 10.5281/zenodo.23335652
-- constrains:: [[statement-graphs#Vendored abstract proofs, concrete layer on top]] {strength: must}
-- constrains:: [[statement-graphs#Executable kernel proven against K]] {strength: must}
-- constrains:: [[statement-graphs#Admit tiramemsu's sets]] {strength: should}
+- constrains:: [[decisions#Vendored abstract proofs, concrete layer on top]] {strength: must}
+- constrains:: [[decisions#Executable kernel proven against K]] {strength: must}
+- constrains:: [[decisions#Admit tiramemsu's sets]] {strength: should}
 
 ## tiramemsu record model
 
@@ -369,10 +369,10 @@ A tiramemsu record is `(eid, s, p, o, tAdd, tRet?, vFrom?, vTo?)`. Its subject o
 Views combine `now`, `asOf t` or `history` with an optional valid-time point. The namespaces `urn:tiramemsu:sys:` and `urn:tiramemsu:tm:` are reserved, and statements are named `urn:tiramemsu:stmt:N`.
 
 - source:: tiramemsu `lean/Tiramemsu/Store/Types.lean`, `crates/tm-sparql/src/dataset.rs`; tiramemsu.com, *Statement Graphs* and *Statement-store export*
-- constrains:: [[statement-graphs#Bitemporal records with eid references]] {strength: must}
-- constrains:: [[statement-graphs#Assertion is derived from a view]] {strength: must}
-- constrains:: [[statement-graphs#Exact decoder and the reserved names]] {strength: must}
-- constrains:: [[statement-graphs#Admit tiramemsu's sets]] {strength: must}
+- constrains:: [[decisions#Bitemporal records with eid references]] {strength: must}
+- constrains:: [[decisions#Assertion is derived from a view]] {strength: must}
+- constrains:: [[decisions#Exact decoder and the reserved names]] {strength: must}
+- constrains:: [[decisions#Admit tiramemsu's sets]] {strength: must}
 
 ## RDF 1.2 RDF interpretations
 

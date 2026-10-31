@@ -1,6 +1,6 @@
 ---
 title: FAQ and troubleshooting
-order: 14
+order: 15
 summary: Answers to the questions people ask first, and fixes for the problems they hit first.
 ---
 # FAQ and troubleshooting

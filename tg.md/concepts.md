@@ -1,12 +1,10 @@
 ---
 type: Concept
-status: draft
+status: stable
 ---
 # Concepts
 
-The vocabulary of RDF 1.2 and statement graphs as LeanRDF uses it, planned in [[changes#add-rdf12-core]] and [[changes#add-statement-graphs]]. Each concept is defined once here and cited by the decisions in [[decisions]] and [[statement-graphs]].
-
-The concepts are drafts until their changes are archived; then they become stable.
+The vocabulary of RDF 1.2 and statement graphs as LeanRDF uses it, planned in [[changes#add-rdf12-core]] and [[changes#add-statement-graphs]]. Each concept is defined once here and cited by the decisions in [[decisions]].
 
 ## Triple term
 
@@ -46,7 +44,7 @@ flowchart LR
   src --> g3
 ```
 
-- defines:: [[statement-graphs#Reifier export is primary]]
+- defines:: [[decisions#Reifier export is primary]]
 
 ## RDF 1.2 Basic
 
@@ -83,7 +81,7 @@ classDiagram
   Node --> Record : eid refers to
 ```
 
-- defines:: [[statement-graphs#Bitemporal records with eid references]]
+- defines:: [[decisions#Bitemporal records with eid references]]
 
 ## Statement graph
 
@@ -101,7 +99,7 @@ flowchart TB
   e1 -- object --> l((":LHR"))
 ```
 
-- defines:: [[statement-graphs#Vendored abstract proofs, concrete layer on top]]
+- defines:: [[decisions#Vendored abstract proofs, concrete layer on top]]
 
 ## View
 
@@ -109,7 +107,7 @@ A selection of what is asserted: a transaction selector (`now`, `asOf t` or `his
 
 The reifier export reifies every record and asserts only the live ones, so the same statement graph has one export per view. All of them decode back to the same records.
 
-- defines:: [[statement-graphs#Assertion is derived from a view]]
+- defines:: [[decisions#Assertion is derived from a view]]
 
 ## Export kernel
 
@@ -125,4 +123,4 @@ flowchart LR
   peel -- "no, at fixpoint" --> out["dropped: dangling or on a cycle"]
 ```
 
-- defines:: [[statement-graphs#Executable kernel proven against K]]
+- defines:: [[decisions#Executable kernel proven against K]]

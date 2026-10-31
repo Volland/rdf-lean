@@ -1,0 +1,6 @@
+{"eid":1,"o":"<http://example.org/LHR>","p":"<http://example.org/route>","s":"<http://example.org/FRA>","txAdded":1}
+{"eid":2,"o":"\"665\"^^<http://www.w3.org/2001/XMLSchema#integer>","p":"<http://example.org/distance>","s":{"eid":1},"txAdded":2,"txRetracted":4}
+{"eid":3,"o":"<http://example.org/JFK>","p":"<http://example.org/route>","s":"<http://example.org/LHR>","txAdded":3,"validFrom":1774828800000,"validTo":1792800000000}
+{"eid":4,"o":"\"655\"^^<http://www.w3.org/2001/XMLSchema#integer>","p":"<http://example.org/distance>","s":{"eid":1},"txAdded":4}
+{"eid":5,"o":"<http://example.org/airlineDB>","p":"<http://example.org/source>","s":{"eid":4},"txAdded":4}
+# exit 0

@@ -1,0 +1,3 @@
+{"eid": 1, "s": "\"FRA\"", "p": "<http://example.org/route>", "o": "<http://example.org/LHR>", "txAdded": 1}
+{"eid": 2, "s": {"eid": 2}, "p": "<http://example.org/distance>", "o": "\"655\"^^<http://www.w3.org/2001/XMLSchema#integer>", "txAdded": 2}
+{"eid": 3, "s": "<urn:tiramemsu:stmt:1>", "p": "<http://example.org/seenBy>", "o": "<http://example.org/ops>", "txAdded": 3, "txRetracted": 2}

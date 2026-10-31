@@ -1,6 +1,6 @@
 ---
 title: What is proven, what is trusted
-order: 15
+order: 16
 summary: The exact guarantee of each package, the trusted base, the recorded simplifications, and what remains open.
 ---
 # What is proven, what is trusted
@@ -15,6 +15,7 @@ Each package makes one kind of claim, and each claim is a Lean theorem.
 | `leanrdf-owl` | the checker accepts a certificate under `owlRules` or `owlELRules` | `g.OWLEntails q`, for interpretations with the OWL 2 RDF-Based conditions LeanRDF transcribes |
 | `leanrdf-sparql` | the evaluator returns solutions | they are a permutation of the SPARQL 1.1 semantics, sorted by `ORDER BY` when there is one (`runQuery_answer`) |
 | `leanrdf-shacl` | the report says "conforms" | the data conforms to the shapes (`validate_conforms`), and each reported result is a real violation (`validate_sound`) |
+| `leanrdf-statements` | `decode` accepts a graph, or `kernel` returns a set | the graph is exactly the export of a well-formed statement graph (`toRDF_decode`); the set is the greatest closed acyclic subset, the part with a Statement Graph export (`kernel_greatest`, `criterion`) |
 | `leanrdf-elpi` | "ENTAILED", "CERTIFIED" or a printed subsumption | one of the first two rows, because the verified checker accepted a certificate |
 
 The library uses only the three standard axioms `propext`, `Quot.sound` and `Classical.choice`, contains no `sorry`, and every package has tests that pin the axioms of its main theorems with `#print axioms`.

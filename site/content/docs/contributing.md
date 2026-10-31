@@ -1,6 +1,6 @@
 ---
 title: Contributing
-order: 13
+order: 14
 summary: The rules for proofs, how changes are specified with OpenSpec, how design is recorded in the typed graph, and the checks to run before a pull request.
 ---
 # Contributing

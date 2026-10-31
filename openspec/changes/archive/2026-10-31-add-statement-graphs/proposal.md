@@ -24,7 +24,6 @@ tiramemsu stores every statement as a bitemporal record with its own id, and oth
   - the quoting view into generalized RDF 1.2 with its BGP theorem.
 - An executable kernel, proven equal to the greatest closed acyclic subset, with `isClosed` and `isAcyclic` deciders and an executable quoting view.
 - `leanrdf-sg check|export|decode|kernel|quote` over JSON-lines records, writing RDF 1.2 N-Triples.
-- In the core, an exact epoch-milliseconds ↔ `xsd:dateTime` conversion with round-trip theorems.
 
 ## Capabilities
 
@@ -34,7 +33,9 @@ tiramemsu stores every statement as a bitemporal record with its own id, and oth
 
 ### Modified Capabilities
 
-- `xsd-values`: new requirement `Epoch milliseconds`.
+- `release`: every package, now six, declares `0.3.0`, and `v0.3.0` is published as the statement graphs release.
+
+The core is not modified: all four clocks are exported as `xsd:integer` literals, so no date conversion is added (design.md, *Clocks are integer literals*).
 
 ## Impact
 
@@ -42,7 +43,6 @@ tiramemsu stores every statement as a bitemporal record with its own id, and oth
 
 **Code:**
 - new package: `statements/` (`lakefile.lean`, `LeanRDFStatements/{Abstract,Model,View,Export,Decode,Kernel,Quote,History,Json}.lean`, `SgMain.lean`, `StatementsTests/`)
-- core: `LeanRDF/Xsd/DateTime.lean`
 - CI: `.github/workflows/*`
 - docs: `site/` (book chapter, example), `examples/`
 
@@ -55,5 +55,5 @@ tiramemsu stores every statement as a bitemporal record with its own id, and oth
 - the package follows [[decisions#Layers as packages in one repository]] and [[decisions#Dependency-free core package]]
 
 **Requirements:**
-- added: `statement-graphs#Statement records`, `#Statement graph well-formedness`, `#Views`, `#Reifier export`, `#Exact decoding`, `#Export kernel`, `#Statement Graph criterion`, `#History closure`, `#Quoting view`, `#Statement graph command line`, `#Statement graph test corpus`, `xsd-values#Epoch milliseconds`
+- added: `statement-graphs#Statement records`, `#Statement graph well-formedness`, `#Views`, `#Reifier export`, `#Exact decoding`, `#Export kernel`, `#Statement Graph criterion`, `#History closure`, `#Quoting view`, `#Statement graph command line`, `#Statement graph test corpus`
 - depends on: [[openspec:rdf-core#Generalized triples]], [[openspec:ntriples#Canonical serialization]]

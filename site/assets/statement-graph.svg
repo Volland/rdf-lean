@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 330" role="img" aria-labelledby="t d" font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <title id="t">A statement graph and its RDF 1.2 export</title>
+  <desc id="d">On the left, two records: e1 is FRA route LHR, added in transaction 1; e2 has e1 as subject, distance as predicate and 655 as object, added in transaction 2. On the right, the export in the view now: stmt:1 reifies the triple term FRA route LHR, stmt:2 reifies the triple term stmt:1 distance 655, each has a tm:txAdded clock, and both base triples are asserted because both records are live. decode turns the export back into exactly the two records.</desc>
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#23307a"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#11735f"/></marker>
+  </defs>
+  <rect width="860" height="330" rx="14" fill="#fbfbf8"/>
+  <text x="150" y="34" text-anchor="middle" font-size="15" font-weight="600" fill="#23307a">statement records</text>
+  <text x="600" y="34" text-anchor="middle" font-size="15" font-weight="600" fill="#11735f">RDF 1.2, view now</text>
+  <g font-size="13">
+    <rect x="30" y="70" width="240" height="56" rx="10" fill="#fff" stroke="#23307a" stroke-width="1.5"/>
+    <text x="44" y="93" font-weight="600" fill="#23307a">e1</text>
+    <text x="70" y="93" fill="#1c1d20">:FRA :route :LHR</text>
+    <text x="70" y="113" fill="#5d6068">txAdded 1</text>
+    <rect x="30" y="200" width="240" height="56" rx="10" fill="#fff" stroke="#23307a" stroke-width="1.5"/>
+    <text x="44" y="223" font-weight="600" fill="#23307a">e2</text>
+    <text x="70" y="223" fill="#1c1d20">(eid 1) :distance 655</text>
+    <text x="70" y="243" fill="#5d6068">txAdded 2</text>
+    <line x1="100" y1="200" x2="100" y2="130" stroke="#23307a" stroke-width="1.6" marker-end="url(#b)"/>
+    <text x="108" y="170" fill="#23307a">subject</text>
+  </g>
+  <rect x="380" y="60" width="450" height="210" rx="10" fill="#e7f6f2" stroke="#3fb39d"/>
+  <g font-size="12.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" fill="#1c1d20">
+    <text x="396" y="90">stmt:1 rdf:reifies &lt;&lt;( :FRA :route :LHR )&gt;&gt;</text>
+    <text x="396" y="112">stmt:1 tm:txAdded 1</text>
+    <text x="396" y="134" fill="#11735f">:FRA :route :LHR</text>
+    <text x="396" y="176">stmt:2 rdf:reifies &lt;&lt;( stmt:1 :distance 655 )&gt;&gt;</text>
+    <text x="396" y="198">stmt:2 tm:txAdded 2</text>
+    <text x="396" y="220" fill="#11735f">stmt:1 :distance 655</text>
+  </g>
+  <text x="396" y="256" font-size="12" fill="#5d6068">green: base triples, asserted only when the record is live in the view</text>
+  <g fill="none" stroke-width="1.6">
+    <path d="M276 140 C 320 140, 330 130, 372 130" stroke="#23307a" marker-end="url(#b)"/>
+    <path d="M372 200 C 330 200, 320 190, 278 190" stroke="#11735f" marker-end="url(#g)"/>
+  </g>
+  <text x="325" y="122" text-anchor="middle" font-size="13" fill="#23307a">toRDF v</text>
+  <text x="325" y="218" text-anchor="middle" font-size="13" fill="#11735f">decode v</text>
+  <text x="430" y="310" text-anchor="middle" font-size="13" fill="#1c1d20">decode v (sg.toRDF v) = .ok sg, and a graph that decodes is exactly the export of what it decodes to</text>
+</svg>

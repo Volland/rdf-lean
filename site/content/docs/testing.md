@@ -1,6 +1,6 @@
 ---
 title: Testing and CI
-order: 12
+order: 13
 summary: What each package's test suite checks, the W3C suites, axiom guards, recorded fixtures, the examples script and the CI jobs.
 ---
 # Testing and CI
@@ -15,6 +15,7 @@ Tests in LeanRDF are mostly Lean code that must compile: `#guard` checks evaluat
 | `leanrdf-sparql` | `SparqlTests` | mappings and the algebra semantics; the evaluator against the semantics; the parser; the W3C SPARQL 1.1 query suite (syntax and evaluation); the guide examples |
 | `leanrdf-owl` | `OwlTests` | the OWL model and countermodels; OWL 2 RL and EL certificates; rule counts; axiom guards |
 | `leanrdf-shacl` | `shaclW3C` | shape reading and the semantics on scenarios; the oxilite comparison; axiom guards; the guide examples; then the W3C SHACL Core suite as compiled code |
+| `leanrdf-statements` | `statementsTests` | every spec scenario; golden exports per view; the `leanrdf-sg` scenarios; the guide example; then, compiled, an exhaustive check over all 406,901 statement graphs of at most four records (kernel against brute force, quoting, `decode` against `toRDF`) |
 | `leanrdf-elpi` | `BridgeTests` | Elpi encoding and decoding; saturation, including cycles; every RDFS rule through Elpi; end-to-end certificates; the demo; oxilite replay under RDFS and OWL; classification; the custom-rule example |
 
 Scenario tests carry `@tg: verifies::` annotations that point to the OpenSpec scenario they prove, so `tg trace --gaps` reports any scenario that no test proves.
@@ -50,7 +51,7 @@ External engines are never run in CI. Their outputs are recorded and replayed:
 
 ## Examples
 
-`scripts/examples.sh` runs every example in `examples/` with the built tools and compares the output, including the exit code, with `examples/*/expected/*.txt`. `scripts/examples.sh --update` rewrites the expected files after an intended change. Review the diff before you commit it. Pass `sparql`, `shacl` or `elpi` to run one group.
+`scripts/examples.sh` runs every example in `examples/` with the built tools and compares the output, including the exit code, with `examples/*/expected/*.txt`. `scripts/examples.sh --update` rewrites the expected files after an intended change. Review the diff before you commit it. Pass `sparql`, `shacl`, `elpi` or `statements` to run one group.
 
 ## CI
 
@@ -63,5 +64,6 @@ External engines are never run in CI. Their outputs are recorded and replayed:
 | owl | `lake build`, `lake test` |
 | shacl | `lake build`, `lake test`, `scripts/examples.sh shacl` |
 | elpi | `lake build`, `lake test`, the demo, the EL classification, `scripts/examples.sh elpi` |
+| statements | `lake build`, `lake test`, `scripts/examples.sh statements` |
 
 `.github/workflows/pages.yml` builds this site with `python3 site/build.py` and publishes it on pushes that change `site/`.

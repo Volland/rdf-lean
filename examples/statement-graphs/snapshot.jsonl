@@ -1,0 +1,5 @@
+{"eid": 4, "s": {"eid": 1}, "p": "<http://example.org/distance>", "o": "\"655\"^^<http://www.w3.org/2001/XMLSchema#integer>", "txAdded": 4}
+{"eid": 5, "s": {"eid": 4}, "p": "<http://example.org/source>", "o": "<http://example.org/airlineDB>", "txAdded": 4}
+{"eid": 6, "s": "<http://example.org/CDG>", "p": "<http://example.org/route>", "o": "<http://example.org/LHR>", "txAdded": 5}
+{"eid": 7, "s": {"eid": 8}, "p": "<http://example.org/checkedBy>", "o": "<http://example.org/ops>", "txAdded": 6}
+{"eid": 8, "s": {"eid": 7}, "p": "<http://example.org/checkedBy>", "o": "<http://example.org/audit>", "txAdded": 6}

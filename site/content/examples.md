@@ -342,3 +342,21 @@ certified subsumptions: 36, unsatisfiable classes: 2
 ```
 
 Endocarditis is an inflammation `locatedIn` the heart, and `locatedIn` is a subproperty of `hasSite`, so it has a site in the heart (el-ex-sub) and is carditis (el-int-i2). Lobar pneumonia meets all three conjuncts of pneumonia's definition (el-int-i3). Every line is a certified OWL entailment.
+
+## 17. Statement graphs
+
+*examples/statement-graphs/*. A flight route whose distance was entered wrong and corrected in transaction 4.
+
+```
+$ leanrdf-sg export flights.jsonl --as-of 3
+<http://example.org/FRA> <http://example.org/route> <http://example.org/LHR> .
+<http://example.org/LHR> <http://example.org/route> <http://example.org/JFK> .
+<urn:tiramemsu:stmt:1> <http://example.org/distance> "665"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<urn:tiramemsu:stmt:1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#reifies> <<( <http://example.org/FRA> <http://example.org/route> <http://example.org/LHR> )>> .
+...
+$ leanrdf-sg decode tampered.nt --history
+statement 5: triple <urn:tiramemsu:stmt:4> <http://example.org/source> <http://example.org/airlineDB> is missing
+```
+
+As of transaction 3 the wrong distance 665 is still asserted; with `--now` it is only reified, and 655 is asserted. Every record is reified with its clocks, so `decode` recovers all five records from any view. Delete one base triple and decoding fails, naming the record. `toRDF_decode` proves that whatever decodes is exactly an export.
+

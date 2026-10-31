@@ -1,0 +1,6 @@
+1	<<( <http://example.org/FRA> <http://example.org/route> <http://example.org/LHR> )>>
+2	<<( <<( <http://example.org/FRA> <http://example.org/route> <http://example.org/LHR> )>> <http://example.org/distance> "665"^^<http://www.w3.org/2001/XMLSchema#integer> )>>
+3	<<( <http://example.org/LHR> <http://example.org/route> <http://example.org/JFK> )>>
+4	<<( <<( <http://example.org/FRA> <http://example.org/route> <http://example.org/LHR> )>> <http://example.org/distance> "655"^^<http://www.w3.org/2001/XMLSchema#integer> )>>
+5	<<( <<( <<( <http://example.org/FRA> <http://example.org/route> <http://example.org/LHR> )>> <http://example.org/distance> "655"^^<http://www.w3.org/2001/XMLSchema#integer> )>> <http://example.org/source> <http://example.org/airlineDB> )>>
+# exit 0

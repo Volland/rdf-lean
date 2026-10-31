@@ -1,0 +1,2 @@
+{"eid": 2, "s": {"eid": 1}, "p": "<http://example.org/distance>", "o": "\"655\"^^<http://www.w3.org/2001/XMLSchema#integer>", "txAdded": 2}
+{"eid": 3, "s": {"eid": 2}, "p": "<http://example.org/source>", "o": "<http://example.org/x>", "txAdded": 3}

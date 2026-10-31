@@ -1,0 +1,5 @@
+{"eid": 1, "s": "<http://example.org/FRA>", "p": "<http://example.org/route>", "o": "<http://example.org/LHR>", "txAdded": 1}
+{"eid": 2, "s": {"eid": 1}, "p": "<http://example.org/distance>", "o": "\"665\"^^<http://www.w3.org/2001/XMLSchema#integer>", "txAdded": 2, "txRetracted": 4}
+{"eid": 3, "s": "<http://example.org/LHR>", "p": "<http://example.org/route>", "o": "<http://example.org/JFK>", "txAdded": 3, "validFrom": 1774828800000, "validTo": 1792800000000}
+{"eid": 4, "s": {"eid": 1}, "p": "<http://example.org/distance>", "o": "\"655\"^^<http://www.w3.org/2001/XMLSchema#integer>", "txAdded": 4}
+{"eid": 5, "s": {"eid": 4}, "p": "<http://example.org/source>", "o": "<http://example.org/airlineDB>", "txAdded": 4}

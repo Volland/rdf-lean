@@ -1,0 +1,5 @@
+{"eid": 1, "s": "<http://example.org/FRA>", "p": "<http://example.org/route>", "o": "<http://example.org/LHR>", "txAdded": 1, "txRetracted": 3, "validFrom": 1704067200000}
+{"eid": 2, "s": {"eid": 1}, "p": "<http://example.org/distance>", "o": "\"650\"^^<http://www.w3.org/2001/XMLSchema#integer>", "txAdded": 2, "txRetracted": 3}
+{"eid": 3, "s": "<http://example.org/FRA>", "p": "<http://example.org/route>", "o": "<http://example.org/LHR>", "txAdded": 3, "validFrom": 1704067200000}
+{"eid": 4, "s": {"eid": 3}, "p": "<http://example.org/distance>", "o": "\"655\"^^<http://www.w3.org/2001/XMLSchema#integer>", "txAdded": 3}
+{"eid": 5, "s": {"eid": 3}, "p": "<http://example.org/supersedes>", "o": {"eid": 1}, "txAdded": 3}

@@ -1,8 +1,9 @@
-## Purpose
+# statement-graphs Specification
 
+## Purpose
 Statement graphs in LeanRDF: tiramemsu's bitemporal statement records over RDF 1.2 terms, their exact export to RDF 1.2 reification and back, and the paper's Statement Graph results (export criterion, kernel, history closure and quoting view) as theorems and executable checks.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Statement records
 `leanrdf-statements` SHALL define a statement record as an eid (`Nat`), a subject and an object that are each either an RDF term or a reference to an eid, a predicate IRI, a transaction interval given by `txAdded : Nat` and `txRetracted : Option Nat`, and a valid-time interval given by `validFrom validTo : Option Int` in epoch milliseconds. A statement graph SHALL be a finite set of records with pairwise distinct eids, with membership, lookup by eid and the references of a record (the eids in its subject and object) characterized by lemmas, and SHALL admit dangling references and reference cycles.
@@ -67,7 +68,7 @@ Liveness SHALL be decidable.
 `export v sg` SHALL be the RDF 1.2 graph containing, for every record `e` of `sg`:
 - `<urn:tiramemsu:stmt:e> rdf:reifies <<( s' p o' )>>`, where an eid reference `x` in subject or object becomes `<urn:tiramemsu:stmt:x>`;
 - `tm:txAdded` with an `xsd:integer`, and `tm:txRetracted` when present;
-- `tm:validFrom` and `tm:validTo` with `xsd:dateTime` values when present;
+- `tm:validFrom` and `tm:validTo` with `xsd:integer` epoch milliseconds when present;
 - the base triple `s' p o'` exactly when `e` is live in `v`.
 
 The `tm:` prefix SHALL be `urn:tiramemsu:tm:`. For a well-formed statement graph, every triple of the export SHALL be RDF 1.2 well formed, whether or not the graph is closed or acyclic.
@@ -94,7 +95,7 @@ The `tm:` prefix SHALL be `urn:tiramemsu:tm:`. For a well-formed statement graph
 - there are no other triples about a `stmt:` reifier;
 - the remaining triples are exactly the base triples of the records live in `v`.
 
-For every well-formed `sg`, `decode v (export v sg) = .ok sg`. For every `g`, `decode v g = .ok sg` SHALL imply `sg.WellFormed` and `export v sg = g`.
+For every well-formed `sg`, `decode v (export v sg) = .ok sg`. For every `g`, `decode v g = .ok sg` SHALL imply `sg.WellFormed` and that `export v sg` and `g` have the same triples.
 
 #### Scenario: Round trip
 - **WHEN** the paper's supersede history is exported in `history` and decoded in `history`
@@ -113,7 +114,7 @@ For every well-formed `sg`, `decode v (export v sg) = .ok sg`. For every `g`, `d
 - **THEN** they use only `propext`, `Classical.choice` and `Quot.sound`
 
 ### Requirement: Export kernel
-A set of records SHALL be closed when every reference of a record in the set is in the set, and acyclic when no chain of references inside the set returns to its start. `isClosed` and `isAcyclic` SHALL decide both. `kernel sg` SHALL compute, by repeatedly removing records that have a reference outside the remaining set (a Kahn-style peel), the greatest closed acyclic subset. It SHALL satisfy `mem_kernel_iff` against the paper's relational kernel `K`, `kernel_closed`, `kernel_acyclic` and `kernel_greatest`.
+A set of records SHALL be closed when every reference of a record in the set is in the set, and acyclic when no chain of references inside the set returns to its start. `isClosed` and `isAcyclic` SHALL decide both. `kernel sg` SHALL compute the greatest closed acyclic subset by a peel: starting from no records, it repeatedly adds the records all of whose references are already in, until nothing changes. It SHALL satisfy `mem_kernel_iff` against the paper's relational kernel `K`, `kernel_closed`, `kernel_acyclic` and `kernel_greatest`.
 
 #### Scenario: Dangling references are peeled
 - **WHEN** the kernel of `{e2 = (eid 1, :distance, 655), e3 = (eid 2, :source, :x)}` is computed
@@ -144,7 +145,7 @@ Group the records of a statement graph into transactions by `txAdded`, oldest fi
 - every reference cycle SHALL lie inside one transaction;
 - if every reference points to a strictly earlier transaction, the history SHALL be acyclic and equal to its kernel.
 
-These SHALL be the vendored `history_closed`, `history_cycle` and `history_kernel`, instantiated.
+These SHALL be proven on records, as the counterparts of the vendored `history_closed`, `history_cycle` and `history_kernel`, with transactions in place of insert batches.
 
 #### Scenario: The supersede example
 - **WHEN** the paper's supersede example (`e1`, `e2`, the corrections `e1'`, `e2'` and the lineage record `ℓ`) is built

@@ -1,0 +1,5 @@
+eid 1: subject-position
+eid 2: self-reference
+eid 3: tx-interval
+eid 3: reserved-iri
+# exit 1
