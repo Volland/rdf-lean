@@ -42,16 +42,18 @@ def termValue? : Term → Option XsdValue
   | .lit l => l.value?
   | _ => none
 
-/-- A string literal: a simple literal, `xsd:string`, or a language-tagged string; the lexical form
-and the tag. -/
-def stringArg? : Term → Option (String × Option String)
+/-- A string literal: a simple literal, `xsd:string`, a language-tagged string, or a directional
+language-tagged string (RDF 1.2 Concepts §3.4); the lexical form and the optional `(tag, dir)`. -/
+def stringArg? : Term → Option (String × Option (String × Option Direction))
   | .lit (.typed s dt) => if dt == Vocab.xsd.string then some (s, none) else none
-  | .lit (.lang s tag) => some (s, some tag)
+  | .lit (.lang s tag) => some (s, some (tag, none))
+  | .lit (.dirLang s tag dir) => some (s, some (tag, some dir))
   | _ => none
 
-/-- A string result with the tag of an argument. -/
-def strWithTag (s : String) : Option String → Term
-  | some tag => .lit (.lang s tag)
+/-- A string result with the tag and base direction (if any) of an argument. -/
+def strWithTag (s : String) : Option (String × Option Direction) → Term
+  | some (tag, none) => .lit (.lang s tag)
+  | some (tag, some dir) => .lit (.dirLang s tag dir)
   | none => strTerm s
 
 /-- The effective boolean value (§17.2.2). -/
@@ -170,8 +172,9 @@ def encodeForURI (s : String) : String :=
       bytes.foldl (init := acc) fun acc b => acc.push '%' |>.push (hexDigit (b.toNat / 16)) |>.push (hexDigit (b.toNat % 16))
 
 /-- Arguments compatible for two-string functions (§17.4.3.1.2): the second has no tag or the
-same tag as the first. -/
-private def compatibleArgs (a b : Term) : Except String (String × Option String × String) := do
+same tag and base direction as the first. -/
+private def compatibleArgs (a b : Term) :
+    Except String (String × Option (String × Option Direction) × String) := do
   let some (x, ta) := stringArg? a | throw "not a string literal"
   let some (y, tb) := stringArg? b | throw "not a string literal"
   match ta, tb with

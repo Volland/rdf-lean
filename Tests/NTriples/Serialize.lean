@@ -40,5 +40,8 @@ private def out? (ts : List Triple) : Option String := (Graph.ofList ts).toNTrip
 #guard out? [⟨ex "s", ex "p", .lit (.lang "chat" "fr")⟩] == some "<http://example/s> <http://example/p> \"chat\"@fr .\n"
 #guard out? [⟨.bnode ⟨"has space"⟩, ex "p", ex "o"⟩] == none
 #guard out? [⟨ex "s", ex "p", .iri ⟨"relative"⟩⟩] == none
+#guard out? [⟨ex "s", ex "p", .lit (.lang "مرحبا" "abcdefghi")⟩] == none
+#guard out? [⟨ex "s", ex "p", .lit (.dirLang "مرحبا" "ar-abcdefghi" .rtl)⟩] == none
+#guard (Turtle.parse "<http://example/s> <http://example/p> \"مرحبا\"@abcdefghi .\n").toOption.isNone
 
 end LeanRDF.Tests.NTriplesSerialize

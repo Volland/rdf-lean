@@ -62,13 +62,13 @@ def isBlankNodeLabel (s : String) : Bool :=
     (isPNCharsU c || c.isDigit) && rest.all (fun d => isPNChars d || d == '.') &&
       (rest.isEmpty || rest.getLast? != some '.')
 
-/-- A `LANGTAG` after `@` (RDF 1.1 N-Triples §7, production [144s]):
-`[a-zA-Z]+ ('-' [a-zA-Z0-9]+)*`. -/
+/-- A `LANGTAG` after `@` (RDF 1.2 N-Triples §5.3, production [15]; BCP 47 §2.2.9):
+`[a-zA-Z]{1,8} ('-' [a-zA-Z0-9]{1,8})*`. -/
 def isLangTag (s : String) : Bool :=
   match s.splitOn "-" with
   | [] => false
   | first :: subtags =>
-    !first.isEmpty && first.all Char.isAlpha &&
-      subtags.all (fun t => !t.isEmpty && t.all Char.isAlphanum)
+    !first.isEmpty && first.length ≤ 8 && first.all Char.isAlpha &&
+      subtags.all (fun t => !t.isEmpty && t.length ≤ 8 && t.all Char.isAlphanum)
 
 end LeanRDF.NTriples

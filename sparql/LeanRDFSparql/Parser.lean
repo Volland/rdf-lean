@@ -249,33 +249,44 @@ partial def stringLit : P String := do
       | some c => if c == q then bump; return acc else bump; short (acc.push c)
     short ""
 
-partial def langTag : P String := do
+partial def langDir : P (String × Option Direction) := do
   let rec take (p : Char → Bool) (acc : String) : P String := do
     match ← peek? with
     | some c => if p c then bump; take p (acc.push c) else return acc
     | none => return acc
   let first ← take Char.isAlpha ""
-  if first.isEmpty then fail "invalid language tag"
+  if first.isEmpty || first.length > 8 then fail "invalid language tag"
   let rec subtags (acc : String) : P String := do
-    if (← peek?) == some '-' then
+    if (← peek?) == some '-' && (← peekAt? 1) != some '-' then
       bump
       let t ← take Char.isAlphanum ""
-      if t.isEmpty then fail "invalid language tag"
+      if t.isEmpty || t.length > 8 then fail "invalid language tag"
       subtags (acc ++ "-" ++ t)
     else return acc
-  subtags first
+  let tag ← subtags first
+  if (← peek?) == some '-' && (← peekAt? 1) == some '-' then
+    bump; bump
+    let d ← take Char.isAlpha ""
+    match Direction.ofString? d with
+    | some dir => return (tag, some dir)
+    | none => fail s!"invalid base direction '{d}': expected ltr or rtl"
+  return (tag, none)
 
-/-- A string literal with an optional language tag or datatype. -/
+/-- A string literal with an optional language tag (and base direction) or datatype. -/
 def rdfLiteral : P Literal := do
   let lex ← stringLit
   match ← peek? with
-  | some '@' => bump; return Literal.lang' lex (← langTag)
+  | some '@' =>
+    bump
+    match ← langDir with
+    | (tag, none) => return Literal.lang' lex tag
+    | (tag, some dir) => return Literal.dirLang' lex tag dir
   | some '^' =>
     bump; expectC '^'
     let dt ← iri
     match Literal.mk? lex dt none with
     | some l => return l
-    | none => fail "rdf:langString needs a language tag"
+    | none => fail "rdf:langString and rdf:dirLangString require a language tag"
   | _ => return Literal.str lex
 
 partial def digits (acc : String) : P String := do
