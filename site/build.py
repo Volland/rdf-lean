@@ -166,7 +166,7 @@ def page(title, body, path, desc="", extra_nav="", article=True, lang="en"):
 {body}
 </main>
 <footer><div class="wrap">
-<p>LeanRDF builds on <a href="https://github.com/Volland/lean-elpi">lean-elpi</a> and Lean 4.35. The W3C test suites it vendors are under the W3C test suite licence.</p>
+<p>LeanRDF builds on <a href="https://github.com/Volland/lean-elpi">lean-elpi</a> and Lean 4.36. The W3C test suites it vendors are under the W3C test suite licence.</p>
 <p><a href="{REPO}">Source on GitHub</a> · <a href="{BASE}/impressum/">Impressum</a> · <a href="{BASE}/datenschutz/">Datenschutz</a> · <a href="{BASE}/agb/">AGB</a> · <a href="{BASE}/privacy/">Privacy</a></p>
 </div></footer>
 </body>

@@ -272,7 +272,7 @@ The repository holds two Lake packages: `leanrdf` at the root with no dependenci
 
 - motivated_by:: [[constraints#Lake requires per package]] {weight: primary}
 - motivated_by:: [[constraints#lean-elpi has no dependencies]]
-- motivated_by:: [[constraints#Lean toolchain 4.35]]
+- motivated_by:: [[constraints#Lean toolchain 4.36]]
 
 ## Static site from a standard-library generator
 
@@ -988,7 +988,7 @@ The paper's abstract Lean (Kernel, Export, History, Quoting; about 1.4k lines, c
 **Consequences.** Neither build depends on the other repository. Drift is visible through the recorded commit.
 
 - motivated_by:: [[constraints#Statement Graph definition]] {weight: primary}
-- motivated_by:: [[constraints#Lean toolchain 4.35]]
+- motivated_by:: [[constraints#Lean toolchain 4.36]]
 - introduced_by:: [[changes#add-statement-graphs]]
 
 ## Clocks are integer literals

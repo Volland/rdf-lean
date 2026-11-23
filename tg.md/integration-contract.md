@@ -42,6 +42,6 @@ Balanced `std.map` and `std.set` (and native integer maps) are available for the
 
 ## Toolchain and dependencies
 
-lean-elpi pins `leanprover/lean4:v4.35.0` and has no Lake dependencies; LeanRDF uses the same toolchain and requires lean-elpi only from the `leanrdf-elpi` package.
+lean-elpi pins `leanprover/lean4:v4.35.0` and has no Lake dependencies; LeanRDF pins v4.36.0, on which lean-elpi builds unchanged, and requires lean-elpi only from the `leanrdf-elpi` package.
 
-Version 0.3.3 is pinned by git tag. Building it emits a deprecation warning from `Elpi/Runtime/Dsl.lean` on Lean 4.35, which is harmless.
+Version 0.3.3 is pinned by git tag. Building it on Lean 4.36 emits deprecation and linter warnings, which are harmless.

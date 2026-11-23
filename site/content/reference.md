@@ -4,7 +4,7 @@ summary: The modules of every LeanRDF package, and their main definitions and th
 ---
 # Reference
 
-Five Lake packages share one repository. `leanrdf` (the root) has no dependencies; `leanrdf-sparql`, `leanrdf-owl` and `leanrdf-shacl` require only `leanrdf`; `leanrdf-elpi` (`elpi/`) requires `leanrdf`, `leanrdf-owl` and lean-elpi v0.3.3. All use Lean 4.35.0. [Packages and installation](/docs/packages/) explains how to depend on each, and the [documentation](/docs/) has a guide per package.
+Five Lake packages share one repository. `leanrdf` (the root) has no dependencies; `leanrdf-sparql`, `leanrdf-owl` and `leanrdf-shacl` require only `leanrdf`; `leanrdf-elpi` (`elpi/`) requires `leanrdf`, `leanrdf-owl` and lean-elpi v0.3.3. All use Lean 4.36.0. [Packages and installation](/docs/packages/) explains how to depend on each, and the [documentation](/docs/) has a guide per package.
 
 ```lean
 -- lakefile.lean of a project using the model and the checker

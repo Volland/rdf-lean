@@ -9,7 +9,7 @@ LeanRDF is a set of Lean 4 packages in one repository. This page takes you from 
 
 ## Requirements
 
-- **Lean 4.35.0**, installed through [elan](https://github.com/leanprover/elan). Every package pins it in its `lean-toolchain` file, so elan picks the right version on its own.
+- **Lean 4.36.0**, installed through [elan](https://github.com/leanprover/elan). Every package pins it in its `lean-toolchain` file, so elan picks the right version on its own.
 - **git**, to fetch lean-elpi for the Elpi package.
 - **Python 3**, only to build the website and run the release checks.
 - **oxilite**, only to certify a live store. Every oxilite feature can replay recorded outputs instead.

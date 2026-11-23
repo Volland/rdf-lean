@@ -47,7 +47,7 @@ def empty : Mapping := ⟨[], .nil⟩
 
 private theorem lt_of_not_lt_ne {v w : Var} (h₁ : ¬ v < w) (h₂ : v ≠ w) : w < v :=
   Classical.byContradiction fun h₃ =>
-    h₂ (String.le_antisymm (String.not_lt.mp h₃) (String.not_lt.mp h₁))
+    h₂ (Std.le_antisymm (Std.not_lt.mp h₃) (Std.not_lt.mp h₁))
 
 /-! ## Lookup -/
 
@@ -67,7 +67,7 @@ theorem lookup_none_of_lt {v : Var} :
     ∀ {l : List (Var × Term)}, (∀ y ∈ l, v < y.1) → l.lookup v = none
   | [], _ => rfl
   | (w, u) :: l, h => by
-    have hvw : v ≠ w := fun e => String.lt_irrefl v (e ▸ h (w, u) (List.mem_cons_self ..))
+    have hvw : v ≠ w := fun e => Std.lt_irrefl (e ▸ h (w, u) (List.mem_cons_self ..))
     simp [List.lookup, hvw, lookup_none_of_lt (fun y hy => h y (List.mem_cons_of_mem _ hy))]
 
 /-- Sorted insertion of a binding, replacing the variable's binding if there is one. -/
@@ -109,7 +109,7 @@ theorem sorted_insertL {v : Var} {t : Term} :
       intro y hy
       rcases List.mem_cons.mp hy with rfl | hy
       · exact hvw
-      · exact String.lt_trans hvw (hw y hy)
+      · exact Std.lt_trans hvw (hw y hy)
     · simp only [hvw, ite_false]
       by_cases e : v = w
       · subst e; simp only [ite_true]; exact List.Pairwise.cons hw hl
@@ -128,7 +128,7 @@ theorem lookup_insertL {v w : Var} {t : Term} :
     by_cases hvx : v < x
     · by_cases h : w = v <;> simp [hvx, List.lookup, h]
     · by_cases e : v = x
-      · subst e; by_cases h : w = v <;> simp [List.lookup, h]
+      · subst e; by_cases h : w = v <;> simp [hvx, List.lookup, h]
       · simp only [hvx, e, ite_false, List.lookup]
         rw [lookup_insertL]
         by_cases h : w = v
@@ -159,10 +159,10 @@ theorem ext_lists : ∀ {l₁ l₂ : List (Var × Term)}, Sorted l₁ → Sorted
       intro ne
       by_cases lt : v < w
       · have := h v
-        simp [List.lookup, ne, lookup_none_of_lt (fun y hy => String.lt_trans lt (h₂ y hy))] at this
+        simp [List.lookup, ne, lookup_none_of_lt (fun y hy => Std.lt_trans lt (h₂ y hy))] at this
       · have lt' := lt_of_not_lt_ne lt ne
         have := h w
-        simp [List.lookup, Ne.symm ne, lookup_none_of_lt (fun y hy => String.lt_trans lt' (h₁ y hy))] at this
+        simp [List.lookup, Ne.symm ne, lookup_none_of_lt (fun y hy => Std.lt_trans lt' (h₁ y hy))] at this
     subst hvw
     have htu : t = u := by have := h v; simpa [List.lookup] using this
     subst htu
@@ -205,7 +205,7 @@ theorem lookup_of_mem {l : List (Var × Term)} (s : Sorted l) {v : Var} {t : Ter
     rcases List.mem_cons.mp h with e | h
     · cases e; simp [List.lookup]
     · have hw := (List.pairwise_cons.mp s).1 (v, t) h
-      have : v ≠ w := fun e => String.lt_irrefl v (e ▸ hw)
+      have : v ≠ w := fun e => Std.lt_irrefl (e ▸ hw)
       simp [List.lookup, this, ih (List.pairwise_cons.mp s).2 h]
 
 theorem compatible_iff {μ ν : Mapping} : μ.compatible ν = true ↔ Compatible μ ν := by

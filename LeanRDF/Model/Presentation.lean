@@ -253,7 +253,8 @@ instance : Decidable P.IrisOK := by unfold IrisOK; infer_instance
 instance : Decidable P.LitsOK := by unfold LitsOK; infer_instance
 instance : Decidable P.TripleOK := by unfold TripleOK; infer_instance
 instance : Decidable P.OverridesOK := by unfold OverridesOK; infer_instance
-instance : Decidable P.LitSortsUsed := by unfold LitSortsUsed; infer_instance
+-- Given by name: the search for the whole instance exceeds `synthInstance.maxSize`.
+instance : Decidable P.LitSortsUsed := Nat.decidableBallLT _ _
 instance : Decidable P.ExtOK := by unfold ExtOK; infer_instance
 instance : Decidable P.AssignOK := by unfold AssignOK; infer_instance
 

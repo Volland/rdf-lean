@@ -43,7 +43,7 @@ See [Errors in aggregates](/docs/sparql/#errors-in-aggregates). LeanRDF reads §
 
 ### `lake build` downloads or builds the wrong Lean
 
-Each package pins `leanprover/lean4:v4.35.0` in `lean-toolchain`. Run elan from the package directory, and give your own project the same toolchain when you depend on LeanRDF.
+Each package pins `leanprover/lean4:v4.36.0` in `lean-toolchain`. Run elan from the package directory, and give your own project the same toolchain when you depend on LeanRDF.
 
 ### `unknown package 'leanrdf'` when building a sub-package
 

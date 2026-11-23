@@ -37,7 +37,7 @@ The libraries contain no `sorry` and no new axioms. They use only `propext`, `Qu
 
 ## Quick start
 
-Install [elan](https://github.com/leanprover/elan). Every package pins Lean 4.35.0.
+Install [elan](https://github.com/leanprover/elan). Every package pins Lean 4.36.0.
 
 ```bash
 git clone https://github.com/Volland/rdf-lean && cd rdf-lean

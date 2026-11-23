@@ -34,12 +34,12 @@ theorem Key.le_total (a b : Key) : (a.le b || b.le a) = true := by
   · rcases Rat.le_total (a := a.num) (b := b.num) with hn | hn
     · rcases Rat.le_iff_lt_or_eq.mp hn with hn | hn
       · exact .inl (.inr ⟨h, .inl hn⟩)
-      · rcases String.le_total a.str b.str with hs | hs
+      · rcases Std.le_total (a := a.str) (b := b.str) with hs | hs
         · exact .inl (.inr ⟨h, .inr ⟨hn, hs⟩⟩)
         · exact .inr (.inr ⟨h.symm, .inr ⟨hn.symm, hs⟩⟩)
     · rcases Rat.le_iff_lt_or_eq.mp hn with hn | hn
       · exact .inr (.inr ⟨h.symm, .inl hn⟩)
-      · rcases String.le_total a.str b.str with hs | hs
+      · rcases Std.le_total (a := a.str) (b := b.str) with hs | hs
         · exact .inl (.inr ⟨h, .inr ⟨hn.symm, hs⟩⟩)
         · exact .inr (.inr ⟨h.symm, .inr ⟨hn, hs⟩⟩)
   · exact .inr (.inl h)
@@ -66,7 +66,7 @@ theorem Key.le_trans {a b c : Key} (h₁ : a.le b = true) (h₂ : b.le c = true)
     · exact .inl (rat_lt_of_lt_of_le h₁ (Rat.le_of_lt h₂))
     · exact .inl (n₂ ▸ h₁)
     · exact .inl (n₁ ▸ h₂)
-    · exact .inr ⟨n₁.trans n₂, String.le_trans s₁ s₂⟩
+    · exact .inr ⟨n₁.trans n₂, Std.le_trans s₁ s₂⟩
 
 /-- Keys in both orders are equivalent. -/
 def Key.equiv (a b : Key) : Bool := a.le b && b.le a
