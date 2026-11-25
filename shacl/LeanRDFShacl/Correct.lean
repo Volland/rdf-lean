@@ -13,37 +13,40 @@ namespace LeanRDF.Shacl
 
 open Vocab
 
-variable (G : Graph)
+section
+
+variable {G : Graph} (X : GIdx G)
 
 /-! ## Value nodes, instances and counts -/
 
-theorem mem_vals {path : Option Path} {x v : Term} : v ∈ vals G path x ↔ VN G path x v := by
+theorem mem_vals {path : Option Path} {x v : Term} : v ∈ vals X path x ↔ VN G path x v := by
   cases path with
   | none => simp [vals, VN]
-  | some p => exact valueNodes_iff
+  | some p => rw [vals, valueNodesX_eq]; exact valueNodes_iff
 
-theorem vals_nodup (path : Option Path) (x : Term) : (vals G path x).Nodup := by
+theorem vals_nodup (path : Option Path) (x : Term) : (vals X path x).Nodup := by
   cases path with
   | none => exact List.nodup_cons.2 ⟨List.not_mem_nil, List.nodup_nil⟩
-  | some p => exact valueNodes_nodup G p x
+  | some p => rw [vals, valueNodesX_eq]; exact valueNodes_nodup G p x
 
-theorem pred_iff {p : IRI} {x y : Term} : ValueNode G (.pred p) x y ↔ ⟨x, .iri p, y⟩ ∈ G :=
+theorem pred_iff (G : Graph) {p : IRI} {x y : Term} : ValueNode G (.pred p) x y ↔ ⟨x, .iri p, y⟩ ∈ G :=
   ⟨fun h => by cases h with | pred h => exact h, .pred⟩
 
-theorem mem_pred {p : IRI} {x y : Term} : y ∈ valueNodes G (.pred p) x ↔ ⟨x, .iri p, y⟩ ∈ G :=
-  valueNodes_iff.trans (pred_iff G)
+theorem mem_pred {p : IRI} {x y : Term} : y ∈ valueNodesX X (.pred p) x ↔ ⟨x, .iri p, y⟩ ∈ G := by
+  rw [valueNodesX_eq]; exact valueNodes_iff.trans (pred_iff G)
 
-theorem instB_iff {v c : Term} : instB G v c = true ↔ InstanceOf G v c := by
-  simp only [instB, List.any_eq_true, List.contains_iff_mem, valueNodes_iff, pred_iff, InstanceOf]
+theorem instB_iff {v c : Term} : instB X v c = true ↔ InstanceOf G v c := by
+  simp only [instB, List.any_eq_true, List.contains_iff_mem, valueNodesX_eq, valueNodes_iff, pred_iff,
+    InstanceOf]
 
 /-- The values that pass a filter, reported one by one, are none exactly when every value node
 passes. -/
 theorem filter_vals {β : Type} {path : Option Path} {x : Term} {f : Term → Bool} {g : Term → β}
     {P : Term → Prop} (h : ∀ v, f v = false ↔ P v) :
-    ((vals G path x).filter f).map g = [] ↔ ∀ v, VN G path x v → P v := by
+    ((vals X path x).filter f).map g = [] ↔ ∀ v, VN G path x v → P v := by
   simp only [List.map_eq_nil_iff, List.filter_eq_nil_iff, Bool.not_eq_true]
-  exact ⟨fun h' v hv => (h v).1 (h' v ((mem_vals G).2 hv)),
-    fun h' v hv => (h v).2 (h' v ((mem_vals G).1 hv))⟩
+  exact ⟨fun h' v hv => (h v).1 (h' v ((mem_vals X).2 hv)),
+    fun h' v hv => (h v).2 (h' v ((mem_vals X).1 hv))⟩
 
 /-- A list without duplicates that lists `P` counts it: at least `n`. -/
 theorem count_ge {l : List Term} {P : Term → Prop} (hl : l.Nodup) (hP : ∀ y, y ∈ l ↔ P y)
@@ -99,7 +102,7 @@ theorem if_nil {c : Prop} [Decidable c] {r : Result} : (if c then [r] else []) =
 /-! ## No results exactly when the node conforms -/
 
 mutual
-theorem results_nil : ∀ (s : Shape) (x : Term), results G s x = [] ↔ Conforms G s x
+theorem results_nil : ∀ (s : Shape) (x : Term), results X s x = [] ↔ Conforms G s x
   | .mk id path tg comps deact sev msgs, x => by
     rw [results, Conforms]
     cases deact
@@ -107,111 +110,115 @@ theorem results_nil : ∀ (s : Shape) (x : Term), results G s x = [] ↔ Conform
       exact compsResults_nil ⟨id, path, sev, msgs⟩ comps x
     · simp
 theorem compsResults_nil (k : Ctx) : ∀ (cs : List Component) (x : Term),
-    compsResults G k cs x = [] ↔ CompsHold G k.path cs x
+    compsResults X k cs x = [] ↔ CompsHold G k.path cs x
   | [], x => by simp [compsResults, CompsHold]
   | c :: cs, x => by
     rw [compsResults, CompsHold, List.append_eq_nil_iff, compResults_nil k c x, compsResults_nil k cs x]
 theorem compResults_nil (k : Ctx) : ∀ (c : Component) (x : Term),
-    compResults G k c x = [] ↔ CompHolds G k.path c x
+    compResults X k c x = [] ↔ CompHolds G k.path c x
   | .test t, x => by
-    rw [compResults, CompHolds]; exact filter_vals G fun v => by simp
+    rw [compResults, CompHolds]; exact filter_vals X fun v => by simp
   | .class_ c, x => by
-    rw [compResults, CompHolds]; exact filter_vals G fun v => by simp [instB_iff]
+    rw [compResults, CompHolds]; exact filter_vals X fun v => by simp [instB_iff]
   | .minCount n, x => by
     rw [compResults, CompHolds, if_nil, Nat.not_lt,
-      count_ge (vals_nodup G _ _) (fun y => mem_vals G)]
+      count_ge (vals_nodup X _ _) (fun y => mem_vals X)]
   | .maxCount n, x => by
     rw [compResults, CompHolds, if_nil, Nat.not_lt,
-      count_le (vals_nodup G _ _) (fun y => mem_vals G)]
+      count_le (vals_nodup X _ _) (fun y => mem_vals X)]
   | .uniqueLang, x => by
     rw [compResults, CompHolds, List.map_eq_nil_iff, dupLangs_nil]
-    exact ⟨fun h y z hy hz => h y ((mem_vals G).2 hy) z ((mem_vals G).2 hz),
-      fun h y hy z hz => h y z ((mem_vals G).1 hy) ((mem_vals G).1 hz)⟩
+    exact ⟨fun h y z hy hz => h y ((mem_vals X).2 hy) z ((mem_vals X).2 hz),
+      fun h y hy z hz => h y z ((mem_vals X).1 hy) ((mem_vals X).1 hz)⟩
   | .equals p, x => by
     simp only [compResults, CompHolds, List.map_eq_nil_iff, List.append_eq_nil_iff,
       List.filter_eq_nil_iff, Bool.not_eq_true, Bool.not_eq_false', List.contains_iff_mem, mem_pred]
     constructor
     · rintro ⟨h1, h2⟩ v
-      exact ⟨fun hv => h1 v ((mem_vals G).2 hv), fun hv => (mem_vals G).1 (h2 v hv)⟩
+      exact ⟨fun hv => h1 v ((mem_vals X).2 hv), fun hv => (mem_vals X).1 (h2 v hv)⟩
     · intro h
-      exact ⟨fun v hv => (h v).1 ((mem_vals G).1 hv), fun v hv => (mem_vals G).2 ((h v).2 hv)⟩
+      exact ⟨fun v hv => (h v).1 ((mem_vals X).1 hv), fun v hv => (mem_vals X).2 ((h v).2 hv)⟩
   | .disjoint p, x => by
-    rw [compResults, CompHolds]; exact filter_vals G fun v => by simp
+    rw [compResults, CompHolds]; exact filter_vals X fun v => by simp
   | .lessThan p, x => by
     simp only [compResults, CompHolds, List.map_eq_nil_iff, List.flatMap_eq_nil_iff,
       List.filter_eq_nil_iff, Bool.not_eq_true, Bool.not_eq_false', mem_pred]
-    exact ⟨fun h v w hv hw => h v ((mem_vals G).2 hv) w hw,
-      fun h v hv w hw => h v w ((mem_vals G).1 hv) hw⟩
+    exact ⟨fun h v w hv hw => h v ((mem_vals X).2 hv) w hw,
+      fun h v hv w hw => h v w ((mem_vals X).1 hv) hw⟩
   | .lessThanOrEquals p, x => by
     simp only [compResults, CompHolds, List.map_eq_nil_iff, List.flatMap_eq_nil_iff,
       List.filter_eq_nil_iff, Bool.not_eq_true, Bool.not_eq_false', mem_pred]
-    exact ⟨fun h v w hv hw => h v ((mem_vals G).2 hv) w hw,
-      fun h v hv w hw => h v w ((mem_vals G).1 hv) hw⟩
+    exact ⟨fun h v w hv hw => h v ((mem_vals X).2 hv) w hw,
+      fun h v hv w hw => h v w ((mem_vals X).1 hv) hw⟩
   | .not s, x => by
     rw [compResults, CompHolds]
-    exact filter_vals G fun v => by
+    exact filter_vals X fun v => by
       rw [← Bool.not_eq_true, List.isEmpty_iff, results_nil s v]
   | .and ss, x => by
     rw [compResults, CompHolds]
-    exact filter_vals G fun v => by rw [Bool.not_eq_false', allOk_iff ss v]
+    exact filter_vals X fun v => by rw [Bool.not_eq_false', allOk_iff ss v]
   | .or ss, x => by
     rw [compResults, CompHolds]
-    exact filter_vals G fun v => by rw [Bool.not_eq_false', someOk_iff ss v]
+    exact filter_vals X fun v => by rw [Bool.not_eq_false', someOk_iff ss v]
   | .xone ss, x => by
     rw [compResults, CompHolds]
-    exact filter_vals G fun v => by rw [Bool.not_eq_false', oneOk_iff ss v]
+    exact filter_vals X fun v => by rw [Bool.not_eq_false', oneOk_iff ss v]
   | .node s, x => by
     rw [compResults, CompHolds]
-    exact filter_vals G fun v => by rw [Bool.not_eq_false', List.isEmpty_iff, results_nil s v]
+    exact filter_vals X fun v => by rw [Bool.not_eq_false', List.isEmpty_iff, results_nil s v]
   | .property s, x => by
     rw [compResults, CompHolds, List.flatMap_eq_nil_iff]
-    exact ⟨fun h v hv => (results_nil s v).1 (h v ((mem_vals G).2 hv)),
-      fun h v hv => (results_nil s v).2 (h v ((mem_vals G).1 hv))⟩
+    exact ⟨fun h v hv => (results_nil s v).1 (h v ((mem_vals X).2 hv)),
+      fun h v hv => (results_nil s v).2 (h v ((mem_vals X).1 hv))⟩
   | .qualifiedMin s n sibs, x => by
     rw [compResults, CompHolds, if_nil, Nat.not_lt]
-    refine count_ge ((vals_nodup G _ _).sublist List.filter_sublist) (fun y => ?_) n
-    rw [List.mem_filter, mem_vals G, Bool.and_eq_true, List.isEmpty_iff, results_nil s y,
+    refine count_ge ((vals_nodup X _ _).sublist List.filter_sublist) (fun y => ?_) n
+    rw [List.mem_filter, mem_vals X, Bool.and_eq_true, List.isEmpty_iff, results_nil s y,
       noneOk_iff sibs y]
   | .qualifiedMax s n sibs, x => by
     rw [compResults, CompHolds, if_nil, Nat.not_lt]
-    refine count_le ((vals_nodup G _ _).sublist List.filter_sublist) (fun y => ?_) n
-    rw [List.mem_filter, mem_vals G, Bool.and_eq_true, List.isEmpty_iff, results_nil s y,
+    refine count_le ((vals_nodup X _ _).sublist List.filter_sublist) (fun y => ?_) n
+    rw [List.mem_filter, mem_vals X, Bool.and_eq_true, List.isEmpty_iff, results_nil s y,
       noneOk_iff sibs y]
   | .closed allowed, x => by
-    simp only [compResults, CompHolds, List.flatMap_eq_nil_iff, List.map_eq_nil_iff,
+    have hc : ∀ v, ((X.bySubj.get.getD v []).filter fun t => !allowedB allowed t.p) =
+        G.toList.filter fun t => t.s == v && !allowedB allowed t.p := fun v => by
+      rw [X.bySubj_eq, List.filter_filter]
+      congr 1; funext t; exact Bool.and_comm _ _
+    simp only [compResults, hc, CompHolds, List.flatMap_eq_nil_iff, List.map_eq_nil_iff,
       List.filter_eq_nil_iff, Graph.mem_toList, Bool.and_eq_true, beq_iff_eq, Bool.not_eq_true',
       not_and, Bool.not_eq_false]
     constructor
     · intro h v hv p o ht
-      have := h v ((mem_vals G).2 hv) ⟨v, p, o⟩ ht rfl
+      have := h v ((mem_vals X).2 hv) ⟨v, p, o⟩ ht rfl
       exact allowedB_iff.1 (by simpa using this)
     · intro h v hv t ht hs
       obtain ⟨s', p, o⟩ := t
       simp only at hs; subst hs
-      have := allowedB_iff.2 (h _ ((mem_vals G).1 hv) p o ht)
+      have := allowedB_iff.2 (h _ ((mem_vals X).1 hv) p o ht)
       simpa using this
   | .hasValue t, x => by
     rw [compResults, CompHolds]
-    by_cases h : (vals G k.path x).contains t = true
+    by_cases h : (vals X k.path x).contains t = true
     · simp only [h, ↓reduceIte]
-      exact iff_of_true trivial ((mem_vals G).1 (List.contains_iff_mem.1 h))
-    · have h' : (vals G k.path x).contains t = false := by simpa using h
+      exact iff_of_true trivial ((mem_vals X).1 (List.contains_iff_mem.1 h))
+    · have h' : (vals X k.path x).contains t = false := by simpa using h
       simp only [h', Bool.false_eq_true, ↓reduceIte]
-      exact iff_of_false (by simp) fun hv => h (List.contains_iff_mem.2 ((mem_vals G).2 hv))
-theorem allOk_iff : ∀ (ss : List Shape) (v : Term), allOk G ss v = true ↔ AllConform G ss v
+      exact iff_of_false (by simp) fun hv => h (List.contains_iff_mem.2 ((mem_vals X).2 hv))
+theorem allOk_iff : ∀ (ss : List Shape) (v : Term), allOk X ss v = true ↔ AllConform G ss v
   | [], v => by simp [allOk, AllConform]
   | s :: ss, v => by
     rw [allOk, AllConform, Bool.and_eq_true, List.isEmpty_iff, results_nil s v, allOk_iff ss v]
-theorem someOk_iff : ∀ (ss : List Shape) (v : Term), someOk G ss v = true ↔ SomeConforms G ss v
+theorem someOk_iff : ∀ (ss : List Shape) (v : Term), someOk X ss v = true ↔ SomeConforms G ss v
   | [], v => by simp [someOk, SomeConforms]
   | s :: ss, v => by
     rw [someOk, SomeConforms, Bool.or_eq_true, List.isEmpty_iff, results_nil s v, someOk_iff ss v]
-theorem noneOk_iff : ∀ (ss : List Shape) (v : Term), noneOk G ss v = true ↔ NoneConform G ss v
+theorem noneOk_iff : ∀ (ss : List Shape) (v : Term), noneOk X ss v = true ↔ NoneConform G ss v
   | [], v => by simp [noneOk, NoneConform]
   | s :: ss, v => by
     rw [noneOk, NoneConform, Bool.and_eq_true, Bool.not_eq_true', ← Bool.not_eq_true,
       List.isEmpty_iff, results_nil s v, noneOk_iff ss v]
-theorem oneOk_iff : ∀ (ss : List Shape) (v : Term), oneOk G ss v = true ↔ OneConforms G ss v
+theorem oneOk_iff : ∀ (ss : List Shape) (v : Term), oneOk X ss v = true ↔ OneConforms G ss v
   | [], v => by simp [oneOk, OneConforms]
   | s :: ss, v => by
     rw [oneOk, OneConforms, Bool.or_eq_true, Bool.and_eq_true, Bool.and_eq_true, Bool.not_eq_true',
@@ -220,11 +227,15 @@ end
 
 /-! ## The report -/
 
-theorem mem_targetNodes {tg : Target} {x : Term} : x ∈ targetNodes G tg ↔ TargetHolds G tg x := by
+theorem mem_targetNodes {tg : Target} {x : Term} : x ∈ targetNodes X tg ↔ TargetHolds G tg x := by
   cases tg with
   | node t => simp [targetNodes, TargetHolds]
   | class_ c =>
-    simp only [targetNodes, TargetHolds, List.mem_map, List.mem_filter, Graph.mem_toList,
+    have hc : ((X.byPred.get.getD (.iri rdf.type) []).filter fun t => instB X t.s c) =
+        G.toList.filter fun t => t.p == .iri rdf.type && instB X t.s c := by
+      rw [X.byPred_eq, List.filter_filter]
+      congr 1; funext t; exact Bool.and_comm _ _
+    simp only [targetNodes, hc, TargetHolds, List.mem_map, List.mem_filter, Graph.mem_toList,
       Bool.and_eq_true, beq_iff_eq, instB_iff]
     constructor
     · rintro ⟨t, ⟨-, -, h⟩, rfl⟩; exact h
@@ -232,34 +243,46 @@ theorem mem_targetNodes {tg : Target} {x : Term} : x ∈ targetNodes G tg ↔ Ta
       obtain ⟨t, ht, ht'⟩ := id h
       exact ⟨_, ⟨ht, rfl, h⟩, rfl⟩
   | subjectsOf p =>
-    simp only [targetNodes, TargetHolds, List.mem_map, List.mem_filter, Graph.mem_toList, beq_iff_eq]
+    simp only [targetNodes, X.byPred_eq, TargetHolds, List.mem_map, List.mem_filter, Graph.mem_toList, beq_iff_eq]
     constructor
     · rintro ⟨⟨s, p', o⟩, ⟨ht, hp⟩, rfl⟩; simp only at hp; subst hp; exact ⟨o, ht⟩
     · rintro ⟨o, ht⟩; exact ⟨_, ⟨ht, rfl⟩, rfl⟩
   | objectsOf p =>
-    simp only [targetNodes, TargetHolds, List.mem_map, List.mem_filter, Graph.mem_toList, beq_iff_eq]
+    simp only [targetNodes, X.byPred_eq, TargetHolds, List.mem_map, List.mem_filter, Graph.mem_toList, beq_iff_eq]
     constructor
     · rintro ⟨⟨s, p', o⟩, ⟨ht, hp⟩, rfl⟩; simp only at hp; subst hp; exact ⟨s, ht⟩
     · rintro ⟨s, ht⟩; exact ⟨_, ⟨ht, rfl⟩, rfl⟩
 
-theorem mem_focusNodes {s : Shape} {x : Term} : x ∈ focusNodes G s ↔ IsFocus G s x := by
-  simp only [focusNodes, mem_uniq, List.mem_flatMap, mem_targetNodes, IsFocus]
+theorem mem_focusNodes {s : Shape} {x : Term} : x ∈ focusNodes X s ↔ IsFocus G s x := by
+  simp only [focusNodes, uniqF_eq, mem_uniq, List.mem_flatMap, mem_targetNodes, IsFocus]
+
+end
+
+section
+
+variable (G : Graph)
 
 -- @tg: implements:: [[openspec:shacl-core#Proven validator]] {note: "validate_conforms"}
 /-- The report conforms exactly when the data graph conforms to the shapes. -/
 theorem validate_conforms (S : List Shape) : (validate G S).conforms = true ↔ DataConforms G S := by
   simp only [validate, List.isEmpty_iff, List.flatMap_eq_nil_iff, DataConforms]
-  exact ⟨fun h s hs x hx => (results_nil G s x).1 (h s hs x ((mem_focusNodes G).2 hx)),
-    fun h s hs x hx => (results_nil G s x).2 (h s hs x ((mem_focusNodes G).1 hx))⟩
+  exact ⟨fun h s hs x hx => (results_nil _ s x).1 (h s hs x ((mem_focusNodes _).2 hx)),
+    fun h s hs x hx => (results_nil _ s x).2 (h s hs x ((mem_focusNodes _).1 hx))⟩
 
 /-- A result is a real violation: some shape has a component, the result's, that fails at the
 result's focus node. -/
 def Violation (r : Result) : Prop :=
   ∃ s : Shape, s.id = r.source ∧ ∃ c ∈ s.comps, c.iri = r.component ∧ ¬ CompHolds G s.path c r.focus
 
+end
+
+section
+
+variable {G : Graph} (X : GIdx G)
+
 /-- A component's own results name the shape, the component and the focus node. -/
 theorem compResults_own {k : Ctx} {c : Component} {x : Term} {r : Result}
-    (hnp : ∀ s, c ≠ .property s) (h : r ∈ compResults G k c x) :
+    (hnp : ∀ s, c ≠ .property s) (h : r ∈ compResults X k c x) :
     r.source = k.id ∧ r.component = c.iri ∧ r.focus = x := by
   cases c <;> simp only [compResults] at h
   all_goals first
@@ -276,16 +299,16 @@ theorem compResults_own {k : Ctx} {c : Component} {x : Term} {r : Result}
 
 private theorem own {k : Ctx} {P : Shape} {c : Component} {x : Term} {r : Result}
     (hid : P.id = k.id) (hpath : P.path = k.path) (hc : c ∈ P.comps) (hnp : ∀ s, c ≠ .property s)
-    (h : r ∈ compResults G k c x) : Violation G r := by
-  obtain ⟨h1, h2, h3⟩ := compResults_own G hnp h
+    (h : r ∈ compResults X k c x) : Violation G r := by
+  obtain ⟨h1, h2, h3⟩ := compResults_own X hnp h
   refine ⟨P, hid.trans h1.symm, c, hc, h2.symm, ?_⟩
   rw [hpath, h3]
   intro hh
-  rw [(compResults_nil G k c x).2 hh] at h
+  rw [(compResults_nil X k c x).2 hh] at h
   exact absurd h List.not_mem_nil
 
 mutual
-theorem results_sound : ∀ (s : Shape) (x : Term) (r : Result), r ∈ results G s x → Violation G r
+theorem results_sound : ∀ (s : Shape) (x : Term) (r : Result), r ∈ results X s x → Violation G r
   | .mk id path tg comps deact sev msgs, x, r, h => by
     rw [results] at h
     split at h
@@ -294,7 +317,7 @@ theorem results_sound : ∀ (s : Shape) (x : Term) (r : Result), r ∈ results G
         comps (fun _ hc => hc) x r h
 theorem compsResults_sound (k : Ctx) (P : Shape) (hid : P.id = k.id) (hpath : P.path = k.path) :
     ∀ (cs : List Component), (∀ c ∈ cs, c ∈ P.comps) → ∀ (x : Term) (r : Result),
-      r ∈ compsResults G k cs x → Violation G r
+      r ∈ compsResults X k cs x → Violation G r
   | [], _, _, _, h => absurd h List.not_mem_nil
   | c :: cs, hcs, x, r, h => by
     rw [compsResults, List.mem_append] at h
@@ -303,37 +326,39 @@ theorem compsResults_sound (k : Ctx) (P : Shape) (hid : P.id = k.id) (hpath : P.
     · exact compsResults_sound k P hid hpath cs (fun c hc => hcs c (List.mem_cons_of_mem _ hc)) x r h
 theorem compResults_sound (k : Ctx) (P : Shape) (hid : P.id = k.id) (hpath : P.path = k.path) :
     ∀ (c : Component), c ∈ P.comps → ∀ (x : Term) (r : Result),
-      r ∈ compResults G k c x → Violation G r
+      r ∈ compResults X k c x → Violation G r
   | .property s, _, x, r, h => by
     rw [compResults] at h
     obtain ⟨v, -, hv⟩ := List.mem_flatMap.1 h
     exact results_sound s v r hv
-  | .test _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .class_ _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .minCount _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .maxCount _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .uniqueLang, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .equals _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .disjoint _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .lessThan _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .lessThanOrEquals _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .not _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .and _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .or _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .xone _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .node _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .qualifiedMin .., hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .qualifiedMax .., hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .closed _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
-  | .hasValue _, hc, _, _, h => own G hid hpath hc (fun _ e => by cases e) h
+  | .test _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .class_ _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .minCount _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .maxCount _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .uniqueLang, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .equals _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .disjoint _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .lessThan _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .lessThanOrEquals _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .not _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .and _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .or _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .xone _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .node _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .qualifiedMin .., hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .qualifiedMax .., hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .closed _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+  | .hasValue _, hc, _, _, h => own X hid hpath hc (fun _ e => by cases e) h
+end
+
 end
 
 -- @tg: implements:: [[openspec:shacl-core#Proven validator]] {note: "validate_sound"}
 /-- Every result of the report is a real violation. -/
-theorem validate_sound (S : List Shape) {r : Result} (h : r ∈ (validate G S).results) :
+theorem validate_sound (G : Graph) (S : List Shape) {r : Result} (h : r ∈ (validate G S).results) :
     Violation G r := by
   simp only [validate, List.mem_flatMap] at h
   obtain ⟨s, -, x, -, hr⟩ := h
-  exact results_sound G s x r hr
+  exact results_sound _ s x r hr
 
 end LeanRDF.Shacl

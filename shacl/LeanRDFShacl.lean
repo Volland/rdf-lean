@@ -1,5 +1,6 @@
 import LeanRDFShacl.Vocab
 import LeanRDFShacl.Path
+import LeanRDFShacl.Index
 import LeanRDFShacl.Shapes
 import LeanRDFShacl.Semantics
 import LeanRDFShacl.Validate

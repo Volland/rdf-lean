@@ -3,6 +3,8 @@ import LeanRDFSparql.Algebra
 import LeanRDFSparql.Expr
 import LeanRDFSparql.Order
 import LeanRDFSparql.Ops
+import LeanRDFSparql.Index
+import LeanRDFSparql.PathEval
 import LeanRDFSparql.Eval
 import LeanRDFSparql.Semantics
 import LeanRDFSparql.BgpCorrect

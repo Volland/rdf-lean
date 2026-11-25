@@ -45,13 +45,27 @@ def finish (q : Query) (L : List Mapping) : List Mapping :=
   | some n => sliced.take n
   | none => sliced
 
+/-- `finish` with a hash-set DISTINCT (`finishF_eq`). -/
+def finishF (q : Query) (L : List Mapping) : List Mapping :=
+  let projected := match q.project with
+    | some vs => L.map (·.restrict vs)
+    | none => L
+  let unique := if q.distinct || q.reduced then dedupF projected else projected
+  let sliced := unique.drop q.offset
+  match q.limit with
+  | some n => sliced.take n
+  | none => sliced
+
+theorem finishF_eq (q : Query) (L : List Mapping) : q.finishF L = q.finish L := by
+  simp only [finishF, finish, dedupF_eq]
+
 end Query
 
 -- @tg: implements:: [[openspec:sparql-algebra#Proven evaluator]] {note: "ORDER BY by a stable sort"}
 /-- Run a query: evaluate its pattern, sort stably by its keys, then project, deduplicate and
 slice. -/
 def Eval.runQuery (D : Dataset) (q : Query) : List Mapping :=
-  q.finish ((Eval.eval D q.pattern).mergeSort (q.le D))
+  q.finishF ((Eval.eval D q.pattern).mergeSort (q.le D))
 
 /-- A correct answer to a query (§18.5, §15): the modifiers applied to some permutation of the
 pattern's solutions that is sorted by the ORDER BY keys. -/
@@ -68,6 +82,7 @@ theorem orderBy_sorted (D : Dataset) (q : Query) (Ω : List Mapping) :
 
 /-- The evaluator's answer to a query is a correct answer. -/
 theorem runQuery_answer (D : Dataset) (q : Query) : Spec.Answer D q (Eval.runQuery D q) :=
-  ⟨_, (List.mergeSort_perm _ _).trans (eval_perm_spec D q.pattern), orderBy_sorted D q _, rfl⟩
+  ⟨_, (List.mergeSort_perm _ _).trans (eval_perm_spec D q.pattern), orderBy_sorted D q _,
+    Query.finishF_eq q _⟩
 
 end LeanRDF.Sparql

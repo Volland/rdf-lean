@@ -56,12 +56,13 @@ def Result.key (r : Result) : ResultKey :=
 
 /-- Read an expected report: whether it conforms, and its results. -/
 def readReport (G : Graph) (rep : Term) : Except String (Bool × List ResultKey) := do
+  let X := GIdx.build G
   let conforms := (objs G rep sh.conforms).any isTrue
   let rs ← (objs G rep sh.result).mapM fun r => do
     let one (p : IRI) : Option Term := (objs G r p).head?
     let some focus := one sh.focusNode | throw "a result has no focus node"
     let path ← match one sh.resultPath with
-      | some p => some <$> readPath G (G.size + 1) p
+      | some p => some <$> readPath X (G.size + 1) p
       | none => pure none
     let some source := one sh.sourceShape | throw "a result has no source shape"
     let some comp := one sh.sourceConstraintComponent | throw "a result has no component"
