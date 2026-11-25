@@ -56,8 +56,9 @@ private def personClass : Shape :=
 -- @tg: verifies:: [[openspec:shacl-core#SHACL Core semantics#Class membership follows subClassOf]] {level: unit}
 /-- `ex:a` is a SHACL instance of `ex:Person` through `rdfs:subClassOf`, so it conforms. -/
 theorem a_conforms : Conforms students personClass (ex "a") :=
-  (results_nil students personClass (ex "a")).1
-    (List.isEmpty_iff.1 (by native_decide : (results students personClass (ex "a")).isEmpty = true))
+  (results_nil (GIdx.build students) personClass (ex "a")).1
+    (List.isEmpty_iff.1
+      (by native_decide : (results (GIdx.build students) personClass (ex "a")).isEmpty = true))
 
 private def hand : Graph := ttl "ex:hand ex:digit ex:f1 . ex:f1 a ex:Thumb, ex:Finger ."
 
