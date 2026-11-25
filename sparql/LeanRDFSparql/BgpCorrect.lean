@@ -186,6 +186,70 @@ theorem matchTP_inj {μ ν : Mapping} {q : TriplePattern} {t u : Triple}
   have b := (matchTP_sound h₂).2.2
   rw [a] at b; cases b; rfl
 
+/-- A triple that matches has the terms the mapping already fixes. -/
+theorem matchTP_pos {μ ν : Mapping} {q : TriplePattern} {t : Triple}
+    (h : Eval.matchTP μ q t = some ν) :
+    (∀ c, q.s.inst μ = some c → t.s = c) ∧ (∀ c, q.p.inst μ = some c → t.p = c) ∧
+      (∀ c, q.o.inst μ = some c → t.o = c) := by
+  obtain ⟨he, -, hi⟩ := matchTP_sound h
+  rw [TriplePattern.inst_eq_some] at hi
+  refine ⟨fun c hc => ?_, fun c hc => ?_, fun c hc => ?_⟩
+  · have := TermPat.inst_ext he hc; rw [hi.1] at this; exact Option.some.inj this
+  · have := TermPat.inst_ext he hc; rw [hi.2.1] at this; exact Option.some.inj this
+  · have := TermPat.inst_ext he hc; rw [hi.2.2] at this; exact Option.some.inj this
+
+/-- Filtering first by a test that every match passes changes nothing. -/
+theorem filterMap_filter_of {α β : Type} {p : α → Bool} {f : α → Option β} (l : List α)
+    (h : ∀ x, (f x).isSome → p x = true) : (l.filter p).filterMap f = l.filterMap f := by
+  rw [List.filterMap_filter]
+  congr 1
+  funext x
+  by_cases hp : p x = true
+  · simp [hp]
+  · cases hf : f x with
+    | none => simp
+    | some _ => exact absurd (h x (by simp [hf])) hp
+
+/-- Matching the candidates of the index gives what matching every triple gives, in order. -/
+theorem cands_filterMap (l : List Triple) (μ : Mapping) (q : TriplePattern) :
+    (Eval.cands (Eval.TIdx.build l) μ q).filterMap (Eval.matchTP μ q) =
+      l.filterMap (Eval.matchTP μ q) := by
+  have key : ∀ {t : Triple}, (Eval.matchTP μ q t).isSome →
+      (∀ c, q.s.inst μ = some c → t.s = c) ∧ (∀ c, q.p.inst μ = some c → t.p = c) ∧
+        (∀ c, q.o.inst μ = some c → t.o = c) := fun ht => by
+    obtain ⟨ν, hν⟩ := Option.isSome_iff_exists.mp ht
+    exact matchTP_pos hν
+  unfold Eval.cands Eval.TIdx.build
+  cases hs : q.s.inst μ with
+  | some c =>
+    simp only [Thunk.get, getD_groupBy]
+    exact filterMap_filter_of l fun t ht => by simp [(key ht).1 c hs]
+  | none =>
+    cases ho : q.o.inst μ with
+    | some c =>
+      simp only [Thunk.get, getD_groupBy]
+      exact filterMap_filter_of l fun t ht => by simp [(key ht).2.2 c ho]
+    | none =>
+      cases hp : q.p.inst μ with
+      | some c =>
+        simp only [Thunk.get, getD_groupBy]
+        exact filterMap_filter_of l fun t ht => by simp [(key ht).2.1 c hp]
+      | none => rfl
+
+/-- Matching with the index computes `matchAll`, the same list. -/
+theorem matchAllI_eq (G : Graph) :
+    ∀ (tps : List TriplePattern) (Ω : List Mapping),
+      Eval.matchAllI (Eval.TIdx.build G.toList) tps Ω = Eval.matchAll G tps Ω
+  | [], _ => rfl
+  | q :: tps, Ω => by
+    simp only [Eval.matchAllI, Eval.matchAll, cands_filterMap]
+    exact matchAllI_eq G tps _
+
+/-- The evaluator's basic graph patterns are those of `matchAll`. -/
+theorem bgp_eq (G : Graph) (tps : List TriplePattern) :
+    Eval.bgp G tps = (Eval.matchAll G tps [Mapping.empty]).map (·.restrict (visibleVars tps)) := by
+  rw [Eval.bgp, matchAllI_eq]
+
 /-! ## Satisfaction -/
 
 /-- The variables of a list of triple patterns. -/
@@ -431,7 +495,8 @@ theorem mem_spec_unprojected {G : Graph} {tps : List TriplePattern} {μ : Mappin
 -- @tg: implements:: [[openspec:sparql-algebra#Proven evaluator]] {note: "the BGP case"}
 /-- Matching computes the declarative semantics of a basic graph pattern. -/
 theorem bgp_perm (G : Graph) (tps : List TriplePattern) : Eval.bgp G tps ~ Spec.bgp G tps := by
-  unfold Eval.bgp Spec.bgp
+  rw [bgp_eq]
+  unfold Spec.bgp
   apply List.Perm.map
   have h0 : ∀ μ, μ ∈ [Mapping.empty] ↔ Inv G [] μ := fun μ => by simp [inv_nil]
   rw [List.perm_ext_iff_of_nodup (nodup_matchAll tps [] _ h0 (by simp))
