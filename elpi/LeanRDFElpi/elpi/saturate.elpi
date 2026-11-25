@@ -9,6 +9,7 @@
 % attached per round, so the Elpi database holds only the rule clauses:
 %
 %   pred rdf.known   o:int, o:int, o:int, o:int.   % P S O Id, any argument may be bound
+%   pred rdf.has     i:int.                        % some fact has the predicate P
 %   pred rdf.delta   o:int, o:int, o:int, o:int.
 %   pred rdf.tt-of   o:int, o:int, o:int, o:int.   % Z S P O: Z is the triple term <<( S P O )>>
 %   pred rdf.is-cmp  i:int.                        % an rdf:_n IRI

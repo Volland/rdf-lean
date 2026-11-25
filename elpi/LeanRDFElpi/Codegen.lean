@@ -7,7 +7,8 @@ Elpi `rdf.step` clauses generated from Lean `Rule` values, so the proven rule li
 source of rules. A rule with `k` premises gives `k` clauses (semi-naive evaluation): clause `i`
 takes premise `i` from the triples of the last round (`rdf.delta`) and the others from every
 triple known so far (`rdf.known`). Guards are table lookups (`rdf.is-cmp`, `rdf.is-str`,
-`rdf.is-lang`, `rdf.is-dirlang`).
+`rdf.is-lang`, `rdf.is-dirlang`). Each clause first tests that some fact has each constant
+predicate of its known premises (`rdf.has`), which only prunes clauses that cannot match.
 
 Terms are interned (`Intern`): a rule constant is an Elpi `int`. A triple-term pattern in a body
 is a fresh variable `Z` with an `rdf.tt-of Z S P O` goal that takes the triple term apart, or
@@ -137,13 +138,19 @@ private def boundPos (bound : List String) : CPos → Bool
   | .const _ => true
   | c@(.tt ..) => c.leaves.all bound.contains
 
-/-- The goals of one clause: the delta premise `i` first, then the known premises by how many
+/-- The goals of one clause: `rdf.has P` for the constant predicates of the known premises,
+then the delta premise `i`, then the known premises by how many
 positions are bound; triple terms are built before a lookup when their parts are bound and
 taken apart after it otherwise; each guard as soon as its variable is bound. -/
 private def clauseGoals (prem : Array (CPos × CPos × CPos)) (guards : List (String × Option String))
     (i : Nat) : List String := Id.run do
   let mut bound : List String := []
-  let mut goals : Array String := #[]
+  -- a known premise with a constant predicate that no fact has yet cannot match: test each
+  -- such predicate first, so that the clause fails at once instead of after the joins before it
+  let preds := ((List.range prem.size).filter (· != i)).filterMap fun j => match prem[j]!.2.1 with
+    | .const k => some k
+    | _ => none
+  let mut goals : Array String := (preds.eraseDups.map (s!"rdf.has {·}")).toArray
   let mut pending := guards
   let mut left : List Nat := (List.range prem.size).filter (· != i)
   let mut next := i

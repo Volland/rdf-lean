@@ -71,6 +71,28 @@ saturation with an error that says so, never with a partial closure. -/
   | .error e => isBudgetExhausted e
   | .ok _ => false
 
+/- The number of triples a saturation may add is bounded too: a closure that would grow past
+it stops with a budget error, and one that stays within it is complete. -/
+#guard match program RDFS.rdfsBasicRules with
+  | .ok e =>
+    let g := Graph.ofList (T (ex "x") ty (ex "C0") :: chain 12)
+    (match saturateFrom e (e.start g) 0 (maxDerived := 20) with
+      | .error m => isBudgetExhausted m
+      | .ok _ => false) &&
+    (match saturateFrom e (e.start g) 0 (maxDerived := 1000), saturateWith e g with
+      | .ok c, .ok d => c.toList == d.toList
+      | _, _ => false)
+  | .error _ => false
+
+/- A clause whose known premise has a predicate no fact has is pruned before its joins: the
+EL rules add nothing to a plain `subClassOf` chain but the RDFS and OWL closure, and take no
+more Elpi steps than the OWL rules for it. -/
+#guard
+  let g := Graph.ofList (chain 30)
+  match saturate Owl.owlRules g, saturate Owl.owlELRules g with
+  | .ok c, .ok d => c.toList == d.toList && d.steps ≤ c.steps + 1000
+  | _, _ => false
+
 /- Continuing a closure with more triples gives the closure of all of them, premises first. -/
 #guard
   let facts := [T (ex "A") sc (ex "B"), T (ex "x") ty (ex "A")]

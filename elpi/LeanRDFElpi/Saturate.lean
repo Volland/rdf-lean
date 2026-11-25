@@ -275,9 +275,16 @@ private def flagAlts (I : Intern) (flag : UInt8) (args : Array Elpi.Term) : Elpi
   | some x => if x < I.flags.size && (I.flags[x]! &&& flag) != 0 then .cons args (Thunk.mk fun _ => .nil) else .nil
   | none => .nil
 
+/-- `rdf.has P`: some fact has the predicate `P`. -/
+private def hasAlts (ix : FactIndex) (args : Array Elpi.Term) : Elpi.LazyList (Array Elpi.Term) :=
+  match natArg? args[0]! with
+  | some p => if (ix.byP.getD p #[]).isEmpty then .nil else .cons args (Thunk.mk fun _ => .nil)
+  | none => .nil
+
 /-- The builtins, by name, with their signatures. -/
 def builtinSigs : List (String × String) :=
   [("rdf.known", "pred rdf.known o:int, o:int, o:int, o:int."),
+   ("rdf.has", "pred rdf.has i:int."),
    ("rdf.delta", "pred rdf.delta o:int, o:int, o:int, o:int."),
    ("rdf.tt-of", "pred rdf.tt-of o:int, o:int, o:int, o:int."),
    ("rdf.is-cmp", "pred rdf.is-cmp i:int."),
@@ -297,6 +304,7 @@ private def roundBuiltins (c : Closure) (d : Delta) : List (Elpi.Builtin Id) :=
   let o4 : Array Elpi.Mode := #[.o, .o, .o, .o]
   let i1 : Array Elpi.Mode := #[.i]
   [mkBuiltin "rdf.known" o4 (knownAlts c.index),
+   mkBuiltin "rdf.has" i1 (hasAlts c.index),
    mkBuiltin "rdf.delta" o4 (deltaAlts c.index d),
    mkBuiltin "rdf.tt-of" o4 (ttAlts c.intern),
    mkBuiltin "rdf.is-cmp" i1 (flagAlts c.intern flagCmp),
@@ -418,41 +426,6 @@ def budgetExhausted : String := "search budget exhausted"
 /-- Did a saturation error come from the search budget? -/
 def isBudgetExhausted (e : String) : Bool := e.startsWith budgetExhausted
 
-/-- Run the machine to exhaustion, collecting the solutions that may add a triple; the steps
-used, or an error (`none` for an exhausted budget). -/
-private partial def drain (c : Closure) (infos : Array ClauseInfo) (env : Elpi.Env Id) (u : Elpi.UVarId)
-    (fuel : Nat) (M : Elpi.Machine Unit) (acc : Array Sol) : Except (Option String) (Array Sol × Nat) :=
-  match Id.run (Elpi.runLoop env M) with
-  | .yield sol M' =>
-    match decodeSol c infos (sol.store.zonk (.uvar u #[]) 0) with
-    | .ok (some s) => drain c infos env u fuel M' (acc.push s)
-    | .ok none => drain c infos env u fuel M' acc
-    | .error e => .error (some e)
-  | .exhausted _ left => .ok (acc, fuel - left)
-  | .outOfFuel => .error none
-  | .error e => .error (some e.toString)
-
-/-- One round: every solution of `rdf.step K R` for `K = 0` and `K = 1 +` each predicate of
-the facts from `lo` on (the delta), within `fuel` steps in all, but those whose head is already
-known. `none` as the error is an exhausted budget. -/
-private def runRound (e : Engine) (c : Closure) (lo fuel : Nat) : Except (Option String) (Array Sol × Nat) := do
-  let d := Delta.of c.index lo
-  let pr := { e.prog with extra := roundBuiltins c d }
-  let stepC := Elpi.constIdOf "rdf.step"
-  let keys := #[0] ++ (d.byP.keys.toArray.qsort (· < ·)).map (· + 1)
-  let mut env? : Option (Elpi.Env Id) := none
-  let mut sols : Array Sol := #[]
-  let mut used := 0
-  for k in keys do
-    let prep := pr.prepareRaw ["O0"] (fun vs => .app (.const stepC) #[intT k, vs[0]!]) (fuel - used)
-    let env := env?.getD (pr.env Id prep.syms)
-    env? := some env
-    let some (_, u) := prep.names[0]? | throw (some "no answer variable")
-    let (s, n) ← drain c e.clauses env u (fuel - used) prep.machine sols
-    sols := s
-    used := used + n
-  return (sols, used)
-
 /-- The original enumeration order of a round's solutions: by clause, then the delta premise,
 then the other premises in body order, each newest round first and in closure order within a
 round. -/
@@ -471,6 +444,72 @@ private def solLt (infos : Array ClauseInfo) (batch : Array Nat) (a b : Sol) : B
           if bx != byy then return bx > byy
           return x < y
     return false
+
+/-- Why a round stopped early: its step budget, the size bound of the closure, or an error. -/
+private inductive RoundErr where
+  | fuel
+  | size
+  | fail (m : String)
+
+/-- The solutions of a round so far. Of the solutions with the same plain head (no triple terms
+to build) only the first in `solLt` order is kept, in the slot of the first one found: the
+others could add nothing, since `addRound` adds a head at its first solution in that order. -/
+private structure RoundSols where
+  sols : Array Sol := #[]
+  /-- The slot in `sols` of each plain head. -/
+  slot : Std.HashMap (Nat × Nat × Nat) Nat := {}
+
+/-- Run the machine to exhaustion, collecting the solutions that may add a triple; the steps
+used, or why it stopped. Every solution costs a step of the budget as well (a builtin's
+alternatives cost no Elpi step, so without this a join that yields many solutions per step
+would run far past any time the budget suggests). At most `room` distinct new heads are
+collected. -/
+private partial def drain (c : Closure) (infos : Array ClauseInfo) (env : Elpi.Env Id) (u : Elpi.UVarId)
+    (fuel room : Nat) (M : Elpi.Machine Unit) (acc : RoundSols) : Except RoundErr (RoundSols × Nat) :=
+  match Id.run (Elpi.runLoop env M) with
+  | .yield sol M' =>
+    if M'.fuel == 0 then .error .fuel else
+    let M' := { M' with fuel := M'.fuel - 1 }
+    match decodeSol c infos (sol.store.zonk (.uvar u #[]) 0) with
+    | .ok (some s) =>
+      if s.build.isSome then
+        if acc.sols.size ≥ room then .error .size
+        else drain c infos env u fuel room M' { acc with sols := acc.sols.push s }
+      else match acc.slot[s.head]? with
+        | some j =>
+          if solLt infos c.batch s acc.sols[j]! then
+            drain c infos env u fuel room M' { acc with sols := acc.sols.set! j s }
+          else drain c infos env u fuel room M' acc
+        | none =>
+          if acc.sols.size ≥ room then .error .size
+          else drain c infos env u fuel room M'
+            { sols := acc.sols.push s, slot := acc.slot.insert s.head acc.sols.size }
+    | .ok none => drain c infos env u fuel room M' acc
+    | .error e => .error (.fail e)
+  | .exhausted _ left => .ok (acc, fuel - left)
+  | .outOfFuel => .error .fuel
+  | .error e => .error (.fail e.toString)
+
+/-- One round: every solution of `rdf.step K R` for `K = 0` and `K = 1 +` each predicate of
+the facts from `lo` on (the delta), within `fuel` steps in all, but those whose head is already
+known, and of those with the same plain head only the first in `solLt` order. -/
+private def runRound (e : Engine) (c : Closure) (lo fuel room : Nat) : Except RoundErr (Array Sol × Nat) := do
+  let d := Delta.of c.index lo
+  let pr := { e.prog with extra := roundBuiltins c d }
+  let stepC := Elpi.constIdOf "rdf.step"
+  let keys := #[0] ++ (d.byP.keys.toArray.qsort (· < ·)).map (· + 1)
+  let mut env? : Option (Elpi.Env Id) := none
+  let mut acc : RoundSols := {}
+  let mut used := 0
+  for k in keys do
+    let prep := pr.prepareRaw ["O0"] (fun vs => .app (.const stepC) #[intT k, vs[0]!]) (fuel - used)
+    let env := env?.getD (pr.env Id prep.syms)
+    env? := some env
+    let some (_, u) := prep.names[0]? | throw (.fail "no answer variable")
+    let (a, n) ← drain c e.clauses env u (fuel - used) room prep.machine acc
+    acc := a
+    used := used + n
+  return (acc.sols, used)
 
 /-- The number of a head term, interning its triple terms. -/
 private def HeadTerm.add (I : Intern) : HeadTerm → Intern × Nat
@@ -511,28 +550,42 @@ private def addRound (c : Closure) (infos : Array ClauseInfo) (sols : Array Sol)
       c := c.push k infos[s.clause]!.name s.premises b
   return { c with round := b }
 
-/-- The step budget of a whole saturation, by default: ten rounds' worth. Only rules that build
-new triple terms in their heads can make a saturation go on without end; this bounds them. -/
-def defaultTotalFuel : Nat := 10 * Elpi.defaultFuel
+/-- The step budget of a whole saturation, by default. Every solution Elpi yields costs a step
+too, so the budget bounds the work of the search, and with it the time: about a minute on a
+laptop at the rate of the slowest searches measured (deep `subClassOf` chains, whose transitive
+closure finds each triple once for every class between its ends). Only rules that build new
+triple terms in their heads can make a saturation go on without end; this bounds them too. -/
+def defaultTotalFuel : Nat := 30000000
+
+/-- The number of triples a saturation may add, by default (about four million, some 2.5 GB of
+closure at the 600 bytes a triple measured); more is a resource limit, which bounds the memory
+of the search. -/
+def defaultMaxDerived : Nat := (1 <<< 22)
 
 /-- Run rounds until one adds nothing, with the facts from `lo` on as the first delta. Each round
-may take `fuel` Elpi steps, and all rounds together `totalFuel`; running out of either is an
-error that starts with `budgetExhausted`. -/
+may take `fuel` Elpi steps, all rounds together `totalFuel`, and the rounds may add at most
+`maxDerived` triples; running out of any of them is an error that starts with
+`budgetExhausted`. -/
 def saturateFrom (e : Engine) (c : Closure) (lo : Nat) (fuel : Nat := Elpi.defaultFuel)
-    (totalFuel : Nat := defaultTotalFuel) : Except String Closure := do
+    (totalFuel : Nat := defaultTotalFuel) (maxDerived : Nat := defaultMaxDerived) :
+    Except String Closure := do
   let mut c := c
   let mut lo := lo
   if e.clauses.isEmpty then return c
+  let limit := c.size + maxDerived
   while lo < c.size do
     let hi := c.size
     let left := totalFuel - c.steps
     let budget := min fuel left
-    let (sols, used) ← match runRound e c lo budget with
+    let incomplete := s!"(round {c.round + 1}, {c.size} triples so far); the closure is incomplete, which is a resource limit, not a verdict"
+    let (sols, used) ← match runRound e c lo budget (limit - c.size) with
       | .ok r => pure r
-      | .error none =>
+      | .error .fuel =>
         let which := if budget < fuel then s!"the saturation's {totalFuel} Elpi steps" else s!"{fuel} Elpi steps for a round"
-        throw s!"{budgetExhausted}: {which} were not enough (round {c.round + 1}, {c.size} triples so far); the closure is incomplete, which is a resource limit, not a verdict"
-      | .error (some m) => throw s!"saturation failed in round {c.round + 1}: {m}"
+        throw s!"{budgetExhausted}: {which} were not enough {incomplete}"
+      | .error .size =>
+        throw s!"{budgetExhausted}: the closure would grow by more than {maxDerived} triples {incomplete}"
+      | .error (.fail m) => throw s!"saturation failed in round {c.round + 1}: {m}"
     c ← addRound c e.clauses sols (c.round + 1)
     c := { c with steps := c.steps + used }
     lo := hi
