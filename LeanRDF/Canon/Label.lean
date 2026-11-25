@@ -132,6 +132,24 @@ theorem represents_push {m : SwapMap} {l : List (BlankNode × BlankNode)} (h : m
         have hyc' : y ≠ c := fun e => hyc e.symm
         simp [hyc, hya, swapB, hya', hyc', hb]
 
+/-- The `SwapMap` of a list of swaps, applied first to last. -/
+def ofList (l : List (BlankNode × BlankNode)) : SwapMap := l.foldl (fun m p => m.push p.1 p.2) {}
+
+private theorem foldl_push_represents (l : List (BlankNode × BlankNode)) :
+    ∀ (m : SwapMap) (acc : List (BlankNode × BlankNode)), m.Represents acc →
+      (l.foldl (fun m p => m.push p.1 p.2) m).Represents (acc ++ l) := by
+  induction l with
+  | nil => intro m acc h; simpa using h
+  | cons p l ih =>
+    intro m acc h
+    have := ih _ _ (represents_push h p.1 p.2)
+    simpa using this
+
+theorem ofList_represents (l : List (BlankNode × BlankNode)) : (ofList l).Represents l := by
+  have := foldl_push_represents l {} [] represents_empty
+  rw [List.nil_append] at this
+  exact this
+
 end SwapMap
 
 /-! ## Renaming is injective -/

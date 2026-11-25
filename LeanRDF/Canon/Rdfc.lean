@@ -13,7 +13,7 @@ The relabeling is applied as a composition of swaps (`LeanRDF.Canon.Label`), so 
 bijection however the order was chosen: `canonicalLabels_injective` and `canonical_iso` hold for
 every labeling, and need no proof about the hashing. The swaps are applied through a `SwapMap`,
 one hash-map lookup per blank node, proven equal to the list of swaps
-(`Labeling.renameFast_eq`); the issuers of Hash N-Degree Quads are persistent, and hashes are
+(`Labeling.renameFast_eq`, `swapsFor_eq_swapsForFast`); the issuers of Hash N-Degree Quads are persistent, and hashes are
 memoized (`LeanRDF.Canon.Hash`), so a symmetric structure costs its work limit, not more.
 That isomorphic datasets get the same output is tested on the W3C rdf-canon suite.
 -- SIMPLIFICATION: [[simplifications#Canonicity is tested, not proven]]
@@ -30,47 +30,60 @@ def swapsFor (order : List BlankNode) : List (BlankNode × BlankNode) :=
   (order.zip (List.range order.length)).foldl
     (fun acc (b, i) => acc ++ [(applySwaps acc b, c14n i)]) []
 
-/-- The swaps of `swapsFor order` as a `SwapMap`, built with one lookup per blank node. -/
-def swapMapFor (order : List BlankNode) : SwapMap :=
-  (order.zip (List.range order.length)).foldl (fun m (b, i) => m.push (m.apply b) (c14n i)) {}
+/-- `swapsFor`, computed with a `SwapMap` for the images, so one lookup per blank node instead
+of one step per earlier swap (`swapsFor_eq_swapsForFast`). -/
+def swapsForFast (order : List BlankNode) : List (BlankNode × BlankNode) :=
+  let r := (order.zip (List.range order.length)).foldl
+    (fun (st : SwapMap × Array (BlankNode × BlankNode)) (b, i) =>
+      let a := st.1.apply b
+      (st.1.push a (c14n i), st.2.push (a, c14n i))) ({}, #[])
+  r.2.toList
 
-private theorem foldl_represents (L : List (BlankNode × Nat)) (m : SwapMap)
-    (l : List (BlankNode × BlankNode)) (h : m.Represents l) :
-    (L.foldl (fun m (b, i) => m.push (m.apply b) (c14n i)) m).Represents
-      (L.foldl (fun acc (b, i) => acc ++ [(applySwaps acc b, c14n i)]) l) := by
-  induction L generalizing m l with
-  | nil => exact h
+private theorem foldl_fast (L : List (BlankNode × Nat)) : ∀ (m : SwapMap)
+    (arr : Array (BlankNode × BlankNode)), m.Represents arr.toList →
+    let r := L.foldl (fun (st : SwapMap × Array (BlankNode × BlankNode)) (b, i) =>
+      let a := st.1.apply b
+      (st.1.push a (c14n i), st.2.push (a, c14n i))) (m, arr)
+    r.1.Represents r.2.toList ∧
+      r.2.toList = L.foldl (fun acc (b, i) => acc ++ [(applySwaps acc b, c14n i)]) arr.toList := by
+  induction L with
+  | nil => intro m arr h; exact ⟨h, rfl⟩
   | cons p L ih =>
+    intro m arr h
     obtain ⟨b, i⟩ := p
     simp only [List.foldl_cons]
-    apply ih
-    rw [h.1 b]
-    exact SwapMap.represents_push h _ _
+    have h' : (m.push (m.apply b) (c14n i)).Represents (arr.push (m.apply b, c14n i)).toList := by
+      rw [Array.toList_push]
+      exact SwapMap.represents_push h _ _
+    obtain ⟨h1, h2⟩ := ih _ _ h'
+    refine ⟨h1, ?_⟩
+    rw [h2, Array.toList_push, h.1 b]
 
-theorem swapMapFor_represents (order : List BlankNode) :
-    (swapMapFor order).Represents (swapsFor order) :=
-  foldl_represents _ _ _ SwapMap.represents_empty
+theorem swapsFor_eq_fast (order : List BlankNode) : swapsForFast order = swapsFor order :=
+  (foldl_fast _ {} #[] SwapMap.represents_empty).2
 
-/-- A canonical labeling: the canonical issue order, which determines the relabeling. -/
+/-- Compiled code runs `swapsForFast` for `swapsFor`. -/
+@[csimp] theorem swapsFor_eq_swapsForFast : @swapsFor = @swapsForFast :=
+  funext fun order => (swapsFor_eq_fast order).symm
+
+/-- A canonical labeling: the canonical issue order and the relabeling it gives. -/
 structure Labeling where
   order : List BlankNode
+  swaps : List (BlankNode × BlankNode) := swapsFor order
 
-/-- The swaps of the relabeling: the `i`-th blank node of the order goes to `c14n i`. -/
-def Labeling.swaps (σ : Labeling) : List (BlankNode × BlankNode) := swapsFor σ.order
-
-/-- The relabeling of blank nodes: the composition of `σ.swaps`. -/
+/-- The relabeling of blank nodes. -/
 def Labeling.rename (σ : Labeling) : BlankNode → BlankNode := applySwaps σ.swaps
 
-/-- The relabeling as computed: `m.apply` for `m := swapMapFor σ.order`, one lookup per blank
-node instead of one step per swap. Bind the result once; each call builds the map. -/
-def Labeling.renameFast (σ : Labeling) : BlankNode → BlankNode := (swapMapFor σ.order).apply
+/-- The relabeling as computed: `m.apply` for `m := SwapMap.ofList σ.swaps`, one lookup per
+blank node instead of one step per swap. Bind the result once; each call builds the map. -/
+def Labeling.renameFast (σ : Labeling) : BlankNode → BlankNode := (SwapMap.ofList σ.swaps).apply
 
 theorem Labeling.renameFast_eq (σ : Labeling) : σ.renameFast = σ.rename :=
-  funext (swapMapFor_represents σ.order).1
+  funext (SwapMap.ofList_represents σ.swaps).1
 
 /-- The labeling as a list from input label to canonical label, in issue order. -/
 def Labeling.toList (σ : Labeling) : List (String × String) :=
-  let m := swapMapFor σ.order
+  let m := SwapMap.ofList σ.swaps
   σ.order.map fun b => (b.label, (m.apply b).label)
 
 /-- The default work limit: Hash N-Degree Quads calls and permutations together, for a dataset
@@ -135,7 +148,7 @@ def canonicalLabels (d : Dataset) : Except String Labeling :=
 
 /-- The canonical dataset: the input relabeled by its canonical labeling. -/
 def canonicalize (σ : Labeling) (d : Dataset) : Dataset :=
-  let m := swapMapFor σ.order
+  let m := SwapMap.ofList σ.swaps
   d.renameBNodes m.apply
 
 /-- A relabeled dataset as canonical N-Quads lines in code-point order. -/
