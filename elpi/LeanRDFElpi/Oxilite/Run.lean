@@ -115,7 +115,7 @@ def isGround (q : Graph) : Bool :=
 `Graph.toList` order. -/
 def evaluate (rules : List Rule) (g q : Graph) (mode : Mode) (res : Results)
     (trees : Nat → Except String (List WhyNode)) : Except String (List AnswerReport) := do
-  let closure ← if mode == .why then pure #[] else saturate rules g
+  let closure ← if mode == .why then pure (default : Closure) else saturate rules g
   return res.solutions.zipIdx.map fun (sol, i) =>
     let inst := instantiate q sol
     { solution := sol, inst,

@@ -94,7 +94,8 @@ def run (path : System.FilePath) : IO (UInt32 × String) := do
   let rules := Owl.owlELRules
   let c ← match saturate rules g with
     | .ok c => pure c
-    | .error e => return (3, s!"error: search failed: {e}")
+    | .error e =>
+      return (3, if isBudgetExhausted e then s!"error: {e}" else s!"error: search failed: {e}")
   -- a clash comes first: an inconsistent ontology makes every subsumption true
   match clashCertificate c Owl.owlClashRules with
   | .error e => return (2, s!"error: clash search failed: {e}")

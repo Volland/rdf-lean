@@ -15,7 +15,7 @@ private def g : Graph := Graph.ofList
   [T (ex "s") (ex "p") (.lit (Literal.str "v")), T (ex "seq") (.iri (rdf.member 2)) (ex "a"),
    T (ex "s") (ex "q") (.lit (.lang "chat" "fr"))]
 
-private def closure : Closure := (saturate RDFS.rdfsRules g).toOption.getD #[]
+private def closure : Closure := (saturate RDFS.rdfsRules g).toOption.getD default
 
 private def has (t : Triple) : Bool := (closure.find? t).isSome
 
@@ -37,7 +37,7 @@ plain property is not a container membership property. -/
 #guard
   let nodes := closure.toList.zipIdx.map fun (e, i) =>
     { id := i, conclusion := e.conclusion, rule := e.rule,
-      premises := e.premises.filterMap fun p => closure.findIdx? (·.conclusion == p) : Node }
+      premises := e.premises.filterMap fun p => closure.idOf? p : Node }
   closure.wellOrdered &&
     (checkCert RDFS.rdfsRules g { nodes, goals := [] }).toOption.map (·.size) == some closure.size
 
@@ -51,7 +51,7 @@ private def dir : Term := .lit (.dirLang "x" "en" .rtl)
 private def g12 : Graph := Graph.ofList
   [T (ex "r") (.iri rdf.reifies) outer, T (ex "r") (ex "label") dir]
 
-private def closure12 : Closure := (saturate RDFS.rdfsRules g12).toOption.getD #[]
+private def closure12 : Closure := (saturate RDFS.rdfsRules g12).toOption.getD default
 
 private def has12 (t : Triple) : Bool := (closure12.find? t).isSome
 
@@ -62,7 +62,7 @@ private def has12 (t : Triple) : Bool := (closure12.find? t).isSome
   has12 (T (ex "r") ty (.iri rdfs.Resource)) &&
   (let nodes := closure12.toList.zipIdx.map fun (e, i) =>
     { id := i, conclusion := e.conclusion, rule := e.rule,
-      premises := e.premises.filterMap fun p => closure12.findIdx? (·.conclusion == p) : Node }
+      premises := e.premises.filterMap fun p => closure12.idOf? p : Node }
    closure12.wellOrdered &&
     (checkCert RDFS.rdfsRules g12 { nodes, goals := [] }).toOption.map (·.size) == some closure12.size)
 

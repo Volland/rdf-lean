@@ -15,7 +15,7 @@ private def T (s p o : Term) : Triple := ⟨s, p, o⟩
 
 /-- The closure of `facts`, or the empty array if saturation failed. -/
 private def close (facts : List Triple) : Closure :=
-  (saturate RDFS.rdfsBasicRules (Graph.ofList facts)).toOption.getD #[]
+  (saturate RDFS.rdfsBasicRules (Graph.ofList facts)).toOption.getD default
 
 /-- The closure has exactly the expected triples. -/
 private def closesTo (facts expected : List Triple) : Bool :=
@@ -64,5 +64,38 @@ private def chain (n : Nat) : List Triple :=
 #guard
   let facts := [T (ex "A") sc (ex "B"), T (ex "x") ty (ex "A")]
   (close facts).toList.take 2 |>.all fun e => e.rule == "fact" && e.premises.isEmpty
+
+/- The search budget bounds the whole saturation: a closure that needs more Elpi steps stops
+with an error that says so, never with a partial closure. -/
+#guard match saturate RDFS.rdfsBasicRules (Graph.ofList (T (ex "x") ty (ex "C0") :: chain 12)) 10 with
+  | .error e => isBudgetExhausted e
+  | .ok _ => false
+
+/- Continuing a closure with more triples gives the closure of all of them, premises first. -/
+#guard
+  let facts := [T (ex "A") sc (ex "B"), T (ex "x") ty (ex "A")]
+  let more := [T (ex "B") sc (ex "C"), T (ex "A") sc (ex "B")]
+  match program RDFS.rdfsBasicRules with
+  | .ok e =>
+    match saturateWith e (Graph.ofList facts) >>= (·.extend e more) with
+    | .ok c => c.triples.toList == (close (facts ++ more)).triples.toList && c.wellOrdered &&
+        c.size == c.triples.size
+    | .error _ => false
+  | .error _ => false
+
+/- Triple terms in rule heads are interned as they are built: a rule may produce a triple
+term that is in no input triple, and later rounds match it. -/
+private def wrap : Rule :=
+  { name := "wrap", body := [⟨.var "x", .const (ex "p"), .var "y"⟩]
+    head := ⟨.triple (.var "x") (.const (ex "p")) (.var "y"), .const (ex "q"), .var "y"⟩ }
+private def unwrap : Rule :=
+  { name := "unwrap", body := [⟨.triple (.var "x") (.var "r") (.var "y"), .const (ex "q"), .var "z"⟩]
+    head := ⟨.var "x", .const (ex "seen"), .var "z"⟩ }
+#guard
+  let tp : Term := .triple (ex "a") (ex "p") (ex "b")
+  match saturate [wrap, unwrap] (Graph.ofList [T (ex "a") (ex "p") (ex "b")]) with
+  | .ok c => c.size == 3 && (c.find? (T tp (ex "q") (ex "b"))).isSome &&
+      ((c.find? (T (ex "a") (ex "seen") (ex "b"))).map (·.rule)) == some "unwrap"
+  | .error _ => false
 
 end LeanRDF.BridgeTests.Saturate

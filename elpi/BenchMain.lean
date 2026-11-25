@@ -11,14 +11,6 @@ any proof and not a tool for users.
 
 open LeanRDF LeanRDF.Bridge LeanRDF.Cert
 
-private def decodeEntry (t : Elpi.Term) : Except String Entry :=
-  match t with
-  | .app (.const c) #[h, .lit (.str n), ps] =>
-    if c == Elpi.constIdOf "rdf.entry" then
-      return { conclusion := ← decodeTriple h, rule := n, premises := ← decodeList decodeTriple ps }
-    else .error "not an entry"
-  | _ => .error "not an entry"
-
 /-- Time an action (a thunk, so that Lean's strict evaluation does not run it before the clock
 starts); force the result with `f` (a size) so lazy work is not moved elsewhere. -/
 private def stage {α : Type} (rows : IO.Ref (Array (String × Nat))) (name : String) (act : Unit → IO α)
@@ -48,29 +40,19 @@ def main (args : List String) : IO UInt32 := do
     let srcQ ← IO.FS.readFile query
     let g ← stage rows "parse" (fun () => orFail "parse" ((NTriples.parse srcG).mapError toString)) (·.size)
     let q ← orFail "parse query" ((NTriples.parse srcQ).mapError toString)
-    let p ← stage rows "elpi-load+codegen" (fun () => orFail "program" (program rules))
-    let p ← stage rows "assert-cmp" (fun () => do
-      let mut p := p
-      for i in containerIRIs g do
-        p ← orFail "assert" ((p.assert s!"rdf.is-cmp {termSrc (.iri i)}.").mapError (·.toString))
-      return p)
-    let facts ← stage rows "encode" (fun () => pure (g.toList.map encodeTriple)) (·.length)
-    let qy : Elpi.Query := { pred := Elpi.constIdOf "rdf.saturate", args := #[some (Elpi.toElpi facts), none] }
-    let t ← stage rows "saturate (elpi)" (fun () => match (Elpi.solveQuery (α := Elpi.Term) p qy).head? with
-      | some (.ok t) => pure t
-      | some (.error e) => throw (IO.userError s!"saturation failed: {e.toString}")
-      | none => throw (IO.userError "no closure"))
-    let closure ← stage rows "decode" (fun () => orFail "decode" (do return (← decodeList decodeEntry t).toArray)) (·.size)
-    IO.println s!"# data {g.size} triples, closure {closure.size} entries"
+    let e ← stage rows "elpi-load+codegen" (fun () => orFail "program" (program rules))
+    let c0 ← stage rows "intern+facts" (fun () => pure (e.start g)) (·.size)
+    let closure ← stage rows "saturate (elpi rounds)" (fun () => orFail "saturate" (saturateFrom e c0 0)) (·.size)
+    IO.println s!"# data {g.size} triples, closure {closure.size} entries, {closure.round} rounds"
     let clash ← stage rows "clash-search" (fun () => orFail "clash" (clashCertificate closure clashRules))
     if let some c := clash then
       let r ← stage rows "clash-check (trusted)" (fun () => pure (checkClash rules clashRules g c))
       IO.println s!"# clash found, {if r.isOk then "accepted" else "REJECTED"}"
     match certify closure q with
-    | .error e =>
-      IO.println s!"# not derived: {e}"
+    | .error err =>
+      IO.println s!"# not derived: {err}"
       if rest.contains "--countermodel" then
-        let P ← stage rows "countermodel-find" (fun () => orFail "countermodel" (findCountermodel .rdfs g q))
+        let P ← stage rows "countermodel-find" (fun () => orFail "countermodel" (findCountermodelFrom e closure q))
         let r ← stage rows "countermodel-check (trusted)" (fun () => pure (Model.checkCountermodel .rdfs g q P))
         IO.println s!"# countermodel {if r.isOk then "accepted" else "rejected"}"
     | .ok _ =>
