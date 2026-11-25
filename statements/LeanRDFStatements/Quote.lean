@@ -1,3 +1,4 @@
+import Std.Data.HashMap
 import LeanRDFStatements.Kernel
 import LeanRDFStatements.Abstract.Quoting
 
@@ -109,6 +110,66 @@ private theorem quoteNode_of_iter (g : StatementGraph) :
 theorem quote_kernel {g : StatementGraph} {e : Nat} (h : e ∈ g.kernel) : ∃ t, g.quote e = .ok t := by
   obtain ⟨t, ht⟩ := quoteNode_of_iter g (mem_peel.1 h)
   exact ⟨t, by simp [quote, ht]⟩
+
+/-! ## Quoting many records
+
+`quote` finds each referenced record by a linear search. `quoteAll` builds a table of the
+records once and quotes a list of eids with it; `quoteAll_eq` proves that it gives `quote` on
+each. -/
+
+/-- The records by eid; the first record of an eid wins, as in `find?`. -/
+def recordTable (g : StatementGraph) : Std.HashMap Nat Record :=
+  g.records.foldr (fun r m => m.insert r.eid r) {}
+
+theorem recordTable_get? (g : StatementGraph) (e : Nat) : g.recordTable.get? e = g.find? e := by
+  unfold recordTable find?
+  induction g.records with
+  | nil => simp
+  | cons r rs ih =>
+    rw [List.foldr_cons, Std.HashMap.get?_insert, ih, List.find?_cons]
+    by_cases h : r.eid = e
+    · simp [h]
+    · have : (r.eid == e) = false := by simpa using h
+      simp [h, this]
+
+/-- `quoteNode` with the records looked up in a table. -/
+def quoteNodeWith (tbl : Std.HashMap Nat Record) (f : Nat) (n : Node) : Option Term :=
+  match n with
+  | .term t => some t
+  | .eid e =>
+    match f with
+    | 0 => none
+    | f + 1 =>
+      match tbl.get? e with
+      | none => none
+      | some r =>
+        match quoteNodeWith tbl f r.s, quoteNodeWith tbl f r.o with
+        | some s, some o => some (.triple s (.iri r.p) o)
+        | _, _ => none
+
+theorem quoteNodeWith_eq (g : StatementGraph) :
+    ∀ f n, quoteNodeWith g.recordTable f n = g.quoteNode f n := by
+  intro f
+  induction f with
+  | zero => intro n; cases n <;> rfl
+  | succ f ih =>
+    intro n
+    cases n with
+    | term t => rfl
+    | eid e => simp only [quoteNodeWith, quoteNode, recordTable_get?, ih]
+
+/-- The quotes of a list of eids, sharing one table. -/
+def quoteAll (g : StatementGraph) (es : List Nat) : List (Except String Term) :=
+  let tbl := g.recordTable
+  let fuel := g.eids.length + 1
+  es.map fun e =>
+    match quoteNodeWith tbl fuel (.eid e) with
+    | some t => .ok t
+    | none => .error s!"statement {e} is outside the kernel: it references a missing statement or lies on a cycle"
+
+theorem quoteAll_eq (g : StatementGraph) (es : List Nat) : g.quoteAll es = es.map g.quote := by
+  simp only [quoteAll, quoteNodeWith_eq]
+  rfl
 
 /-! ## The paper's quoting results, instantiated -/
 

@@ -1,3 +1,4 @@
+import Std.Data.HashSet
 import LeanRDFStatements.Model
 
 /-!
@@ -9,6 +10,12 @@ computed by a peel from below, which adds, at each step, the records all of whos
 are already in; step `k` is the paper's `F_S^k(∅)`, and the peel is stable after one step per
 record. `mem_kernel_iff` proves it equal to the paper's relational kernel `K`. `isClosed` and
 `isAcyclic` decide the two conditions.
+
+The peel is specified with `L.length + 1` steps over lists. It is computed (`peelUntil`,
+`fastStep`) by stopping at the first step that changes nothing, which is the depth of the
+reference chains rather than the number of records, and by reading each record's references
+directly and testing membership in a hash set; `kernel_eq` and `isAcyclic_eq` prove the results
+equal, so the theorems below are about the specification.
 -/
 
 namespace LeanRDF.Statements
@@ -114,6 +121,38 @@ theorem peel_stops : ∃ i, i ≤ L.length ∧ ∀ x, x ∈ peel L refs (i + 1) 
   · exact ⟨i, by omega, hs⟩
   · exact absurd (hc (L.length + 1)) (by omega)
 
+/-- Repeat `step` from `X`, at most `fuel` times, stopping when a step changes nothing. -/
+def peelUntil (step : List Nat → List Nat) : Nat → List Nat → List Nat
+  | 0, X => X
+  | f + 1, X => let Y := step X; if Y = X then X else peelUntil step f Y
+
+/-- A step that changes nothing changes nothing later. -/
+theorem peel_fix {k : Nat} (h : peel L refs (k + 1) = peel L refs k) :
+    ∀ m, k ≤ m → peel L refs m = peel L refs k := by
+  intro m hm
+  induction m with
+  | zero => rw [show k = 0 by omega]
+  | succ m ih =>
+    by_cases hkm : k ≤ m
+    · show peelStep L refs (peel L refs m) = _
+      rw [ih hkm]
+      exact h
+    · rw [show k = m + 1 by omega]
+
+/-- Stopping early gives the full peel. -/
+theorem peelUntil_eq {N : Nat} : ∀ f k, k + f = N →
+    peelUntil (peelStep L refs) f (peel L refs k) = peel L refs N := by
+  intro f
+  induction f with
+  | zero => intro k hk; simp only [peelUntil]; rw [show k = N by omega]
+  | succ f ih =>
+    intro k hk
+    simp only [peelUntil]
+    split
+    · rename_i h
+      exact (peel_fix (L := L) (refs := refs) h N (by omega)).symm
+    · exact ih (k + 1) (by omega)
+
 /-- The peel after `L.length + 1` steps is the paper's kernel `K`. -/
 theorem mem_peel_iff_K {x : Nat} : x ∈ peel L refs (L.length + 1) ↔ K refs (· ∈ L) x := by
   constructor
@@ -135,9 +174,46 @@ def refsOf (g : StatementGraph) (e : Nat) : List Nat := crefs g.content e
 /-- The references of eid `e` that stay inside the graph. -/
 def innerRefs (g : StatementGraph) (e : Nat) : List Nat := (g.refsOf e).filter (· ∈ g.eids)
 
+theorem refsOf_of_mem {g : StatementGraph} {r : Record} (h : r ∈ g.records) :
+    g.refsOf r.eid = r.refs := crefs_of_mem h
+
+/-- One peel step over the records: each record's references are read from the record, and
+membership in `X` is a hash-set lookup. Equal to `peelStep` (`fastStep_eq`). -/
+def fastStep (g : StatementGraph) (keep : Record → List Nat) (X : List Nat) : List Nat :=
+  let s : Std.HashSet Nat := Std.HashSet.ofList X
+  (g.records.filter fun r => (keep r).all s.contains).map (·.eid)
+
+theorem fastStep_eq (g : StatementGraph) (keep : Record → List Nat) (refs : Nat → List Nat)
+    (h : ∀ r ∈ g.records, refs r.eid = keep r) (X : List Nat) :
+    g.fastStep keep X = peelStep g.eids refs X := by
+  simp only [fastStep, peelStep, eids, List.filter_map]
+  congr 1
+  apply List.filter_congr
+  intro r hr
+  rw [Function.comp_apply, h r hr]
+  congr 1
+  funext x
+  rw [Std.HashSet.contains_ofList]
+  simp
+
+/-- The kernel, computed: the peel stopped at its first fixed point. -/
+def kernelFast (g : StatementGraph) : List Nat :=
+  peelUntil (g.fastStep (·.refs)) (g.eids.length + 1) []
+
 -- @tg: implements:: [[openspec:statement-graphs#Export kernel]]
-/-- The greatest closed, acyclic set of records, by the peel; eids increasing. -/
+/-- The greatest closed, acyclic set of records, by the peel; eids increasing. Compiled as
+`kernelFast` (`kernel_eq_kernelFast`). -/
 def kernel (g : StatementGraph) : List Nat := peel g.eids g.refsOf (g.eids.length + 1)
+
+theorem kernel_eq (g : StatementGraph) : g.kernelFast = g.kernel := by
+  have hs : g.fastStep (·.refs) = peelStep g.eids g.refsOf :=
+    funext (g.fastStep_eq _ _ fun r hr => refsOf_of_mem hr)
+  simp only [kernelFast, kernel, hs]
+  exact peelUntil_eq _ 0 (by omega)
+
+/-- Compiled code runs `kernelFast` for `kernel`. -/
+@[csimp] theorem kernel_eq_kernelFast : @kernel = @kernelFast :=
+  funext fun g => (kernel_eq g).symm
 
 /-- Every reference of every record is a record of the graph. -/
 def isClosed (g : StatementGraph) : Bool := g.eids.all fun e => (g.refsOf e).all (· ∈ g.eids)
@@ -145,6 +221,64 @@ def isClosed (g : StatementGraph) : Bool := g.eids.all fun e => (g.refsOf e).all
 /-- No chain of references inside the graph returns to its start. -/
 def isAcyclic (g : StatementGraph) : Bool :=
   g.eids.all (· ∈ peel g.eids g.innerRefs (g.eids.length + 1))
+
+/-- `isClosed`, computed with a hash set of the eids. -/
+def isClosedFast (g : StatementGraph) : Bool :=
+  let es : Std.HashSet Nat := Std.HashSet.ofList g.eids
+  g.records.all fun r => r.refs.all es.contains
+
+/-- `isAcyclic`, computed with the early-stopping peel and hash sets. -/
+def isAcyclicFast (g : StatementGraph) : Bool :=
+  let es : Std.HashSet Nat := Std.HashSet.ofList g.eids
+  let k := peelUntil (g.fastStep fun r => r.refs.filter es.contains) (g.eids.length + 1) []
+  let ks : Std.HashSet Nat := Std.HashSet.ofList k
+  g.eids.all ks.contains
+
+private theorem hashSet_contains (l : List Nat) (x : Nat) :
+    (Std.HashSet.ofList l).contains x = decide (x ∈ l) := by
+  rw [Std.HashSet.contains_ofList]; simp
+
+theorem isClosed_eq (g : StatementGraph) : g.isClosedFast = g.isClosed := by
+  have key : ∀ r ∈ g.records, r.refs.all (Std.HashSet.ofList g.eids).contains =
+      (g.refsOf r.eid).all fun x => decide (x ∈ g.eids) := by
+    intro r hr
+    rw [refsOf_of_mem hr]
+    congr 1
+    funext x
+    exact hashSet_contains _ _
+  apply Bool.eq_iff_iff.2
+  unfold isClosedFast isClosed
+  rw [List.all_eq_true, List.all_eq_true]
+  constructor
+  · intro h e he
+    obtain ⟨r, hr, rfl⟩ := mem_eids.1 he
+    rw [← key r hr]
+    exact h r hr
+  · intro h r hr
+    rw [key r hr]
+    exact h r.eid (mem_eids.2 ⟨r, hr, rfl⟩)
+
+theorem isAcyclic_eq (g : StatementGraph) : g.isAcyclicFast = g.isAcyclic := by
+  have hs : (g.fastStep fun r => r.refs.filter (Std.HashSet.ofList g.eids).contains) =
+      peelStep g.eids g.innerRefs := by
+    refine funext (g.fastStep_eq _ _ fun r hr => ?_)
+    simp only [innerRefs, refsOf_of_mem hr]
+    congr 1
+    funext x
+    rw [hashSet_contains]
+  simp only [isAcyclicFast, isAcyclic, hs]
+  rw [show peelUntil (peelStep g.eids g.innerRefs) (g.eids.length + 1) [] =
+    peel g.eids g.innerRefs (g.eids.length + 1) from peelUntil_eq _ 0 (by omega)]
+  congr 1
+  funext x
+  rw [hashSet_contains]
+
+/-- Compiled code runs the fast deciders. -/
+@[csimp] theorem isClosed_eq_isClosedFast : @isClosed = @isClosedFast :=
+  funext fun g => (isClosed_eq g).symm
+
+@[csimp] theorem isAcyclic_eq_isAcyclicFast : @isAcyclic = @isAcyclicFast :=
+  funext fun g => (isAcyclic_eq g).symm
 
 theorem mem_kernel_iff {g : StatementGraph} {e : Nat} : e ∈ g.kernel ↔ K (crefs g.content) g.S e :=
   mem_peel_iff_K
