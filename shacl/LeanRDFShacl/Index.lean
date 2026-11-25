@@ -38,6 +38,24 @@ theorem getD_groupBy {α β : Type} [BEq β] [Hashable β] [LawfulBEq β] [Lawfu
     · have h' : (k a == b) = false := by simpa using h
       simp only [h', Bool.false_eq_true, ↓reduceIte, ih]
 
+/-- `groupBy`, keeping a value of each element. -/
+def groupMap {α β γ : Type} [BEq β] [Hashable β] (k : α → β) (v : α → γ) (l : List α) :
+    Std.HashMap β (List γ) :=
+  l.foldr (fun a m => m.insert (k a) (v a :: m.getD (k a) [])) ∅
+
+theorem getD_groupMap {α β γ : Type} [BEq β] [Hashable β] [LawfulBEq β] [LawfulHashable β]
+    (k : α → β) (v : α → γ) (b : β) :
+    ∀ (l : List α), (groupMap k v l).getD b [] = (l.filter (fun a => k a == b)).map v
+  | [] => by simp [groupMap]
+  | a :: l => by
+    have ih := getD_groupMap k v b l
+    simp only [groupMap, List.foldr_cons] at ih ⊢
+    rw [Std.HashMap.getD_insert, List.filter_cons]
+    by_cases h : k a = b
+    · subst h; simp [ih]
+    · have h' : (k a == b) = false := by simpa using h
+      simp only [h', Bool.false_eq_true, ↓reduceIte, ih]
+
 /-- `addNew` with a hash set of the elements of the accumulator. -/
 def addNewGo {α : Type} [BEq α] [Hashable α] (seen : Std.HashSet α) (acc : Array α) :
     List α → Array α
@@ -191,6 +209,9 @@ structure GIdx (G : Graph) where
   byObj_eq : ∀ o, byObj.get.getD o [] = G.toList.filter (·.o == o)
   terms : Thunk (List Term)
   terms_eq : terms.get = uniq (graphTerms G)
+  /-- The subjects of `?y p o`, by `(o, p)`, in the order of `terms`. -/
+  inv : Thunk (Std.HashMap (Term × Term) (List Term))
+  inv_eq : ∀ o p, inv.get.getD (o, p) [] = terms.get.filter fun y => decide (⟨y, p, o⟩ ∈ G)
   gtLen : Nat
   gtLen_eq : gtLen = (graphTerms G).length
 
@@ -205,17 +226,61 @@ theorem length_flatMap_three {α : Type} (f g h : Triple → α) :
 theorem length_graphTerms (G : Graph) : 3 * G.toList.length = (graphTerms G).length :=
   (length_flatMap_three _ _ _ _).symm
 
+theorem flatMap_ite_singleton {α : Type} (P : α → Bool) :
+    ∀ (l : List α), (l.flatMap fun y => if P y = true then [y] else []) = l.filter P
+  | [] => rfl
+  | y :: l => by
+    rw [List.flatMap_cons, flatMap_ite_singleton P l, List.filter_cons]
+    split <;> rfl
+
+/-- The subjects of `?y p o` among `ts`, from the subject buckets of the graph. -/
+def invPairs (bySubj : Term → List Triple) (ts : List Term) : List ((Term × Term) × Term) :=
+  ts.flatMap fun y => (bySubj y).map fun t => ((t.o, t.p), y)
+
+theorem invPairs_eq (G : Graph) (ts : List Term) (o p : Term) :
+    ((invPairs (fun y => G.toList.filter (·.s == y)) ts).filter (fun a => a.1 == (o, p))).map (·.2) =
+      ts.filter fun y => decide (⟨y, p, o⟩ ∈ G) := by
+  rw [invPairs, List.filter_flatMap, List.map_flatMap, ← flatMap_ite_singleton]
+  congr 1
+  funext y
+  rw [List.filter_map, List.map_map, List.filter_filter]
+  have : (fun t : Triple => (((fun t : Triple => ((t.o, t.p), y)) t).1 == (o, p)) && t.s == y) =
+      (fun t => t == ⟨y, p, o⟩) := funext fun t => by
+    obtain ⟨s', p', o'⟩ := t
+    apply Bool.eq_iff_iff.2
+    simp only [Bool.and_eq_true, beq_iff_eq, Prod.mk.injEq, Triple.mk.injEq]
+    constructor
+    · rintro ⟨⟨h1, h2⟩, h3⟩; exact ⟨h3, h2, h1⟩
+    · rintro ⟨h1, h2, h3⟩; exact ⟨⟨h3, h2⟩, h1⟩
+  rw [show ((fun t : Triple => ((t.o, t.p), y)) : Triple → (Term × Term) × Term) = _ from rfl]
+  simp only [Function.comp_def] at this ⊢
+  rw [this, List.filter_beq, (Graph.nodup_toList G).count]
+  by_cases h : (⟨y, p, o⟩ : Triple) ∈ G.toList
+  · have h' : (⟨y, p, o⟩ : Triple) ∈ G := Graph.mem_toList.1 h
+    simp [h, h']
+  · have h' : (⟨y, p, o⟩ : Triple) ∉ G := fun e => h (Graph.mem_toList.2 e)
+    simp [h, h']
+
 /-- Build the indexes from one listing of the graph. -/
 def GIdx.build (G : Graph) : GIdx G :=
   let l := G.toList
-  { bySubj := .mk fun _ => groupBy (·.s) l
+  let subj : Thunk (Std.HashMap Term (List Triple)) := .mk fun _ => groupBy (·.s) l
+  let terms : Thunk (List Term) := .mk fun _ => uniqF (l.flatMap fun t => [t.s, t.p, t.o])
+  { bySubj := subj
     bySubj_eq := fun s => getD_groupBy _ s l
     byPred := .mk fun _ => groupBy (·.p) l
     byPred_eq := fun p => getD_groupBy _ p l
     byObj := .mk fun _ => groupBy (·.o) l
     byObj_eq := fun o => getD_groupBy _ o l
-    terms := .mk fun _ => uniqF (l.flatMap fun t => [t.s, t.p, t.o])
+    terms := terms
     terms_eq := by show uniqF _ = _; rw [uniqF_eq]; rfl
+    inv := .mk fun _ => groupMap (·.1) (·.2) (invPairs (fun y => subj.get.getD y []) terms.get)
+    inv_eq := fun o p => by
+      show (groupMap _ _ _).getD _ _ = _
+      rw [getD_groupMap]
+      have : (fun y => subj.get.getD y []) = (fun y => G.toList.filter (·.s == y)) :=
+        funext fun y => getD_groupBy _ y l
+      rw [this, invPairs_eq]
     gtLen := 3 * l.length
     gtLen_eq := length_graphTerms G }
 
@@ -235,10 +300,12 @@ mutual
 /-- `vn` from the index. -/
 def vnX : Path → Term → List Term
   | .pred p, x => ((X.bySubj.get.getD x []).filter fun t => t.p == .iri p).map (·.o)
-  | .inv p, x => (x :: X.terms.get).filter fun y =>
-      match p.pred? with
-      | some q => decide (⟨y, .iri q, x⟩ ∈ G)
-      | none => (vnX p y).contains x
+  | .inv p, x =>
+    match p.pred? with
+    | some q =>
+      let B := X.inv.get.getD (x, .iri q) []
+      if decide (⟨x, .iri q, x⟩ ∈ G) then x :: B else B
+    | none => (x :: X.terms.get).filter fun y => (vnX p y).contains x
   | .seq ps, x => seqNodesX ps [x]
   | .alt ps, x => altNodesX ps x
   | .zeroOrMore p, x => closure (fun y => vnX p y) (X.gtLen + 2) [x]
@@ -268,23 +335,28 @@ theorem vnX_eqv : ∀ (p : Path) (x : Term), Eqv (vnX X p x) (vn G p x)
   | .inv p, x => by
     have ih := vnX_eqv p
     rw [vnX, vn]
-    have htest : ∀ y, (match p.pred? with
-        | some q => decide (⟨y, .iri q, x⟩ ∈ G)
-        | none => (vnX X p y).contains x) = (vn G p y).contains x := fun y => by
-      cases hp : p.pred? with
-      | none => exact (ih y).contains x
-      | some q =>
-        have := Path.eq_of_pred? hp
-        subst this
-        apply Bool.eq_iff_iff.2
-        rw [decide_eq_true_iff, List.contains_iff_mem, vn_iff]
-        exact ⟨.pred, fun h => by cases h with | pred h => exact h⟩
-    rw [show (fun y => match p.pred? with
-        | some q => decide (⟨y, .iri q, x⟩ ∈ G)
-        | none => (vnX X p y).contains x) = (fun y => (vn G p y).contains x) from funext htest]
-    refine Eqv.filter _ (Eqv.cons x ?_)
-    rw [X.terms_eq]
-    exact Eqv.uniq _
+    have hT : Eqv (x :: X.terms.get) (x :: graphTerms G) := by
+      rw [X.terms_eq]; exact Eqv.cons x (Eqv.uniq _)
+    split
+    · rename_i q hp
+      have := Path.eq_of_pred? hp
+      subst this
+      have htest : (fun y => decide (⟨y, .iri q, x⟩ ∈ G)) = (fun y => (vn G (.pred q) y).contains x) :=
+        funext fun y => by
+          apply Bool.eq_iff_iff.2
+          rw [decide_eq_true_iff, List.contains_iff_mem, vn_iff]
+          exact ⟨.pred, fun h => by cases h with | pred h => exact h⟩
+      have hB : (if decide (⟨x, .iri q, x⟩ ∈ G) = true then x :: X.inv.get.getD (x, .iri q) []
+          else X.inv.get.getD (x, .iri q) []) =
+          (x :: X.terms.get).filter fun y => decide (⟨y, .iri q, x⟩ ∈ G) := by
+        rw [X.inv_eq, List.filter_cons]
+      simp only []
+      rw [hB, htest]
+      exact Eqv.filter _ hT
+    · have htest : (fun y => (vnX X p y).contains x) = (fun y => (vn G p y).contains x) :=
+        funext fun y => (ih y).contains x
+      rw [htest]
+      exact Eqv.filter _ hT
   | .seq ps, x => by
     rw [vnX, vn, seqNodesX_eq ps [x]]
     exact Eqv.refl _
