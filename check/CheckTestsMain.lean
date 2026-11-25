@@ -160,21 +160,30 @@ private def scratch (name content : String) : IO System.FilePath := do
   IO.FS.writeFile (dir / name) content
   return dir / name
 
-/-- Values a certificate makes the checker repeat are bounded: a 100,000-digit goal is cut in the
-text and the JSON verdicts (exit 2), and so is a 100,000-digit version (exit 3). -/
+/-- Values a certificate makes the checker repeat are bounded, and so is the time to repeat them:
+a 100,000-digit goal or node id is given by its size in the text and the JSON verdicts (exit 2),
+and so is a 100,000-digit version (exit 3). -/
 def echoBounded : IO (List String) := do
   let big := String.ofList (List.replicate 100000 '9')
   let goal ← scratch "huge-goal.json" s!"\{\"version\": 1, \"nodes\": [], \"goals\": [{big}]}"
   let version ← scratch "huge-version.json" s!"\{\"version\": {big}, \"nodes\": [], \"goals\": []}"
+  let id ← scratch "huge-id.json" (s!"\{\"version\": 1, \"goals\": [0], \"nodes\": [\{\"id\": {big}, " ++
+    "\"conclusion\": [\"<http://example.org/tom>\", \"<http://example.org/p>\", " ++
+    "\"<http://example.org/x>\"], \"rule\": \"fact\", \"premises\": []}]}")
   let base := ["--data", (dataDir / "pets.nt").toString, "--query",
     (dataDir / "query-mammal-owner.nt").toString, "--cert"]
   let (c1, t1) ← Cli.run (base ++ [goal.toString])
   let (c2, j2) ← Cli.run (base ++ [goal.toString, "--json"])
   let (c3, t3) ← Cli.run (base ++ [version.toString])
-  let cut (s : String) := (s.splitOn "…(99800 more characters)").length > 1
-  let ok := c1 == 2 && t1.length < 2000 && cut t1 && c2 == 2 && j2.length < 2000 && cut j2 &&
-    (Json.parse j2).toOption.isSome && c3 == 3 && t3.length < 2000 && cut t3
-  return if ok then [] else [s!"bounded echo: exit {c1} {c2} {c3}\n{t1.take 500}\n{j2.take 500}\n{t3.take 500}"]
+  let (c4, t4) ← Cli.run (base ++ [id.toString])
+  let has (s t : String) := (s.splitOn t).length > 1
+  let size := "…(a 332193-bit number)"
+  let ok := c1 == 2 && t1.length < 2000 && has t1 size && c2 == 2 && j2.length < 2000 &&
+    has j2 size && (Json.parse j2).toOption.isSome && c3 == 3 && t3.length < 2000 &&
+    has t3 "unsupported certificate version of 332193 bits" && c4 == 2 && t4.length < 2000 &&
+    has t4 s!"node {size}: an id or a premise of 200 digits or more names no node"
+  return if ok then [] else
+    [s!"bounded echo: exit {c1} {c2} {c3} {c4}\n{t1.take 500}\n{j2.take 500}\n{t3.take 500}\n{t4.take 500}"]
 
 /-- Malformed input exits 3 with a positioned message: JSON nested past 10,000 levels, a triple
 term nested past the parser's limit, an unterminated Turtle collection. -/

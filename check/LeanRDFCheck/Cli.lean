@@ -75,6 +75,24 @@ private def need {α : Type} (what : String) : Option α → ExceptT String IO �
   | some x => pure x
   | none => throw s!"missing --{what}\n{usage}"
 
+/-- A node id or premise too large to name a node of the certificate, as the reason of a
+rejection. The checker rejects every such certificate (a node's id must be its position, and a
+premise an earlier node), but its reason would write the number in decimal, which takes time
+quadratic in its length; the reason given here names only its size. Goals are not looked at: a
+query certificate's checker does not read them. -/
+def oversizedRef? (c : Certificate) : Option String :=
+  let bound := 10 ^ maxWord
+  let big (n : Nat) : Bool := n ≥ bound
+  match c.nodes.find? (fun n => big n.id || n.premises.any big) with
+  | some n =>
+    some s!"node {numberText n.id}: an id or a premise of {maxWord} digits or more names no node"
+  | none =>
+    match c.clash with
+    | some k =>
+      if k.premises.any big then some s!"clash: a premise of {maxWord} digits or more names no node"
+      else none
+    | none => none
+
 /-- The checker that writes envelopes. -/
 def checkerName : String := "leanrdf-check " ++ release
 
@@ -119,7 +137,9 @@ def check (a : Args) : IO Report := do
         match e.verify g q a.regime.rules a.regime.name with
         | .error why => return { base with verdict := .rejected, reason := some (clip why) }
         | .ok () => pure { base with bound := some true }
-    let checked := if isClash then checkRegimeClash a.regime g c else checkRegime a.regime g q c
+    let checked : Except String Unit := match oversizedRef? c with
+      | some why => .error why
+      | none => if isClash then checkRegimeClash a.regime g c else checkRegime a.regime g q c
     match checked with
     | .error e => return { base with verdict := .rejected, reason := some (clip e) }
     | .ok () =>

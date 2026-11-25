@@ -57,18 +57,22 @@ def clipWord (w : String) : String :=
 def clip (s : String) : String :=
   if s.length ≤ maxWord then s else " ".intercalate ((s.splitOn " ").map clipWord)
 
+/-- A number as it is repeated: in full below `10 ^ maxWord`, otherwise its size only, since
+writing a number in decimal takes time quadratic in its length. -/
+def numberText (n : Nat) : String :=
+  if n < 10 ^ maxWord then toString n else s!"…(a {n.log2 + 1}-bit number)"
+
 /-- The goals of a certificate as text, bounded. -/
 def goalsText (goals : List Nat) : String :=
-  let shown := goals.take maxGoals |>.map (clipWord ∘ toString)
+  let shown := goals.take maxGoals |>.map numberText
   let more := if goals.length > maxGoals then s!", …({goals.length - maxGoals} more)" else ""
   "[" ++ ", ".intercalate shown ++ more ++ "]"
 
 /-- The goals of a certificate as JSON: numbers, except that a number too long to repeat is a
-string cut by `clipWord`, and at most `maxGoals` of them. -/
+string giving its size (`numberText`), and at most `maxGoals` of them. -/
 def goalsJson (goals : List Nat) : Json :=
   Json.arr (goals.take maxGoals |>.map (fun g =>
-    let t := toString g
-    if t.length ≤ maxWord then Lean.toJson g else Json.str (clipWord t))).toArray
+    if g < 10 ^ maxWord then Lean.toJson g else Json.str (numberText g))).toArray
 
 /-- What a check reports, as text or JSON. -/
 structure Report where
