@@ -40,6 +40,14 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := qcert) (by nati
 -- @tg: verifies:: [[openspec:certificates#Certificate format#JSON round-trips]] {level: unit}
 #guard (Certificate.parse qcert.render).toOption == some qcert
 
+/- The mapping is read through a hash map that keeps the first value of a blank node, as
+`Certificate.mu` does: a later entry for `_:who` is ignored. -/
+#guard checkQueryB rdfsRules g q { qcert with mapping := qcert.mapping ++ [(⟨"who"⟩, ex "A")] }
+#guard !checkQueryB rdfsRules g q { qcert with mapping := [(⟨"who"⟩, ex "A")] ++ qcert.mapping }
+#guard [⟨"who"⟩, ⟨"other"⟩].all fun b =>
+  let c : Certificate := { qcert with mapping := [(⟨"who"⟩, ex "x"), (⟨"who"⟩, ex "A")] }
+  c.muFast b == c.mu b
+
 /-- A nested triple term with a directional literal, typed by rdfs3 through a range. -/
 private def tt : Term :=
   .triple (ex "b") (ex "q") (.triple (ex "c") (ex "r") (.lit (.dirLang "x" "en" .rtl)))
