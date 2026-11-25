@@ -1,4 +1,4 @@
-import LeanRDF.Model.Lift
+import LeanRDF.Model.Index
 import LeanRDF.Parse.NTriples.Serializer
 
 /-!
@@ -15,6 +15,10 @@ regime `r` when:
 Since truth depends only on sorts (`holds_iff`), the last check covers every assignment
 `A : BlankNode → CDom` into IR (`not_satisfies_q`). Acceptance gives `¬ g.SimpleEntails q`,
 `¬ g.RDFEntails q` or `¬ g.RDFSEntails q`.
+
+The checker decides the conditions through hash indexes of the presentation
+(`LeanRDF.Model.Index`); `countermodelFailure_eq_spec` proves it equal to
+`countermodelFailureSpec`, which decides them over the lists as they are defined.
 -/
 
 namespace LeanRDF.Model
@@ -72,12 +76,72 @@ instance (q : Graph) : Decidable (P.QueryFails q) := by unfold QueryFails; infer
 /-- The number of query assignments to try. -/
 def searchSize (q : Graph) : Nat := P.irSorts.length ^ (graphBNodes q).length
 
+/-- The first assignment of `assignments bs ks` for which `k` gives a value, enumerated in the
+same order without building the list of assignments (`firstAssignment_eq`). -/
+def firstAssignment {α : Type} (ks : List Nat) :
+    List BlankNode → (List (BlankNode × Nat) → Option α) → Option α
+  | [], k => k []
+  | b :: bs, k => firstAssignment ks bs fun f => ks.findSome? fun c => k ((b, c) :: f)
+
+theorem findSome?_flatMap {α β γ : Type} (l : List α) (g : α → List β) (k : β → Option γ) :
+    (l.flatMap g).findSome? k = l.findSome? fun a => (g a).findSome? k := by
+  induction l with
+  | nil => rfl
+  | cons a l ih =>
+    rw [List.flatMap_cons, List.findSome?_append, ih, List.findSome?_cons]
+    cases (g a).findSome? k <;> rfl
+
+theorem firstAssignment_eq {α : Type} (ks : List Nat) :
+    ∀ (bs : List BlankNode) (k : List (BlankNode × Nat) → Option α),
+      firstAssignment ks bs k = (assignments bs ks).findSome? k
+  | [], k => by simp only [firstAssignment, assignments, List.findSome?_cons, List.findSome?_nil]; cases k [] <;> rfl
+  | b :: bs, k => by
+    rw [firstAssignment, firstAssignment_eq ks bs, assignments, findSome?_flatMap]
+    congr 1
+    funext f
+    rw [List.findSome?_map]
+    rfl
+
+/-- `graphBNodes` through `dedupX`. -/
+def graphBNodesX (g : Graph) : List BlankNode := dedupX (g.toList.flatMap tripleBNodes)
+
+theorem graphBNodesX_eq (g : Graph) : graphBNodesX g = graphBNodes g := dedupX_eq _
+
+/-- `assignSort` through the index. -/
+def Idx.assignSort (x : Idx) (b : BlankNode) : Nat := (x.assign[b]?).getD 0
+
+theorem assignSortX_eq : (P.index).assignSort = P.assignSort := by
+  funext b
+  simp only [Idx.assignSort, assignSort, index, Index.getElem?_assocMap]
+
 end Presentation
 
 open Presentation
 
-/-- Why a presentation is not a countermodel, if it is not. -/
-def countermodelFailure (r : CRegime) (g q : Graph) (P : Presentation) (budget : Nat) :
+/-- A term nests triple terms at most `n` deep. -/
+def termDepthLE : Nat → Term → Bool
+  | n, .triple s p o => n != 0 && termDepthLE (n - 1) s && termDepthLE (n - 1) p &&
+      termDepthLE (n - 1) o
+  | _, _ => true
+
+/-- A term of the data as a failure message shows it: in N-Triples, cut after 1000 characters,
+and elided when it nests triple terms more than 64 deep, so a rejection does not echo unbounded
+input. -/
+def showTerm (t : Term) : String :=
+  if termDepthLE 64 t then
+    let s := t.toNTriples
+    if s.length ≤ 1000 then s else (s.take 1000).toString ++ "…"
+  else "<<( … )>>"
+
+/-- The number of assignments `k ^ m` as a message shows it: in decimal below `10 ^ 100`, and
+as the power above, which spares printing a number of a hundred thousand digits. -/
+def showCount (k m : Nat) : String :=
+  let n := k ^ m
+  if n < 10 ^ 100 then toString n else s!"{k}^{m}"
+
+/-- Why a presentation is not a countermodel, if it is not: the conditions decided over the
+lists of the presentation, as they are defined. -/
+def countermodelFailureSpec (r : CRegime) (g q : Graph) (P : Presentation) (budget : Nat) :
     Option String :=
   match failed? P.wfChecks with
   | some e => some s!"not well-formed: {e}"
@@ -89,15 +153,52 @@ def countermodelFailure (r : CRegime) (g q : Graph) (P : Presentation) (budget :
       | some e => some s!"condition failed: {e}"
       | none =>
         match g.toList.find? (fun t => !P.sHolds P.assignSort t) with
-        | some t => some s!"a data triple does not hold: {t.s.toNTriples} {t.p.toNTriples} {t.o.toNTriples}"
+        | some t => some s!"a data triple does not hold: {showTerm t.s} {showTerm t.p} {showTerm t.o}"
         | none =>
           if P.searchSize q > budget then
-            some s!"the query search needs {P.searchSize q} assignments, over the budget of {budget}"
+            some s!"the query search needs {showCount P.irSorts.length (graphBNodes q).length} assignments, over the budget of {budget}"
           else
             match (assignments (graphBNodes q) P.irSorts).find?
                 (fun f => q.toList.all (P.sHolds (asFun f))) with
             | some f => some s!"the query holds under the assignment {f.map fun (b, k) => s!"_:{b.label}↦{k}"}"
             | none => none
+
+/-- Why a presentation is not a countermodel, if it is not. The conditions are decided through
+hash indexes built once (`Presentation.index`); the result, messages included, is the one of
+`countermodelFailureSpec` (`countermodelFailure_eq_spec`). -/
+def countermodelFailure (r : CRegime) (g q : Graph) (P : Presentation) (budget : Nat) :
+    Option String :=
+  let x := P.index
+  match failed? (P.wfChecksX x) with
+  | some e => some s!"not well-formed: {e}"
+  | none =>
+    match (if r = .simple then none else failed? (P.rdfChecksX x)) with
+    | some e => some s!"condition failed: {e}"
+    | none =>
+      match (if r = .rdfs then failed? (P.rdfsChecksX x) else none) with
+      | some e => some s!"condition failed: {e}"
+      | none =>
+        match g.toList.find? (fun t => !P.sHoldsX x x.assignSort t) with
+        | some t => some s!"a data triple does not hold: {showTerm t.s} {showTerm t.p} {showTerm t.o}"
+        | none =>
+          let bs := graphBNodesX q
+          let ks := P.irSorts
+          let size := ks.length ^ bs.length
+          if size > budget then
+            some s!"the query search needs {showCount ks.length bs.length} assignments, over the budget of {budget}"
+          else
+            match firstAssignment ks bs
+                (fun f => if q.toList.all (P.sHoldsX x (asFun f)) then some f else none) with
+            | some f => some s!"the query holds under the assignment {f.map fun (b, k) => s!"_:{b.label}↦{k}"}"
+            | none => none
+
+/-- The indexed checker gives the result of the list definitions. -/
+theorem countermodelFailure_eq_spec (r : CRegime) (g q : Graph) (P : Presentation)
+    (budget : Nat) : countermodelFailure r g q P budget = countermodelFailureSpec r g q P budget := by
+  simp only [countermodelFailure, countermodelFailureSpec, wfChecksX_eq, rdfChecksX_eq,
+    rdfsChecksX_eq, sHoldsX_eq, assignSortX_eq, graphBNodesX_eq, firstAssignment_eq,
+    List.find?_eq_findSome?_guard]
+  rfl
 
 -- @tg: implements:: [[openspec:countermodels#Model checker]]
 /-- Check a countermodel to `g ⊨ q` under a regime, with a step budget for the query search. -/
@@ -183,7 +284,8 @@ structure Accepted (r : CRegime) (g q : Graph) (P : Presentation) : Prop where
 
 theorem accepted_of_none {r : CRegime} {g q : Graph} {P : Presentation} {budget : Nat}
     (hf : countermodelFailure r g q P budget = none) : Accepted r g q P := by
-  unfold countermodelFailure at hf
+  rw [countermodelFailure_eq_spec] at hf
+  unfold countermodelFailureSpec at hf
   split at hf
   · cases hf
   rename_i hwf

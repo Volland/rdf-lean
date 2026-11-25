@@ -7,7 +7,8 @@ import LeanRDF.Core.Graph
 An RDF dataset is one default graph and zero or more named graphs, each named by an IRI or a
 blank node (RDF 1.1 Concepts §4). `Dataset` is a finite set of quads, opaque like `Graph`:
 callers and proofs use membership and the `mem_*` theorems only. A named graph exists as long as
-it holds a triple, so an empty named graph is not represented.
+it holds a triple, so an empty named graph is not represented. Like a graph, a dataset caches
+its sorted quad list in a `Thunk`, so repeated `toList` calls sort once.
 -/
 
 namespace LeanRDF
@@ -41,10 +42,17 @@ end Quad
 /-- A finite set of quads (RDF 1.1 Concepts §4). The representation is private; use `∈` and the
 `mem_*` theorems. -/
 structure Dataset where
-  private mk ::
+  private mk' ::
   private quads : Std.HashSet Quad
+  /-- The sorted quads, computed at most once. -/
+  private sorted : Thunk (List Quad)
+  private sorted_eq : sorted.get = quads.toList.mergeSort (fun a b => compare a b != .gt)
 
 namespace Dataset
+
+/-- The dataset of a hash set, with an unevaluated sorted list. -/
+private def mk (s : Std.HashSet Quad) : Dataset :=
+  ⟨s, Thunk.mk fun _ => s.toList.mergeSort (fun a b => compare a b != .gt), rfl⟩
 
 instance : Membership Quad Dataset := ⟨fun d q => q ∈ d.quads⟩
 
@@ -54,24 +62,27 @@ instance (q : Quad) (d : Dataset) : Decidable (q ∈ d) :=
   decidable_of_iff (d.quads.contains q) (by rw [mem_def, Std.HashSet.mem_iff_contains])
 
 /-- The empty dataset. -/
-def empty : Dataset := ⟨∅⟩
+def empty : Dataset := mk ∅
 
 instance : EmptyCollection Dataset := ⟨empty⟩
 
 /-- Add one quad. -/
-def insert (q : Quad) (d : Dataset) : Dataset := ⟨d.quads.insert q⟩
+def insert (q : Quad) (d : Dataset) : Dataset := mk (d.quads.insert q)
 
 /-- Set union of two datasets. -/
-def union (d e : Dataset) : Dataset := ⟨d.quads ∪ e.quads⟩
+def union (d e : Dataset) : Dataset := mk (d.quads ∪ e.quads)
 
 instance : Union Dataset := ⟨union⟩
 
 /-- The dataset of the quads in a list. -/
-def ofList (l : List Quad) : Dataset := ⟨Std.HashSet.ofList l⟩
+def ofList (l : List Quad) : Dataset := mk (Std.HashSet.ofList l)
 
-/-- The quads of a dataset, each once, sorted by `Ord Quad`. -/
-def toList (d : Dataset) : List Quad :=
-  d.quads.toList.mergeSort (fun a b => compare a b != .gt)
+/-- The quads of a dataset, each once, sorted by `Ord Quad`. The sort runs on the first call
+and is cached in the dataset. -/
+def toList (d : Dataset) : List Quad := d.sorted.get
+
+private theorem toList_eq (d : Dataset) :
+    d.toList = d.quads.toList.mergeSort (fun a b => compare a b != .gt) := d.sorted_eq
 
 /-- The number of quads. -/
 def size (d : Dataset) : Nat := d.quads.size
@@ -115,7 +126,7 @@ def unionGraph (d : Dataset) : Graph := Graph.ofList (d.toList.map (·.triple))
   rw [Std.HashSet.mem_ofList, List.contains_iff_mem]
 
 @[simp] theorem mem_toList {q : Quad} {d : Dataset} : q ∈ d.toList ↔ q ∈ d := by
-  simp [toList, List.mem_mergeSort, Std.HashSet.mem_toList, mem_def]
+  simp [toList_eq, List.mem_mergeSort, Std.HashSet.mem_toList, mem_def]
 
 theorem mem_defaultGraph {t : Triple} {d : Dataset} :
     t ∈ d.defaultGraph ↔ Quad.ofTriple t none ∈ d := by
