@@ -34,6 +34,42 @@ def name : Verdict → String
 
 end Verdict
 
+/-! ## Echoing untrusted values
+
+A report repeats values read from the certificate (goal numbers, the reason of a rejection, which
+may quote a term). They are bounded, so that a hostile certificate cannot make the output as
+large as itself: every word longer than `maxWord` characters is cut, and at most `maxGoals`
+goals are listed. The command line clips the reasons that come from a certificate or a
+countermodel (`LeanRDF.Check.Cli`); paths and messages of its own are not clipped. -/
+
+/-- The longest word of untrusted text a report repeats in full. -/
+def maxWord : Nat := 200
+
+/-- The most goals a report lists. -/
+def maxGoals : Nat := 100
+
+/-- A word cut to `maxWord` characters, with the number of characters left out. -/
+def clipWord (w : String) : String :=
+  if w.length ≤ maxWord then w
+  else String.ofList (w.toList.take maxWord) ++ s!"…({w.length - maxWord} more characters)"
+
+/-- Untrusted text with every overlong word cut (`clipWord`). -/
+def clip (s : String) : String :=
+  if s.length ≤ maxWord then s else " ".intercalate ((s.splitOn " ").map clipWord)
+
+/-- The goals of a certificate as text, bounded. -/
+def goalsText (goals : List Nat) : String :=
+  let shown := goals.take maxGoals |>.map (clipWord ∘ toString)
+  let more := if goals.length > maxGoals then s!", …({goals.length - maxGoals} more)" else ""
+  "[" ++ ", ".intercalate shown ++ more ++ "]"
+
+/-- The goals of a certificate as JSON: numbers, except that a number too long to repeat is a
+string cut by `clipWord`, and at most `maxGoals` of them. -/
+def goalsJson (goals : List Nat) : Json :=
+  Json.arr (goals.take maxGoals |>.map (fun g =>
+    let t := toString g
+    if t.length ≤ maxWord then Lean.toJson g else Json.str (clipWord t))).toArray
+
 /-- What a check reports, as text or JSON. -/
 structure Report where
   verdict : Verdict
@@ -77,7 +113,7 @@ def Report.toJson (r : Report) : Json :=
     ++ opt "dataTriples" (r.dataTriples.map Lean.toJson)
     ++ opt "queryTriples" (r.queryTriples.map Lean.toJson)
     ++ opt "nodes" (r.nodes.map Lean.toJson)
-    ++ (if r.nodes.isSome then [("goals", Lean.toJson r.goals)] else [])
+    ++ (if r.nodes.isSome then [("goals", goalsJson r.goals)] else [])
     ++ (if r.mapping.isEmpty then [] else
         [("mapping", Json.mkObj (r.mapping.map fun (b, t) =>
           ((Term.bnode b).toNTriples, Json.str t.toNTriples)))])
@@ -98,7 +134,7 @@ def Report.toText (r : Report) : String := Id.run do
   if let some n := r.sorts then out := out ++ s!"Countermodel: {n} sorts\n"
   if let some n := r.nodes then
     out := out ++ (if r.clash.isSome then s!"Certificate: {n} nodes\n"
-      else s!"Certificate: {n} nodes, goals {r.goals}\n")
+      else s!"Certificate: {n} nodes, goals {goalsText r.goals}\n")
   if let some d := r.graphDigest then out := out ++ s!"Data digest: {d}\n"
   if let some d := r.queryDigest then out := out ++ s!"Query digest: {d}\n"
   match r.bound with

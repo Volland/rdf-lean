@@ -65,7 +65,7 @@ def readGraph (what : String) (path : System.FilePath) : ExceptT String IO Graph
   if path.extension == some "ttl" then
     match Turtle.parse src with
     | .ok g => return g
-    | .error e => throw s!"{what} {path}: {e}"
+    | .error e => throw s!"{what} {path}:{e}"
   else
     match NTriples.parse src with
     | .ok g => return g
@@ -88,7 +88,7 @@ def check (a : Args) : IO Report := do
     let certPath ← need "cert" a.cert
     let c ← match Certificate.parse (← readText "certificate" certPath) with
       | .ok c => pure c
-      | .error e => throw s!"certificate {certPath}: {e}"
+      | .error e => throw s!"certificate {certPath}: {clip e}"
     -- a clash certificate has no query; a query certificate needs one
     let q ← match c.clash, a.query with
       | some _, some _ => throw "a clash certificate is checked without --query"
@@ -117,11 +117,11 @@ def check (a : Args) : IO Report := do
       | none => pure base
       | some e =>
         match e.verify g q a.regime.rules a.regime.name with
-        | .error why => return { base with verdict := .rejected, reason := some why }
+        | .error why => return { base with verdict := .rejected, reason := some (clip why) }
         | .ok () => pure { base with bound := some true }
     let checked := if isClash then checkRegimeClash a.regime g c else checkRegime a.regime g q c
     match checked with
-    | .error e => return { base with verdict := .rejected, reason := some e }
+    | .error e => return { base with verdict := .rejected, reason := some (clip e) }
     | .ok () =>
       let accepted := if isClash then { base with verdict := .inconsistent }
         else { base with mapping := c.mapping }
@@ -145,7 +145,7 @@ def checkCountermodelFile (a : Args) (path : System.FilePath) : IO Report := do
     let q ← readGraph "query" (← need "query" a.query)
     let m ← match Model.Countermodel.parse (← readText "countermodel" path) with
       | .ok m => pure m
-      | .error e => throw s!"countermodel {path}: {e}"
+      | .error e => throw s!"countermodel {path}: {clip e}"
     unless m.regime == cr do
       throw s!"the countermodel is for {m.regime.name}, not {cr.name}"
     let gd ← match g.digest with | .ok d => pure d | .error e => throw s!"data: {e}"
@@ -162,11 +162,11 @@ def checkCountermodelFile (a : Args) (path : System.FilePath) : IO Report := do
       | none => pure base
       | some e =>
         match e.verify g q a.regime.rules a.regime.name with
-        | .error why => return { base with verdict := .rejected, reason := some why }
+        | .error why => return { base with verdict := .rejected, reason := some (clip why) }
         | .ok () => pure { base with bound := some true }
     match Model.checkCountermodel cr g q m.model with
     | .ok () => return base
-    | .error e => return { base with verdict := .rejected, reason := some e }
+    | .error e => return { base with verdict := .rejected, reason := some (clip e) }
 
 /-- Run the command: the exit code and the output. -/
 def run (args : List String) : IO (UInt32 × String) := do

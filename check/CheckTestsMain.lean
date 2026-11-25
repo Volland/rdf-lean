@@ -153,11 +153,58 @@ def countermodelOwl : IO (List String) := do
   let (code, out) ← Cli.run (cmArgs "pets-tom-dog-countermodel.json" "owl")
   return if code == 3 then [] else [s!"OWL countermodel: exit {code}\n{out}"]
 
+/-- Write a scratch input under `.lake/robust/`. -/
+private def scratch (name content : String) : IO System.FilePath := do
+  let dir : System.FilePath := ".lake/robust"
+  IO.FS.createDirAll dir
+  IO.FS.writeFile (dir / name) content
+  return dir / name
+
+/-- Values a certificate makes the checker repeat are bounded: a 100,000-digit goal is cut in the
+text and the JSON verdicts (exit 2), and so is a 100,000-digit version (exit 3). -/
+def echoBounded : IO (List String) := do
+  let big := String.ofList (List.replicate 100000 '9')
+  let goal ← scratch "huge-goal.json" s!"\{\"version\": 1, \"nodes\": [], \"goals\": [{big}]}"
+  let version ← scratch "huge-version.json" s!"\{\"version\": {big}, \"nodes\": [], \"goals\": []}"
+  let base := ["--data", (dataDir / "pets.nt").toString, "--query",
+    (dataDir / "query-mammal-owner.nt").toString, "--cert"]
+  let (c1, t1) ← Cli.run (base ++ [goal.toString])
+  let (c2, j2) ← Cli.run (base ++ [goal.toString, "--json"])
+  let (c3, t3) ← Cli.run (base ++ [version.toString])
+  let cut (s : String) := (s.splitOn "…(99800 more characters)").length > 1
+  let ok := c1 == 2 && t1.length < 2000 && cut t1 && c2 == 2 && j2.length < 2000 && cut j2 &&
+    (Json.parse j2).toOption.isSome && c3 == 3 && t3.length < 2000 && cut t3
+  return if ok then [] else [s!"bounded echo: exit {c1} {c2} {c3}\n{t1.take 500}\n{j2.take 500}\n{t3.take 500}"]
+
+/-- Malformed input exits 3 with a positioned message: JSON nested past 10,000 levels, a triple
+term nested past the parser's limit, an unterminated Turtle collection. -/
+def malformedInput : IO (List String) := do
+  let deep ← scratch "deep.json" (String.ofList (List.replicate 20000 '['))
+  let tt := Id.run do
+    let mut t := "<http://e/o>"
+    for _ in [0:2000] do t := "<<( <http://e/s> <http://e/p> " ++ t ++ " )>>"
+    return "<http://e/s> <http://e/p> " ++ t ++ " .\n"
+  let deepTT ← scratch "deep-tt.nt" tt
+  let coll ← scratch "coll.ttl" "@prefix : <http://ex.org/> .\n:x :p ( :a :b .\n"
+  let run (data cert : String) := Cli.run ["--data", data, "--query",
+    (dataDir / "query-mammal-owner.nt").toString, "--cert", cert]
+  let pets := (dataDir / "pets.nt").toString
+  let certOk := (dataDir / "pets-mammal-owner.json").toString
+  let has (s t : String) := (s.splitOn t).length > 1
+  let (c1, o1) ← run pets deep.toString
+  let (c2, o2) ← run deepTT.toString certOk
+  let (c3, o3) ← run coll.toString certOk
+  let ok := c1 == 3 && has o1 "nesting deeper than 10000 levels" &&
+    c2 == 3 && has o2 s!"{deepTT}:1:" && has o2 "triple term nested deeper than 1024" &&
+    c3 == 3 && has o3 s!"{coll}:2:15: expected ')'"
+  return if ok then [] else [s!"malformed input: {c1} {o1}\n{c2} {o2.take 300}\n{c3} {o3}"]
+
 def main : IO UInt32 := do
   let (fails, counts) ← runCorpus
   let fails := fails ++ (← provenJson) ++ (← rejectedJson) ++ (← badInput) ++
     (← boundAccepted) ++ (← otherDataRejected) ++ (← upgraded) ++ (← clashVerified) ++ (← clashTampered) ++
-    (← countermodelAccepted) ++ (← countermodelForged) ++ (← countermodelOwl)
+    (← countermodelAccepted) ++ (← countermodelForged) ++ (← countermodelOwl) ++
+    (← echoBounded) ++ (← malformedInput)
   for f in fails do IO.eprintln s!"FAIL {f}"
   IO.println s!"certificate corpus: {", ".intercalate (counts.map fun (r, n) => s!"{r} {n}")}"
   IO.println (if fails.isEmpty then "leanrdf-check tests: ok" else s!"leanrdf-check tests: {fails.length} failure(s)")

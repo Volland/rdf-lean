@@ -37,3 +37,8 @@ lean_exe checkTests where
 /-- `lake exe leanrdf-check --data D --query Q --cert C [--rules R] [--json]`. -/
 @[default_target] lean_exe «leanrdf-check» where
   root := `CheckMain
+
+/-- `lake exe leanrdf-io-bench STAGE FILE`: timings of parsing, digests and certificate JSON,
+for `scripts/bench/bench.py`. A benchmark helper, not part of the trusted tool. -/
+lean_exe «leanrdf-io-bench» where
+  root := `IoBenchMain
