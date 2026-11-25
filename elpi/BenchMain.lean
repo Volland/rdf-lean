@@ -45,7 +45,7 @@ def main (args : List String) : IO UInt32 := do
     let e ← stage rows "elpi-load+codegen" (fun () => orFail "program" (program rules))
     let c0 ← stage rows "intern+facts" (fun () => pure (e.start g)) (·.size)
     let closure ← stage rows "saturate (elpi rounds)" (fun () => orFail "saturate" (saturateFrom e c0 0)) (·.size)
-    IO.println s!"# data {g.size} triples, closure {closure.size} entries, {closure.round} rounds"
+    IO.println s!"# data {g.size} triples, closure {closure.size} entries, {closure.round} rounds, {closure.steps} Elpi steps"
     unless rest.contains "--saturate-only" do
       let clash ← stage rows "clash-search" (fun () => orFail "clash" (clashCertificate closure clashRules))
       if let some c := clash then

@@ -95,6 +95,8 @@ structure Closure where
   batch : Array Nat := #[]
   /-- The last round. -/
   round : Nat := 0
+  /-- The Elpi steps the rounds took. -/
+  steps : Nat := 0
   intern : Intern := {}
   index : FactIndex := {}
   deriving Inhabited
@@ -142,16 +144,16 @@ private def push (c : Closure) (k : Nat × Nat × Nat) (rule : String) (prem : A
   let e : Entry := { conclusion := c.intern.triple k, rule,
                      premises := prem.toList.map fun i => (c.entries[i]!).conclusion }
   match c with
-  | { entries, premiseIds, batch, round, intern, index } =>
+  | { entries, premiseIds, batch, round, steps, intern, index } =>
     { entries := entries.push e, premiseIds := premiseIds.push prem, batch := batch.push b, round,
-      intern, index := index.add k }
+      steps, intern, index := index.add k }
 
 /-- Add a triple in round `b` unless it is present. -/
 def addTriple (c : Closure) (t : Triple) (rule : String) (b : Nat) : Closure :=
   match c with
-  | { entries, premiseIds, batch, round, intern, index } =>
+  | { entries, premiseIds, batch, round, steps, intern, index } =>
     let (intern, k) := intern.addTriple t
-    let c : Closure := ⟨entries, premiseIds, batch, round, intern, index⟩
+    let c : Closure := ⟨entries, premiseIds, batch, round, steps, intern, index⟩
     if c.index.spo.contains k then c else c.push k rule #[] b
 
 end Closure
@@ -483,11 +485,11 @@ private def HeadTerm.add (I : Intern) : HeadTerm → Intern × Nat
 private def Closure.internHead (c : Closure) (h : HeadTerm × HeadTerm × HeadTerm) :
     Closure × Nat × Nat × Nat :=
   match c with
-  | ⟨entries, premiseIds, batch, round, intern, index⟩ =>
+  | ⟨entries, premiseIds, batch, round, steps, intern, index⟩ =>
     let (intern, x) := HeadTerm.add intern h.1
     let (intern, y) := HeadTerm.add intern h.2.1
     let (intern, z) := HeadTerm.add intern h.2.2
-    (⟨entries, premiseIds, batch, round, intern, index⟩, x, y, z)
+    (⟨entries, premiseIds, batch, round, steps, intern, index⟩, x, y, z)
 
 /-- Add the new triples of a round, in the original order, as round `b`. -/
 private def addRound (c : Closure) (infos : Array ClauseInfo) (sols : Array Sol) (b : Nat) :
@@ -509,23 +511,30 @@ private def addRound (c : Closure) (infos : Array ClauseInfo) (sols : Array Sol)
       c := c.push k infos[s.clause]!.name s.premises b
   return { c with round := b }
 
-/-- Run rounds until one adds nothing, with the facts from `lo` on as the first delta, within
-`fuel` Elpi steps in all. -/
-def saturateFrom (e : Engine) (c : Closure) (lo : Nat) (fuel : Nat := Elpi.defaultFuel) :
-    Except String Closure := do
+/-- The step budget of a whole saturation, by default: ten rounds' worth. Only rules that build
+new triple terms in their heads can make a saturation go on without end; this bounds them. -/
+def defaultTotalFuel : Nat := 10 * Elpi.defaultFuel
+
+/-- Run rounds until one adds nothing, with the facts from `lo` on as the first delta. Each round
+may take `fuel` Elpi steps, and all rounds together `totalFuel`; running out of either is an
+error that starts with `budgetExhausted`. -/
+def saturateFrom (e : Engine) (c : Closure) (lo : Nat) (fuel : Nat := Elpi.defaultFuel)
+    (totalFuel : Nat := defaultTotalFuel) : Except String Closure := do
   let mut c := c
   let mut lo := lo
-  let mut left := fuel
   if e.clauses.isEmpty then return c
   while lo < c.size do
     let hi := c.size
-    let (sols, used) ← match runRound e c lo left with
+    let left := totalFuel - c.steps
+    let budget := min fuel left
+    let (sols, used) ← match runRound e c lo budget with
       | .ok r => pure r
       | .error none =>
-        throw s!"{budgetExhausted}: {fuel} Elpi steps did not finish the saturation (round {c.round + 1}, {c.size} triples so far); the closure is incomplete, which is a resource limit, not a verdict"
+        let which := if budget < fuel then s!"the saturation's {totalFuel} Elpi steps" else s!"{fuel} Elpi steps for a round"
+        throw s!"{budgetExhausted}: {which} were not enough (round {c.round + 1}, {c.size} triples so far); the closure is incomplete, which is a resource limit, not a verdict"
       | .error (some m) => throw s!"saturation failed in round {c.round + 1}: {m}"
-    left := left - used
     c ← addRound c e.clauses sols (c.round + 1)
+    c := { c with steps := c.steps + used }
     lo := hi
   return c
 
@@ -543,12 +552,13 @@ def Engine.start (e : Engine) (g : Graph) : Closure := Id.run do
   for (n, t) in e.axioms do c := c.addTriple t n 0
   return c
 
-/-- Saturate a graph with a compiled program, within `fuel` Elpi steps in all. -/
+/-- Saturate a graph with a compiled program, within `fuel` Elpi steps per round. -/
 def saturateWith (e : Engine) (g : Graph) (fuel : Nat := Elpi.defaultFuel) : Except String Closure :=
   saturateFrom e (e.start g) 0 fuel
 
 -- @tg: implements:: [[openspec:elpi-bridge#Golden closures]]
-/-- Saturate a graph under a rule list. -/
+/-- Saturate a graph under a rule list, within `fuel` Elpi steps per round (and
+`defaultTotalFuel` in all). -/
 def saturate (rules : List Rule) (g : Graph) (fuel : Nat := Elpi.defaultFuel) : Except String Closure := do
   saturateWith (← program rules) g fuel
 

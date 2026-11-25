@@ -65,8 +65,8 @@ private def chain (n : Nat) : List Triple :=
   let facts := [T (ex "A") sc (ex "B"), T (ex "x") ty (ex "A")]
   (close facts).toList.take 2 |>.all fun e => e.rule == "fact" && e.premises.isEmpty
 
-/- The search budget bounds the whole saturation: a closure that needs more Elpi steps stops
-with an error that says so, never with a partial closure. -/
+/- The search budget bounds each round: a round that needs more Elpi steps stops the
+saturation with an error that says so, never with a partial closure. -/
 #guard match saturate RDFS.rdfsBasicRules (Graph.ofList (T (ex "x") ty (ex "C0") :: chain 12)) 10 with
   | .error e => isBudgetExhausted e
   | .ok _ => false
@@ -96,6 +96,18 @@ private def unwrap : Rule :=
   match saturate [wrap, unwrap] (Graph.ofList [T (ex "a") (ex "p") (ex "b")]) with
   | .ok c => c.size == 3 && (c.find? (T tp (ex "q") (ex "b"))).isSome &&
       ((c.find? (T (ex "a") (ex "seen") (ex "b"))).map (·.rule)) == some "unwrap"
+  | .error _ => false
+
+/- A rule that builds a new triple term from every match nests without end; the budget of the
+whole saturation stops it with a clear error. -/
+private def nest : Rule :=
+  { name := "nest", body := [⟨.var "x", .const (ex "p"), .var "y"⟩]
+    head := ⟨.triple (.var "x") (.const (ex "p")) (.var "y"), .const (ex "p"), .var "y"⟩ }
+#guard
+  match program [nest] with
+  | .ok e => match saturateFrom e (e.start (Graph.ofList [T (ex "a") (ex "p") (ex "b")])) 0 1000 20000 with
+    | .error m => isBudgetExhausted m
+    | .ok _ => false
   | .error _ => false
 
 end LeanRDF.BridgeTests.Saturate
