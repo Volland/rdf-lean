@@ -106,7 +106,10 @@ def Envelope.ofJson (j : Json) : Except String Envelope := do
 /-- Read a certificate from JSON: version 1, or version 2 with its envelope. -/
 def Certificate.ofJson (j : Json) : Except String Certificate := do
   let version ← (← j.getObjVal? "version").getNat?
-  unless version == 1 || version == 2 do throw s!"unsupported certificate version {version}"
+  unless version == 1 || version == 2 do
+    -- a number of many digits is not written out: that takes time quadratic in its length
+    let shown := if version < 10 ^ 20 then toString version else s!"of {version.log2 + 1} bits"
+    throw s!"unsupported certificate version {shown}"
   let envelope ← if version == 2 then
       match j.getObjVal? "envelope" with
       | .ok e => some <$> Envelope.ofJson e

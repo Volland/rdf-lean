@@ -24,13 +24,19 @@ structure ParseError where
 
 instance : ToString ParseError := ⟨fun e => s!"{e.line}:{e.col}: {e.msg}"⟩
 
-/-- The parser monad: the input, the current position, and failures tagged with a position. -/
-private abbrev P := ReaderT (Array Char) (StateT Nat (Except (Nat × String)))
+/-- What the parser reads: the input and the limit on triple-term nesting. -/
+private structure Input where
+  src : Src
+  maxDepth : Nat
 
-private def peek? : P (Option Char) := do return (← read)[← get]?
+/-- The parser monad: the input, the current position (a character index), the interned IRIs,
+and failures tagged with a position. -/
+private abbrev P := ReaderT Input (StateT Nat (StateT Interner (Except (Nat × String))))
+
+private def peek? : P (Option Char) := do return (← read).src.get? (← get)
 
 /-- The character `k` places ahead, without consuming anything. -/
-private def peekAt? (k : Nat) : P (Option Char) := do return (← read)[(← get) + k]?
+private def peekAt? (k : Nat) : P (Option Char) := do return (← read).src.get? ((← get) + k)
 
 /-- Whether the input continues with `s`, without consuming anything. -/
 private def lookingAt (s : String) : P Bool := do
@@ -84,6 +90,16 @@ private def uchar : P Char := do
   | some 'U' => bump; hexChar 8
   | _ => fail "invalid escape"
 
+/-- The interned copy of an IRI string. -/
+private def intern (s : String) : P String :=
+  modifyGetThe Interner fun t => t.intern s
+
+/-- The end of a run of characters that need no escape processing, from `i`. -/
+private partial def plainRun (src : Src) (stop : Char → Bool) (i : Nat) : Nat :=
+  match src.get? i with
+  | some c => if stop c then i else plainRun src stop (i + 1)
+  | none => i
+
 private partial def iriBody (acc : String) : P String := do
   match ← peek? with
   | none => fail "unterminated IRI"
@@ -102,8 +118,14 @@ private partial def iriBody (acc : String) : P String := do
 private def iriRef : P IRI := do
   let start ← get
   expect '<'
-  let s ← iriBody ""
-  if isAbsoluteIRI s then return ⟨s⟩ else throw (start, "relative IRI not allowed in N-Triples")
+  -- the characters up to the first `>`, escape or forbidden character, in one piece
+  let src := (← read).src
+  let i := start + 1
+  let j := plainRun src (fun c => c == '>' || c == '\\' || iriForbidden c) i
+  set j
+  let s ← iriBody (src.extract i j)
+  if isAbsoluteIRI s then return ⟨← intern s⟩
+  else throw (start, "relative IRI not allowed in N-Triples")
 
 private partial def labelRest : P Unit := do
   match ← peek? with
@@ -118,11 +140,11 @@ private def blankNode : P BlankNode := do
   | some c => if isPNCharsU c || c.isDigit then bump else fail "invalid blank node label"
   | none => fail "invalid blank node label"
   labelRest
-  let chars ← read
+  let src := (← read).src
   let mut stop ← get
-  while stop > start + 1 && chars[stop - 1]! == '.' do stop := stop - 1
+  while stop > start + 1 && src.get? (stop - 1) == some '.' do stop := stop - 1
   set stop
-  return ⟨String.ofList (chars.extract start stop).toList⟩
+  return ⟨src.extract start stop⟩
 
 private partial def stringBody (acc : String) : P String := do
   match ← peek? with
@@ -176,7 +198,11 @@ private partial def langDir : P (String × Option Direction) := do
 token-based, so white space may separate the string from `@` or `^^` and `^^` from the IRI. -/
 private def literal : P Literal := do
   expect '"'
-  let lex ← stringBody ""
+  let src := (← read).src
+  let i ← get
+  let j := plainRun src (fun c => c == '"' || c == '\\' || c == '\n' || c == '\r') i
+  set j
+  let lex ← stringBody (src.extract i j)
   let afterString ← get
   skipWS
   match ← peek? with
@@ -207,16 +233,23 @@ private def predicate : P Term := do
   if (← peek?) == some '<' then return .iri (← iriRef)
   else fail "expected an IRI as predicate"
 
+/-- Enter a triple term at nesting `depth`; fail past the limit. -/
+private def enterTripleTerm (depth : Nat) : P Unit := do
+  let max := (← read).maxDepth
+  if depth > max then fail s!"triple term nested deeper than {max}"
+
 /-- An `object` (production [9]), a `tripleTerm` (production [11]) included: `<<(`, a subject,
-a predicate and an object, recursively, then `)>>`. -/
-private partial def object : P Term := do
+a predicate and an object, recursively, then `)>>`. `depth` is the number of enclosing triple
+terms. -/
+private partial def object (depth : Nat := 0) : P Term := do
   match ← peek? with
   | some '<' =>
     if ← lookingAt "<<(" then
+      enterTripleTerm (depth + 1)
       keyword "<<("; skipWS
       let s ← subject; skipWS
       let p ← predicate; skipWS
-      let o ← object; skipWS
+      let o ← object (depth + 1); skipWS
       keyword ")>>"
       return .triple s p o
     else return .iri (← iriRef)
@@ -226,14 +259,15 @@ private partial def object : P Term := do
 
 /-- Any term in any position, triple terms with any components included: the generalized term
 syntax certificates use (`Term.toNTriples` writes it). -/
-private partial def anyTerm : P Term := do
+private partial def anyTerm (depth : Nat := 0) : P Term := do
   match ← peek? with
   | some '<' =>
     if ← lookingAt "<<(" then
+      enterTripleTerm (depth + 1)
       keyword "<<("; skipWS
-      let s ← anyTerm; skipWS
-      let p ← anyTerm; skipWS
-      let o ← anyTerm; skipWS
+      let s ← anyTerm (depth + 1); skipWS
+      let p ← anyTerm (depth + 1); skipWS
+      let o ← anyTerm (depth + 1); skipWS
       keyword ")>>"
       return .triple s p o
     else return .iri (← iriRef)
@@ -294,56 +328,41 @@ private partial def document (quads : Bool) (acc : Array Quad) : P (Array Quad) 
     | some '\n' | some '\r' => bump; document quads (acc.push t)
     | some _ => fail "expected end of line after statement"
 
-private def position (chars : Array Char) (pos : Nat) : Nat × Nat := Id.run do
-  let mut line := 1
-  let mut col := 1
-  for c in chars.extract 0 pos do
-    if c == '\n' then
-      line := line + 1
-      col := 1
-    else col := col + 1
-  return (line, col)
+/-- Run a parser on `src`, with line and column on failure. -/
+private def runP {α : Type} (p : P α) (src : String) (maxDepth : Nat) : Except ParseError α :=
+  let input : Input := { src := Src.ofString src, maxDepth }
+  match (p.run input |>.run 0).run {} with
+  | .ok ((a, _), _) => .ok a
+  | .error (pos, msg) =>
+    let (line, col) := input.src.position pos
+    .error { line, col, msg }
 
 -- @tg: implements:: [[openspec:ntriples#Document parsing]]
 -- @tg: implements:: [[openspec:ntriples#Term syntax]]
 /-- Parse an N-Triples document (RDF 1.2 N-Triples §5.3, §6) into its triples, in document
-order. -/
-def parseTriples (src : String) : Except ParseError (Array Triple) :=
-  let chars := src.toList.toArray
-  match (document false #[]).run chars |>.run 0 with
-  | .ok (qs, _) => .ok (qs.map (·.triple))
-  | .error (pos, msg) =>
-    let (line, col) := position chars pos
-    .error { line, col, msg }
+order. Triple terms nested deeper than `maxDepth` are an error. -/
+def parseTriples (src : String) (maxDepth : Nat := defaultMaxTermDepth) :
+    Except ParseError (Array Triple) :=
+  (runP (document false #[]) src maxDepth).map (·.map (·.triple))
 
 -- @tg: implements:: [[openspec:datasets#N-Quads]]
 /-- Parse an N-Quads document (RDF 1.2 N-Quads) into its quads, in document order. -/
-def parseQuads (src : String) : Except ParseError (Array Quad) :=
-  let chars := src.toList.toArray
-  match (document true #[]).run chars |>.run 0 with
-  | .ok (qs, _) => .ok qs
-  | .error (pos, msg) =>
-    let (line, col) := position chars pos
-    .error { line, col, msg }
+def parseQuads (src : String) (maxDepth : Nat := defaultMaxTermDepth) :
+    Except ParseError (Array Quad) :=
+  runP (document true #[]) src maxDepth
 
 /-- Parse one term in N-Triples syntax, in any position (an IRI, a blank node, a literal or a
 triple term with any components), with nothing after it. Certificates use this for generalized
 triples. -/
-def parseTerm (src : String) : Except ParseError Term :=
-  let chars := src.toList.toArray
-  let p : P Term := do
+def parseTerm (src : String) (maxDepth : Nat := defaultMaxTermDepth) : Except ParseError Term :=
+  runP (do
     let t ← anyTerm
     if (← peek?).isSome then fail "unexpected text after term"
-    return t
-  match p.run chars |>.run 0 with
-  | .ok (t, _) => .ok t
-  | .error (pos, msg) =>
-    let (line, col) := position chars pos
-    .error { line, col, msg }
+    return t) src maxDepth
 
 -- @tg: implements:: [[openspec:ntriples#W3C conformance]]
 /-- Parse an N-Triples document (RDF 1.2 N-Triples §5.3, §6) into a graph. -/
-def parse (src : String) : Except ParseError Graph :=
-  (parseTriples src).map (fun ts => Graph.ofList ts.toList)
+def parse (src : String) (maxDepth : Nat := defaultMaxTermDepth) : Except ParseError Graph :=
+  (parseTriples src maxDepth).map (fun ts => Graph.ofList ts.toList)
 
 end LeanRDF.NTriples

@@ -14,6 +14,14 @@ KIND is one of
           restrictions, equivalent intersections), the shape of examples/owl-el-anatomy
   sparql  data.ttl, q1.rq (join + filter + order), q2.rq (group by + optional): a library of N books
   shacl   data.ttl, shapes.ttl: N employees, about 5% invalid, shapes of examples/shacl-employees
+  nt      big.nt: N triples with N subjects, 7 predicates and N literals; q.rq: a one-pattern query
+  ring    ring.nt: a ring of N blank nodes (symmetric: RDFC-1.0 N-degree hashing up to its work
+          limit); bnodes.nt: N blank nodes told apart by their literals (first-degree hashing only)
+  sg      records.jsonl: N statement records, every third one about the record before it, some
+          retracted, some with a validity interval (for leanrdf-sg)
+  robust  malformed and adversarial inputs for `bench.py --tools robust`, with robust.tsv listing
+          each case: the tool, its arguments, the exit code and output it must give and a time
+          limit (N is ignored)
 
 Only the Python standard library; deterministic for a given KIND and N.
 """
@@ -128,7 +136,126 @@ def gen_shacl(n, out):
         write(out, "shapes.ttl", f.read())
 
 
-KINDS = {"rdfs": gen_rdfs, "owl": gen_owl, "el": gen_el, "sparql": gen_sparql, "shacl": gen_shacl}
+def gen_nt(n, out):
+    write(out, "big.nt", "".join(f'<{E}s{i}> <{E}p{i % 7}> "v{i}" .\n' for i in range(n)))
+    write(out, "q.rq", f"SELECT ?o WHERE {{ <{E}s{n // 2}> ?p ?o }}\n")
+
+
+def gen_ring(n, out):
+    write(out, "ring.nt", "".join(f"_:b{i} <{E}p> _:b{(i + 1) % n} .\n" for i in range(n)))
+    write(out, "bnodes.nt", "".join(f'_:b{i} <{E}p> "{i}" .\n' for i in range(n)))
+
+
+def gen_sg(n, out):
+    import json
+    L = []
+    for i in range(1, n + 1):
+        if i % 3 == 0:
+            r = {"eid": i, "s": {"eid": i - 1}, "p": f"<{E}source>", "o": f'"src{i}"', "txAdded": i}
+        else:
+            r = {"eid": i, "s": f"<{E}s{i}>", "p": f"<{E}p{i % 7}>", "o": f"<{E}o{i}>", "txAdded": i}
+            if i % 5 == 0:
+                r["txRetracted"] = i + 2
+            if i % 4 == 0:
+                r["validFrom"] = 1000 * i
+                r["validTo"] = 1000 * i + 500
+        L.append(json.dumps(r))
+    write(out, "records.jsonl", "\n".join(L) + "\n")
+
+
+def nested_triple_term(depth):
+    o = f"<{E}o>"
+    for _ in range(depth):
+        o = f"<<( <{E}s> <{E}p> {o} )>>"
+    return f"<{E}s> <{E}p> {o} .\n"
+
+
+# robust.tsv: name, tool, arguments (space separated), exit code, text the output must contain
+# ("-" for none), time limit in seconds, and "slow" for cases skipped unless --slow
+ROBUST = [
+    ("ok", "check", "--data data.nt --query q.nt --cert cert.json", 0, "PROVEN", 2, ""),
+    ("unterminated-literal", "check", "--data bad-literal.nt --query q.nt --cert cert.json", 3,
+     "bad-literal.nt:1:52: unterminated string literal", 2, ""),
+    ("missing-dot", "check", "--data missing-dot.nt --query q.nt --cert cert.json", 3,
+     "missing-dot.nt:1:55: expected '.'", 2, ""),
+    ("garbage", "check", "--data garbage.nt --query q.nt --cert cert.json", 3,
+     "garbage.nt:1:1: expected an IRI or a blank node as subject", 2, ""),
+    ("relative-iri", "check", "--data relative.nt --query q.nt --cert cert.json", 3,
+     "relative.nt:1:19: relative IRI not allowed in N-Triples", 2, ""),
+    ("unclosed-bracket", "check", "--data unclosed-bracket.ttl --query q.nt --cert cert.json", 3,
+     "unclosed-bracket.ttl:2:15: expected ']'", 2, ""),
+    ("unclosed-collection", "check", "--data unclosed-collection.ttl --query q.nt --cert cert.json", 3,
+     "unclosed-collection.ttl:2:15: expected ')'", 2, ""),
+    ("non-utf8", "check", "--data non-utf8.nt --query q.nt --cert cert.json", 3,
+     "non-utf8.nt:1:1: not UTF-8: byte 0xff at byte offset 0", 2, ""),
+    ("missing-file", "check", "--data no-such-file.nt --query q.nt --cert cert.json", 3,
+     "cannot read data", 2, ""),
+    ("bad-argument", "check", "--data data.nt --frobnicate", 3, "unexpected argument", 2, ""),
+    ("deep-triple-term", "check", "--data deep-tt.nt --query q.nt --cert cert.json", 3,
+     "triple term nested deeper than 1024", 1, ""),
+    ("deeper-triple-term", "check", "--data deeper-tt.nt --query q.nt --cert cert.json", 3,
+     "triple term nested deeper than 1024", 2, ""),
+    ("deep-json", "check", "--data data.nt --query q.nt --cert deep.json", 3,
+     "nesting deeper than 10000 levels", 2, ""),
+    ("truncated-json", "check", "--data data.nt --query q.nt --cert truncated.json", 3,
+     "unexpected end of input", 2, ""),
+    ("huge-goal", "check", "--data data.nt --query q.nt --cert huge-goal.json", 2,
+     "goals […(a 332193-bit number)]", 2, ""),
+    ("huge-node-id", "check", "--data data.nt --query q.nt --cert huge-id.json", 2,
+     "names no node", 2, ""),
+    ("huge-version", "check", "--data data.nt --query q.nt --cert huge-version.json", 3,
+     "unsupported certificate version of 332193 bits", 2, ""),
+    ("empty-data", "check", "--data empty.nt --query q.nt --cert cert.json", 2, "REJECTED", 2, ""),
+    ("long-literal", "check", "--data long-literal.nt --query q.nt --cert cert.json", 2,
+     "REJECTED", 3, ""),
+    ("ring-1000", "check", "--data ring1000.nt --query q.nt --cert cert.json", 3,
+     "RDFC-1.0 work limit", 1, ""),
+    ("deep-blank-nodes", "check", "--data deep-bnodes.ttl --query q.nt --cert cert.json", 2,
+     "REJECTED", 5, ""),
+    ("long-collection", "check", "--data long-collection.ttl --query q.nt --cert cert.json", 2,
+     "REJECTED", 5, ""),
+    ("symmetric-collection", "check", "--data same-items.ttl --query q.nt --cert cert.json", 3,
+     "RDFC-1.0 work limit", 120, "slow"),
+]
+
+
+def gen_robust(_n, out):
+    x, q, y = f"<{E}x>", f"<{E}q>", f"<{E}y>"
+    write(out, "data.nt", f"{x} {q} {y} .\n<{E}x> <{E}r> _:b .\n")
+    write(out, "q.nt", f"{x} {q} {y} .\n")
+    write(out, "cert.json", '{"version": 1, "nodes": [{"id": 0, "conclusion": ["%s", "%s", "%s"], '
+          '"rule": "fact", "premises": []}], "goals": [0]}\n' % (x, q, y))
+    write(out, "bad-literal.nt", f'{x} {q} "unterminated .\n')
+    write(out, "missing-dot.nt", f"{x} {q} <{E}yy>\n")
+    write(out, "garbage.nt", "%% garbage\n")
+    write(out, "relative.nt", f"{x} <rel> {y} .\n")
+    write(out, "unclosed-bracket.ttl", f"@prefix : <{E}> .\n:x :p [ :q :r .\n")
+    write(out, "unclosed-collection.ttl", f"@prefix : <{E}> .\n:x :p ( :a :b .\n")
+    with open(os.path.join(out, "non-utf8.nt"), "wb") as f:
+        f.write(b"\xff\xfe garbage\n")
+    write(out, "deep-tt.nt", nested_triple_term(10000))
+    write(out, "deeper-tt.nt", nested_triple_term(200000))
+    write(out, "deep.json", "[" * 100000)
+    write(out, "truncated.json", '{"version": 1, "nodes": [')
+    write(out, "huge-goal.json", '{"version": 1, "nodes": [], "goals": [%s]}\n' % ("9" * 100000))
+    write(out, "huge-id.json", '{"version": 1, "nodes": [{"id": %s, "conclusion": ["%s", "%s", "%s"], '
+          '"rule": "fact", "premises": []}], "goals": [0]}\n' % ("9" * 100000, x, q, y))
+    write(out, "huge-version.json", '{"version": %s, "nodes": [], "goals": []}\n' % ("9" * 100000))
+    write(out, "empty.nt", "")
+    write(out, "long-literal.nt", f'{x} {q} "{"a" * 5000000}" .\n')
+    write(out, "ring1000.nt", "".join(f"_:b{i} <{E}p> _:b{(i + 1) % 1000} .\n" for i in range(1000)))
+    write(out, "deep-bnodes.ttl", f"@prefix : <{E}> .\n:x :p " +
+          "".join(f"[ :p{i} " for i in range(100000)) + ":o" + " ]" * 100000 + " .\n")
+    write(out, "long-collection.ttl", f"@prefix : <{E}> .\n:x :p ( " +
+          " ".join(f":a{i}" for i in range(100000)) + " ) .\n")
+    write(out, "same-items.ttl", f"@prefix : <{E}> .\n:x :p ( " + ":a " * 100000 + ") .\n")
+    write(out, "robust.tsv", "".join(
+        f"{name}\t{tool}\t{args}\t{code}\t{text}\t{limit}\t{tag}\n"
+        for name, tool, args, code, text, limit, tag in ROBUST))
+
+
+KINDS = {"rdfs": gen_rdfs, "owl": gen_owl, "el": gen_el, "sparql": gen_sparql, "shacl": gen_shacl,
+         "nt": gen_nt, "ring": gen_ring, "sg": gen_sg, "robust": gen_robust}
 
 if __name__ == "__main__":
     if len(sys.argv) != 4 or sys.argv[1] not in KINDS:
