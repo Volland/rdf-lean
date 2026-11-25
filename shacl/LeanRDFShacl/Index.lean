@@ -195,6 +195,136 @@ theorem closure_congr {f g : Term → List Term} (h : ∀ y, Eqv (f y) (g y)) :
     simp only [closure]
     rw [Eqv.flatMap h S S, closure_congr h n]
 
+/-! ## The closure, semi-naive -/
+
+/-- `addNewGo` that also returns the hash set, extended by every element of the list. -/
+def addNewGo2 {α : Type} [BEq α] [Hashable α] (seen : Std.HashSet α) (out : Array α) :
+    List α → Std.HashSet α × Array α
+  | [] => (seen, out)
+  | a :: l => if seen.contains a then addNewGo2 seen out l else addNewGo2 (seen.insert a) (out.push a) l
+
+theorem addNewGo2_snd {α : Type} [DecidableEq α] [Hashable α] :
+    ∀ (l : List α) (seen : Std.HashSet α) (out : Array α) (S : List α),
+      (∀ a, seen.contains a = true ↔ a ∈ S ++ out.toList) →
+        S ++ (addNewGo2 seen out l).2.toList = addNew (S ++ out.toList) l
+  | [], _, _, _, _ => by simp [addNewGo2, addNew]
+  | a :: l, seen, out, S, h => by
+    simp only [addNewGo2, addNew]
+    by_cases ha : a ∈ S ++ out.toList
+    · simp only [(h a).2 ha, ↓reduceIte, ha]
+      exact addNewGo2_snd l seen out S h
+    · have hs : seen.contains a = false := by
+        cases e : seen.contains a
+        · rfl
+        · exact absurd ((h a).1 e) ha
+      simp only [hs, Bool.false_eq_true, ↓reduceIte, ha]
+      rw [addNewGo2_snd l (seen.insert a) (out.push a) S fun b => ?_, Array.toList_push,
+        List.append_assoc]
+      rw [Std.HashSet.contains_insert, Array.toList_push, ← List.append_assoc, List.mem_append,
+        List.mem_singleton, Bool.or_eq_true, h b, beq_iff_eq]
+      exact ⟨fun e => e.elim (fun e => .inr e.symm) .inl, fun e => e.elim .inr (fun e => .inl e.symm)⟩
+
+theorem addNewGo2_fst {α : Type} [DecidableEq α] [Hashable α] (b : α) :
+    ∀ (l : List α) (seen : Std.HashSet α) (out : Array α),
+      (addNewGo2 seen out l).1.contains b = true ↔ seen.contains b = true ∨ b ∈ l
+  | [], _, _ => by simp [addNewGo2]
+  | a :: l, seen, out => by
+    simp only [addNewGo2]
+    split
+    · rename_i ha
+      rw [addNewGo2_fst b l seen out, List.mem_cons]
+      constructor
+      · rintro (h | h)
+        · exact .inl h
+        · exact .inr (.inr h)
+      · rintro (h | rfl | h)
+        · exact .inl h
+        · exact .inl ha
+        · exact .inr h
+    · rw [addNewGo2_fst b l _ _, Std.HashSet.contains_insert, List.mem_cons]
+      simp only [Bool.or_eq_true, beq_iff_eq]
+      constructor
+      · rintro ((rfl | h) | h)
+        · exact .inr (.inl rfl)
+        · exact .inl h
+        · exact .inr (.inr h)
+      · rintro (h | rfl | h)
+        · exact .inl (.inr h)
+        · exact .inl (.inl rfl)
+        · exact .inr h
+
+theorem addNew_of_subset {α : Type} [DecidableEq α] {acc : List α} :
+    ∀ {l : List α}, (∀ a ∈ l, a ∈ acc) → addNew acc l = acc
+  | [], _ => rfl
+  | a :: l, h => by
+    rw [addNew, ite_eq_left (h a List.mem_cons_self)]
+    exact addNew_of_subset fun b hb => h b (List.mem_cons_of_mem _ hb)
+
+/-- The rounds of `closure`: `acc` holds what is reached, `seen` the same as a hash set, and
+`delta` what the previous round added, the only nodes whose successors can be new. -/
+def closureGo (step : Term → List Term) :
+    Nat → Array Term → Std.HashSet Term → List Term → List Term
+  | 0, acc, _, _ => acc.toList
+  | n + 1, acc, seen, delta =>
+    match addNewGo2 seen #[] (delta.flatMap step) with
+    | (seen', newA) =>
+      let new := newA.toList
+      if new.isEmpty then acc.toList else closureGo step n (acc ++ newA) seen' new
+
+/-- `closure` from one node, semi-naive. -/
+def closureF (step : Term → List Term) (n : Nat) (x : Term) : List Term :=
+  closureGo step n #[x] ((∅ : Std.HashSet Term).insert x) [x]
+
+theorem closureGo_eq (step : Term → List Term) :
+    ∀ (n : Nat) (acc : Array Term) (seen : Std.HashSet Term) (old delta : List Term),
+      acc.toList = old ++ delta → (∀ z ∈ old.flatMap step, z ∈ old ++ delta) →
+      (∀ a, seen.contains a = true ↔ a ∈ acc.toList) →
+      closureGo step n acc seen delta = closure step n (old ++ delta)
+  | 0, acc, _, old, delta, h1, _, _ => by rw [closureGo, closure, h1]
+  | n + 1, acc, seen, old, delta, h1, h2, h3 => by
+    rw [closureGo, closure]
+    have hS : addNew (old ++ delta) ((old ++ delta).flatMap step) =
+        addNew (old ++ delta) (delta.flatMap step) := by
+      rw [List.flatMap_append, addNew_append, addNew_of_subset h2]
+    have hsnd := addNewGo2_snd (delta.flatMap step) seen #[] (old ++ delta)
+      (fun a => by rw [h3, h1]; simp)
+    have hfst := fun b => addNewGo2_fst b (delta.flatMap step) seen #[]
+    simp only [List.append_nil] at hsnd
+    rw [hS]
+    generalize hr : addNewGo2 seen #[] (delta.flatMap step) = r at hsnd hfst ⊢
+    obtain ⟨seen', newA⟩ := r
+    simp only at hsnd hfst ⊢
+    rw [← hsnd]
+    by_cases hE : newA.toList.isEmpty = true
+    · have : newA.toList = [] := List.isEmpty_iff.1 hE
+      simp [this, h1]
+    · have hne : newA.toList ≠ [] := fun e => hE (by simp [e])
+      have hlen : ¬ (old ++ delta ++ newA.toList).length = (old ++ delta).length := by
+        cases e : newA.toList with
+        | nil => exact absurd e hne
+        | cons _ _ => simp
+      simp only [hE, Bool.false_eq_true, ↓reduceIte, hlen]
+      apply closureGo_eq step n (acc ++ newA) seen' (old ++ delta) newA.toList
+      · simp [h1]
+      · intro z hz
+        rw [hsnd, ← hS, mem_addNew]
+        exact .inr hz
+      · intro a
+        have key : a ∈ old ++ delta ∨ a ∈ newA.toList ↔ a ∈ old ++ delta ∨ a ∈ delta.flatMap step := by
+          rw [← List.mem_append, hsnd, mem_addNew]
+        rw [hfst, h3, Array.toList_append, List.mem_append, h1]
+        exact key.symm
+
+theorem closureF_eq (step : Term → List Term) (n : Nat) (x : Term) :
+    closureF step n x = closure step n [x] := by
+  unfold closureF
+  have := closureGo_eq step n #[x] ((∅ : Std.HashSet Term).insert x) [] [x] rfl
+    (by simp) (fun a => by
+      rw [Std.HashSet.contains_insert, Std.HashSet.contains_empty, Bool.or_false, beq_iff_eq]
+      simp [eq_comm])
+  rw [List.nil_append] at this
+  exact this
+
 /-! ## The index -/
 
 /-- The indexes of a data graph that the validator reads: the triples by subject, predicate and
@@ -308,8 +438,8 @@ def vnX : Path → Term → List Term
     | none => (x :: X.terms.get).filter fun y => (vnX p y).contains x
   | .seq ps, x => seqNodesX ps [x]
   | .alt ps, x => altNodesX ps x
-  | .zeroOrMore p, x => closure (fun y => vnX p y) (X.gtLen + 2) [x]
-  | .oneOrMore p, x => (closure (fun y => vnX p y) (X.gtLen + 2) [x]).flatMap fun y => vnX p y
+  | .zeroOrMore p, x => closureF (fun y => vnX p y) (X.gtLen + 2) x
+  | .oneOrMore p, x => (closureF (fun y => vnX p y) (X.gtLen + 2) x).flatMap fun y => vnX p y
   | .zeroOrOne p, x => x :: vnX p x
 /-- `seqNodes` from the index. -/
 def seqNodesX : List Path → List Term → List Term
@@ -364,10 +494,10 @@ theorem vnX_eqv : ∀ (p : Path) (x : Term), Eqv (vnX X p x) (vn G p x)
     rw [vnX, vn]
     exact altNodesX_eqv ps x
   | .zeroOrMore p, x => by
-    rw [vnX, vn, X.gtLen_eq, closure_congr (vnX_eqv p)]
+    rw [vnX, vn, X.gtLen_eq, closureF_eq, closure_congr (vnX_eqv p)]
     exact Eqv.refl _
   | .oneOrMore p, x => by
-    rw [vnX, vn, X.gtLen_eq, closure_congr (vnX_eqv p)]
+    rw [vnX, vn, X.gtLen_eq, closureF_eq, closure_congr (vnX_eqv p)]
     exact Eqv.flatMap (vnX_eqv p) _
   | .zeroOrOne p, x => by
     rw [vnX, vn]
