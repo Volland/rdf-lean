@@ -102,43 +102,6 @@ theorem firstAssignment_eq {α : Type} (ks : List Nat) :
     rw [List.findSome?_map]
     rfl
 
-/-- `dedup` through a hash set of the elements seen: the same list (`dedupX_eq`), in linear
-time. -/
-def dedupX {α : Type} [DecidableEq α] [Hashable α] (l : List α) : List α :=
-  (l.foldr (fun x (acc : List α × Std.HashSet α) =>
-    if acc.2.contains x then acc else (x :: acc.1, acc.2.insert x)) ([], ∅)).1
-
-theorem dedupX_foldr {α : Type} [DecidableEq α] [Hashable α] (l : List α) :
-    let r := l.foldr (fun x (acc : List α × Std.HashSet α) =>
-      if acc.2.contains x then acc else (x :: acc.1, acc.2.insert x)) ([], ∅)
-    r.1 = dedup l ∧ ∀ y, r.2.contains y = true ↔ y ∈ l := by
-  induction l with
-  | nil => simp [dedup]
-  | cons x xs ih =>
-    obtain ⟨h1, h2⟩ := ih
-    simp only [List.foldr_cons]
-    generalize xs.foldr _ _ = r at h1 h2
-    by_cases hx : x ∈ xs
-    · have hc : r.2.contains x = true := (h2 x).2 hx
-      have hd : x ∈ dedup xs := mem_dedup.2 hx
-      simp only [hc, ite_true, dedup, hd, h1, true_and, List.mem_cons]
-      intro y
-      rw [h2 y]
-      exact ⟨.inr, fun h => h.elim (fun e => e ▸ hx) id⟩
-    · have hc : r.2.contains x = false := by
-        cases h : r.2.contains x
-        · rfl
-        · exact absurd ((h2 x).1 h) hx
-      have hd : x ∉ dedup xs := fun h => hx (mem_dedup.1 h)
-      simp only [hc, Bool.false_eq_true, ite_false, dedup, hd, h1, true_and, List.mem_cons,
-        Std.HashSet.contains_insert, Bool.or_eq_true, beq_iff_eq]
-      intro y
-      rw [h2 y]
-      exact ⟨fun h => h.elim (fun e => .inl e.symm) .inr, fun h => h.elim (fun e => .inl e.symm) .inr⟩
-
-theorem dedupX_eq {α : Type} [DecidableEq α] [Hashable α] (l : List α) : dedupX l = dedup l :=
-  (dedupX_foldr l).1
-
 /-- `graphBNodes` through `dedupX`. -/
 def graphBNodesX (g : Graph) : List BlankNode := dedupX (g.toList.flatMap tripleBNodes)
 
