@@ -31,6 +31,24 @@ theorem getD_groupBy {α β : Type} [BEq β] [Hashable β] [LawfulBEq β] [Lawfu
     · have h' : (k a == b) = false := by simpa using h
       simp only [h', Bool.false_eq_true, ↓reduceIte, ih]
 
+/-- `groupBy`, keeping a value of each element. -/
+def groupMap {α β γ : Type} [BEq β] [Hashable β] (k : α → β) (v : α → γ) (l : List α) :
+    Std.HashMap β (List γ) :=
+  l.foldr (fun a m => m.insert (k a) (v a :: m.getD (k a) [])) ∅
+
+theorem getD_groupMap {α β γ : Type} [BEq β] [Hashable β] [LawfulBEq β] [LawfulHashable β]
+    (k : α → β) (v : α → γ) (b : β) :
+    ∀ (l : List α), (groupMap k v l).getD b [] = (l.filter (fun a => k a == b)).map v
+  | [] => by simp [groupMap]
+  | a :: l => by
+    have ih := getD_groupMap k v b l
+    simp only [groupMap, List.foldr_cons] at ih ⊢
+    rw [Std.HashMap.getD_insert, List.filter_cons]
+    by_cases h : k a = b
+    · subst h; simp [ih]
+    · have h' : (k a == b) = false := by simpa using h
+      simp only [h', Bool.false_eq_true, ↓reduceIte, ih]
+
 /-- `dedup` with a hash set of the elements seen so far. -/
 def dedupGo {α : Type} [BEq α] [Hashable α] (seen : Std.HashSet α) (acc : Array α) :
     List α → Array α

@@ -118,6 +118,15 @@ def minus (Ω₁ Ω₂ : List Mapping) : List Mapping :=
     Ω₁.filter fun μ =>
       (candsJ v B Ω₂ μ).all fun ν => !μ.compatible ν || μ.dom.all fun v => !ν.dom.contains v
 
+/-- Group and aggregate (§18.5), the groups found by hashing their keys once
+(`evalGroupOp_eq` in `Correct.lean`: the list of `Spec.groupOp`). -/
+def groupOp (ex : Pattern → Bool) (keys : List (Expr × Option Var)) (aggs : List (Var × Aggregate))
+    (Ω : List Mapping) : List Mapping :=
+  if keys.isEmpty then Spec.groupOp ex keys aggs Ω else
+  let kd := Ω.map fun μ => ((keys.map fun (e, _) => (e.eval ex μ).toOption : List (Option Term)), μ)
+  let B := groupMap (·.1) (·.2) kd
+  (dedupF (kd.map (·.1))).map fun k => Spec.groupRow ex keys aggs k (B.getD k [])
+
 -- @tg: implements:: [[openspec:sparql-algebra#Proven evaluator]]
 /-- The evaluator with fuel; the same shape as `Spec.evalN`. -/
 def evalN : Nat → Dataset → Graph → Pattern → List Mapping
@@ -137,7 +146,7 @@ def evalN : Nat → Dataset → Graph → Pattern → List Mapping
     | .minus a b => minus (evalN n D G a) (evalN n D G b)
     | .table rows => rows
     | .path s p o => Spec.pathOp G s p o
-    | .group keys aggs a => Spec.groupOp ex keys aggs (evalN n D G a)
+    | .group keys aggs a => groupOp ex keys aggs (evalN n D G a)
     | .subquery pr d ob off lim a => Spec.subqueryOp ex pr d ob off lim (evalN n D G a)
 
 /-- Evaluate a pattern over a dataset, on its default graph. -/

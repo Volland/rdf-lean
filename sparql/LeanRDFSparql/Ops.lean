@@ -205,6 +205,19 @@ def aggregateValue (ex : Pattern → Bool) (rows : List Mapping) : Aggregate →
           .ok (strTerm (sep.intercalate (parts.map (·.1))))
     | _ => .error s!"unknown aggregate {fn}"
 
+/-- The solution of one group: its key variables bound to the key `k`, and the aggregates
+over its rows. -/
+def groupRow (ex : Pattern → Bool) (keys : List (Expr × Option Var)) (aggs : List (Var × Aggregate))
+    (k : List (Option Term)) (rows : List Mapping) : Mapping :=
+  let base := (keys.zip k).foldl (fun μ ((_, v?), t?) =>
+    match v?, t? with
+    | some v, some t => μ.insert v t
+    | _, _ => μ) Mapping.empty
+  aggs.foldl (fun μ (v, agg) =>
+    match aggregateValue ex rows agg with
+    | .ok t => μ.insert v t
+    | .error _ => μ) base
+
 /-- Group and aggregate (§18.5 Group, Aggregation, AggregateJoin): one mapping per group,
 binding the key variables and the aggregates. Without keys there is exactly one group. -/
 def groupOp (ex : Pattern → Bool) (keys : List (Expr × Option Var)) (aggs : List (Var × Aggregate))
@@ -212,16 +225,7 @@ def groupOp (ex : Pattern → Bool) (keys : List (Expr × Option Var)) (aggs : L
   let keyOf (μ : Mapping) : List (Option Term) := keys.map fun (e, _) => (e.eval ex μ).toOption
   let groups : List (List (Option Term)) :=
     if keys.isEmpty then [[]] else dedup (Ω.map keyOf)
-  groups.map fun k =>
-    let rows := Ω.filter fun μ => keyOf μ == k
-    let base := (keys.zip k).foldl (fun μ ((_, v?), t?) =>
-      match v?, t? with
-      | some v, some t => μ.insert v t
-      | _, _ => μ) Mapping.empty
-    aggs.foldl (fun μ (v, agg) =>
-      match aggregateValue ex rows agg with
-      | .ok t => μ.insert v t
-      | .error _ => μ) base
+  groups.map fun k => groupRow ex keys aggs k (Ω.filter fun μ => keyOf μ == k)
 
 /-- A subquery (§12): ORDER BY, projection, DISTINCT, OFFSET and LIMIT on its solutions. -/
 def subqueryOp (ex : Pattern → Bool) (project : Option (List Var)) (distinct : Bool)

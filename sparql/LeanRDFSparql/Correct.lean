@@ -169,6 +169,18 @@ theorem evalMinus_eq (Ω₁ Ω₂ : List Mapping) : Eval.minus Ω₁ Ω₂ = Spe
       · simp
       · rw [hc ν hν h] at hpf; cases hpf]
 
+theorem evalGroupOp_eq (ex : Pattern → Bool) (keys : List (Expr × Option Var))
+    (aggs : List (Var × Aggregate)) (Ω : List Mapping) :
+    Eval.groupOp ex keys aggs Ω = Spec.groupOp ex keys aggs Ω := by
+  unfold Eval.groupOp
+  split
+  · rfl
+  · rename_i h
+    simp only [Spec.groupOp, h, Bool.false_eq_true, ↓reduceIte, dedupF_eq, List.map_map]
+    congr 1
+    funext k
+    simp only [Function.comp_def, getD_groupMap, List.filter_map, List.map_map, List.map_id_fun', id]
+
 -- @tg: implements:: [[openspec:sparql-algebra#Proven evaluator]]
 /-- The evaluator's solutions are a permutation of the specification's, for every fuel. -/
 theorem evalN_perm : ∀ (n : Nat) (D : Dataset) (G : Graph) (P : Pattern),
@@ -199,7 +211,7 @@ theorem evalN_perm : ∀ (n : Nat) (D : Dataset) (G : Graph) (P : Pattern),
     | minus a b => simp only [Eval.evalN, Spec.evalN, evalMinus_eq]; exact minus_perm (ih G a) (ih G b)
     | table rows => simp only [Eval.evalN, Spec.evalN]; exact .refl _
     | path s p o => simp only [Eval.evalN, Spec.evalN]; exact .refl _
-    | group keys aggs a => simp only [Eval.evalN, Spec.evalN]; rw [hex]
+    | group keys aggs a => simp only [Eval.evalN, Spec.evalN, evalGroupOp_eq]; rw [hex]
     | subquery pr d ob off lim a => simp only [Eval.evalN, Spec.evalN]; rw [hex]
 
 /-- The evaluator computes the semantics of a pattern over a dataset, up to the order of
