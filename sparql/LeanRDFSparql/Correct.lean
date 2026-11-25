@@ -181,38 +181,51 @@ theorem evalGroupOp_eq (ex : Pattern → Bool) (keys : List (Expr × Option Var)
     funext k
     simp only [Function.comp_def, getD_groupMap, List.filter_map, List.map_map, List.map_id_fun', id]
 
+theorem evalSubqueryOp_eq (ex : Pattern → Bool) (project : Option (List Var)) (distinct : Bool)
+    (orderBy : List (Expr × Bool)) (offset : Nat) (limit : Option Nat) (Ω : List Mapping) :
+    Eval.subqueryOp ex project distinct orderBy offset limit Ω =
+      Spec.subqueryOp ex project distinct orderBy offset limit Ω := by
+  unfold Eval.subqueryOp Spec.subqueryOp
+  cases distinct
+  · rfl
+  · simp only [ite_true, dedupF_eq]
+    congr
+
 -- @tg: implements:: [[openspec:sparql-algebra#Proven evaluator]]
 /-- The evaluator's solutions are a permutation of the specification's, for every fuel. -/
 theorem evalN_perm : ∀ (n : Nat) (D : Dataset) (G : Graph) (P : Pattern),
     Eval.evalN n D G P ~ Spec.evalN n D G P
-  | 0, _, _, _ => by simp [Eval.evalN, Spec.evalN]
+  | 0, _, _, _ => by simp [Eval.evalN, Eval.evalNI, Spec.evalN]
   | n + 1, D, G, P => by
-    have ih := evalN_perm n D
-    have hex : (fun q => !(Eval.evalN n D G q).isEmpty) = (fun q => !(Spec.evalN n D G q).isEmpty) :=
+    have ih : ∀ G q, Eval.evalNI n D G (Eval.TIdx.build G.toList) q ~ Spec.evalN n D G q :=
+      fun G q => evalN_perm n D G q
+    have hex : (fun q => !(Eval.evalNI n D G (Eval.TIdx.build G.toList) q).isEmpty) =
+        (fun q => !(Spec.evalN n D G q).isEmpty) :=
       funext fun q => by rw [isEmpty_perm (ih G q)]
     cases P with
-    | bgp tps => simp only [Eval.evalN, Spec.evalN]; exact bgp_perm G tps
-    | join a b => simp only [Eval.evalN, Spec.evalN, evalJoin_eq]; exact join_perm (ih G a) (ih G b)
+    | bgp tps => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; exact bgp_perm G tps
+    | join a b => simp only [Eval.evalN, Eval.evalNI, Spec.evalN, evalJoin_eq]; exact join_perm (ih G a) (ih G b)
     | leftJoin a b e =>
-      simp only [Eval.evalN, Spec.evalN, evalLeftJoin_eq]; rw [hex]; exact leftJoin_perm _ (ih G a) (ih G b)
-    | filter e a => simp only [Eval.evalN, Spec.evalN]; rw [hex]; exact (ih G a).filter _
-    | union a b => simp only [Eval.evalN, Spec.evalN]; exact (ih G a).append (ih G b)
+      simp only [Eval.evalN, Eval.evalNI, Spec.evalN, evalLeftJoin_eq]; rw [hex]; exact leftJoin_perm _ (ih G a) (ih G b)
+    | filter e a => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; rw [hex]; exact (ih G a).filter _
+    | union a b => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; exact (ih G a).append (ih G b)
     | graph g a =>
       cases g with
       | term g =>
-        simp only [Eval.evalN, Spec.evalN]
+        simp only [Eval.evalN, Eval.evalNI, Spec.evalN]
         split
         · exact ih _ a
         · exact .refl _
       | var v =>
-        simp only [Eval.evalN, Spec.evalN]
+        simp only [Eval.evalN, Eval.evalNI, Spec.evalN]
         exact flatMap_perm_left fun g _ => (ih _ a).filterMap _
-    | extend a v e => simp only [Eval.evalN, Spec.evalN]; rw [hex]; exact (ih G a).map _
-    | minus a b => simp only [Eval.evalN, Spec.evalN, evalMinus_eq]; exact minus_perm (ih G a) (ih G b)
-    | table rows => simp only [Eval.evalN, Spec.evalN]; exact .refl _
-    | path s p o => simp only [Eval.evalN, Spec.evalN]; exact .refl _
-    | group keys aggs a => simp only [Eval.evalN, Spec.evalN, evalGroupOp_eq]; rw [hex]
-    | subquery pr d ob off lim a => simp only [Eval.evalN, Spec.evalN]; rw [hex]
+    | extend a v e => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; rw [hex]; exact (ih G a).map _
+    | minus a b => simp only [Eval.evalN, Eval.evalNI, Spec.evalN, evalMinus_eq]; exact minus_perm (ih G a) (ih G b)
+    | table rows => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; exact .refl _
+    | path s p o => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; exact .refl _
+    | group keys aggs a => simp only [Eval.evalN, Eval.evalNI, Spec.evalN, evalGroupOp_eq]; rw [hex]
+    | subquery pr d ob off lim a =>
+      simp only [Eval.evalN, Eval.evalNI, Spec.evalN, evalSubqueryOp_eq]; rw [hex]
 
 /-- The evaluator computes the semantics of a pattern over a dataset, up to the order of
 solutions. -/

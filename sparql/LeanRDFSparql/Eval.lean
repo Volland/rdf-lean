@@ -61,10 +61,13 @@ def matchAllI (I : TIdx) : List TriplePattern → List Mapping → List Mapping
   | [], Ω => Ω
   | tp :: tps, Ω => matchAllI I tps (Ω.flatMap fun μ => (cands I μ tp).filterMap (matchTP μ tp))
 
-/-- A basic graph pattern by matching, blank nodes projected away. The graph is listed and
-indexed once per pattern (`bgp_eq` in `BgpCorrect.lean`: the same list as `matchAll`). -/
-def bgp (G : Graph) (tps : List TriplePattern) : List Mapping :=
-  (matchAllI (TIdx.build G.toList) tps [Mapping.empty]).map (·.restrict (visibleVars tps))
+/-- A basic graph pattern by matching against an index, blank nodes projected away. -/
+def bgpI (I : TIdx) (tps : List TriplePattern) : List Mapping :=
+  (matchAllI I tps [Mapping.empty]).map (·.restrict (visibleVars tps))
+
+/-- A basic graph pattern by matching, blank nodes projected away (`bgp_eq` in
+`BgpCorrect.lean`: the same list as `matchAll`). -/
+def bgp (G : Graph) (tps : List TriplePattern) : List Mapping := bgpI (TIdx.build G.toList) tps
 
 /-! ## Hash joins
 
@@ -127,27 +130,54 @@ def groupOp (ex : Pattern → Bool) (keys : List (Expr × Option Var)) (aggs : L
   let B := groupMap (·.1) (·.2) kd
   (dedupF (kd.map (·.1))).map fun k => Spec.groupRow ex keys aggs k (B.getD k [])
 
--- @tg: implements:: [[openspec:sparql-algebra#Proven evaluator]]
-/-- The evaluator with fuel; the same shape as `Spec.evalN`. -/
-def evalN : Nat → Dataset → Graph → Pattern → List Mapping
-  | 0, _, _, _ => []
-  | n + 1, D, G, P =>
-    let ex : Pattern → Bool := fun q => !(evalN n D G q).isEmpty
+/-- A subquery (§12), as `Spec.subqueryOp` with a hash-set DISTINCT (`evalSubqueryOp_eq`). -/
+def subqueryOp (ex : Pattern → Bool) (project : Option (List Var)) (distinct : Bool)
+    (orderBy : List (Expr × Bool)) (offset : Nat) (limit : Option Nat) (Ω : List Mapping) :
+    List Mapping :=
+  let keys (μ : Mapping) : List Key := orderBy.map fun (e, _) => termKey (e.eval ex μ).toOption
+  let sorted := if orderBy.isEmpty then Ω else Ω.mergeSort fun a b => lexLe (orderBy.map (·.2)) (keys a) (keys b)
+  let projected := match project with
+    | some vs => sorted.map (·.restrict vs)
+    | none => sorted
+  let unique := if distinct then dedupF projected else projected
+  let sliced := unique.drop offset
+  match limit with
+  | some n => sliced.take n
+  | none => sliced
+
+/-- The evaluator with fuel on the active graph `G` and its index `I`. `evalN` passes
+`TIdx.build G.toList`, so the graph is listed and indexed once per active graph and shared by
+every basic graph pattern and `EXISTS` evaluated on it. -/
+def evalNI : Nat → Dataset → Graph → TIdx → Pattern → List Mapping
+  | 0, _, _, _, _ => []
+  | n + 1, D, G, I, P =>
+    let ex : Pattern → Bool := fun q => !(evalNI n D G I q).isEmpty
     match P with
-    | .bgp tps => bgp G tps
-    | .join a b => join (evalN n D G a) (evalN n D G b)
-    | .leftJoin a b e => leftJoin (evalN n D G a) (evalN n D G b) fun μ => (e.eval ex μ).holds
-    | .filter e a => (evalN n D G a).filter fun μ => (e.eval ex μ).holds
-    | .union a b => evalN n D G a ++ evalN n D G b
-    | .graph (.term g) a => if D.graphNames.contains g then evalN n D (D.namedGraph g) a else []
+    | .bgp tps => bgpI I tps
+    | .join a b => join (evalNI n D G I a) (evalNI n D G I b)
+    | .leftJoin a b e => leftJoin (evalNI n D G I a) (evalNI n D G I b) fun μ => (e.eval ex μ).holds
+    | .filter e a => (evalNI n D G I a).filter fun μ => (e.eval ex μ).holds
+    | .union a b => evalNI n D G I a ++ evalNI n D G I b
+    | .graph (.term g) a =>
+      if D.graphNames.contains g then
+        let G' := D.namedGraph g
+        evalNI n D G' (TIdx.build G'.toList) a
+      else []
     | .graph (.var v) a =>
-      D.graphNames.flatMap fun g => (evalN n D (D.namedGraph g) a).filterMap (Spec.bindGraph v g)
-    | .extend a v e => Spec.extend (evalN n D G a) v fun μ => e.eval ex μ
-    | .minus a b => minus (evalN n D G a) (evalN n D G b)
+      D.graphNames.flatMap fun g =>
+        let G' := D.namedGraph g
+        (evalNI n D G' (TIdx.build G'.toList) a).filterMap (Spec.bindGraph v g)
+    | .extend a v e => Spec.extend (evalNI n D G I a) v fun μ => e.eval ex μ
+    | .minus a b => minus (evalNI n D G I a) (evalNI n D G I b)
     | .table rows => rows
     | .path s p o => Spec.pathOp G s p o
-    | .group keys aggs a => groupOp ex keys aggs (evalN n D G a)
-    | .subquery pr d ob off lim a => Spec.subqueryOp ex pr d ob off lim (evalN n D G a)
+    | .group keys aggs a => groupOp ex keys aggs (evalNI n D G I a)
+    | .subquery pr d ob off lim a => subqueryOp ex pr d ob off lim (evalNI n D G I a)
+
+-- @tg: implements:: [[openspec:sparql-algebra#Proven evaluator]]
+/-- The evaluator with fuel; the same shape as `Spec.evalN`. -/
+def evalN (n : Nat) (D : Dataset) (G : Graph) (P : Pattern) : List Mapping :=
+  evalNI n D G (TIdx.build G.toList) P
 
 /-- Evaluate a pattern over a dataset, on its default graph. -/
 def eval (D : Dataset) (P : Pattern) : List Mapping := evalN (P.size + 1) D D.defaultGraph P

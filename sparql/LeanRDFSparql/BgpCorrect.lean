@@ -248,7 +248,7 @@ theorem matchAllI_eq (G : Graph) :
 /-- The evaluator's basic graph patterns are those of `matchAll`. -/
 theorem bgp_eq (G : Graph) (tps : List TriplePattern) :
     Eval.bgp G tps = (Eval.matchAll G tps [Mapping.empty]).map (·.restrict (visibleVars tps)) := by
-  rw [Eval.bgp, matchAllI_eq]
+  rw [Eval.bgp, Eval.bgpI, matchAllI_eq]
 
 /-! ## Satisfaction -/
 
