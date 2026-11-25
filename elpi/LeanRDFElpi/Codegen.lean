@@ -18,8 +18,9 @@ The premise goals are ordered for the index: the delta premise first, then, gree
 premise with the most positions bound so far (body order breaks ties). The order of the goals
 does not change the set of solutions; the loop sorts each round's solutions into the order of
 the original enumeration (see `LeanRDFElpi.Saturate`). Each clause reports its number, the fact
-numbers of its premises in body order and the head:
-`rdf.step (rdf.r Clause [I0, …] S P O)`.
+numbers of its premises in body order and the head: `rdf.step Key (rdf.r Clause [I0, …] S P O)`,
+where `Key` is 1 + the number of the delta premise's predicate, or 0 when that predicate is a
+variable, so that a round tries only the clauses its new facts can start.
 -/
 
 namespace LeanRDF.Bridge
@@ -197,7 +198,11 @@ def compileRule (I : Intern) (r : Rule) (first : Nat) :
     let mut out : List String := []
     let mut infos : List ClauseInfo := []
     for i in [0:n] do
-      let head := s!"rdf.step (rdf.r {first + i} [{ids}] {hs.headSrc} {hp.headSrc} {ho.headSrc})"
+      -- the key of the clause: 1 + the delta premise's predicate number, or 0 for a variable
+      let key := match prem[i]!.2.1 with
+        | .const k => k + 1
+        | _ => 0
+      let head := s!"rdf.step {key} (rdf.r {first + i} [{ids}] {hs.headSrc} {hp.headSrc} {ho.headSrc})"
       out := out ++ [s!"{head} :- {", ".intercalate (clauseGoals prem guards i)}."]
       infos := infos ++ [{ name := r.name, delta := i, arity := n }]
     return (out, infos)

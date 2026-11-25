@@ -118,8 +118,23 @@ structure Intern where
 
 namespace Intern
 
+-- The updates below take the table apart first, so that its arrays and maps are unshared and
+-- updated in place (`{ I with terms := I.terms.push t }` would copy them).
+
 private def push (I : Intern) (t : Term) : Intern × Nat :=
-  ({ I with terms := I.terms.push t, flags := I.flags.push (termFlags t) }, I.terms.size)
+  match I with
+  | { terms, flags, atoms, tts, parts } =>
+    let n := terms.size
+    ({ terms := terms.push t, flags := flags.push (termFlags t), atoms, tts, parts }, n)
+
+private def insertTT (I : Intern) (k : Nat × Nat × Nat) (n : Nat) : Intern :=
+  match I with
+  | { terms, flags, atoms, tts, parts } =>
+    { terms, flags, atoms, tts := tts.insert k n, parts := parts.insert n k }
+
+private def insertAtom (I : Intern) (t : Term) (n : Nat) : Intern :=
+  match I with
+  | { terms, flags, atoms, tts, parts } => { terms, flags, atoms := atoms.insert t n, tts, parts }
 
 /-- The number of a triple term with numbered components, adding it if it is new. -/
 def addTT (I : Intern) (a b c : Nat) : Intern × Nat :=
@@ -128,7 +143,7 @@ def addTT (I : Intern) (a b c : Nat) : Intern × Nat :=
   | none =>
     let t : Term := .triple (I.terms[a]!) (I.terms[b]!) (I.terms[c]!)
     let (I, n) := I.push t
-    ({ I with tts := I.tts.insert (a, b, c) n, parts := I.parts.insert n (a, b, c) }, n)
+    (I.insertTT (a, b, c) n, n)
 
 /-- The number of a term, adding it and its subterms if they are new. -/
 def add (I : Intern) (t : Term) : Intern × Nat :=
@@ -141,13 +156,13 @@ def add (I : Intern) (t : Term) : Intern × Nat :=
     | some n => (I, n)
     | none =>
       let (I, n) := I.push t
-      ({ I with tts := I.tts.insert (a, b, c) n, parts := I.parts.insert n (a, b, c) }, n)
+      (I.insertTT (a, b, c) n, n)
   | _ =>
     match I.atoms[t]? with
     | some n => (I, n)
     | none =>
       let (I, n) := I.push t
-      ({ I with atoms := I.atoms.insert t n }, n)
+      (I.insertAtom t n, n)
 
 /-- The number of a term, if it has one. -/
 def find? (I : Intern) : Term → Option Nat

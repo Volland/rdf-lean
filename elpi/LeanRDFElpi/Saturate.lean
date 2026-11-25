@@ -4,8 +4,10 @@ import LeanRDFElpi.Codegen
 # Saturation
 
 Semi-naive forward chaining, with the rounds driven from Lean and the rule matching done by
-Elpi: every round is one Elpi query for all solutions of the generated `rdf.step` clauses over
-the triples of the last round (`rdf.delta`) and every triple known so far (`rdf.known`). Those
+Elpi: every round asks Elpi for all solutions of the generated `rdf.step` clauses that the
+predicates of the last round can start (one small query per predicate, and one for the clauses
+whose first premise has a variable predicate), over the triples of the last round (`rdf.delta`)
+and every triple known so far (`rdf.known`). Those
 facts, the triple-term table and the guard tables are Lean builtins over hash indexes of the
 facts found so far, attached to the program for the round, so the Elpi database holds only the
 rule clauses and each query is small. New triples are deduplicated in Lean.
@@ -49,20 +51,30 @@ structure FactIndex where
   byO : Std.HashMap Nat (Array Nat) := {}
   byPS : Std.HashMap (Nat × Nat) (Array Nat) := {}
   byPO : Std.HashMap (Nat × Nat) (Array Nat) := {}
+  /-- `int` literals by term number, shared by the tuples. -/
+  lits : Array Elpi.Term := #[]
   deriving Inhabited
 
 private def push1 {α : Type} [BEq α] [Hashable α] (m : Std.HashMap α (Array Nat)) (k : α) (v : Nat) :
     Std.HashMap α (Array Nat) :=
   if m.contains k then m.modify k (·.push v) else m.insert k #[v]
 
+/-- Extend the shared `int` literals to the first `n` term numbers. -/
+private def growLits (lits : Array Elpi.Term) (n : Nat) : Array Elpi.Term := Id.run do
+  let mut lits := lits
+  while lits.size < n do lits := lits.push (intT lits.size)
+  return lits
+
 /-- Add a fact (not yet present) as number `facts.size`. -/
 def FactIndex.add (ix : FactIndex) (k : Nat × Nat × Nat) : FactIndex :=
   match ix with
-  | { facts, tuples, spo, byP, byS, byO, byPS, byPO } =>
+  | { facts, tuples, spo, byP, byS, byO, byPS, byPO, lits } =>
     let id := facts.size
     let (s, p, o) := k
-    { facts := facts.push k
-      tuples := tuples.push #[intT p, intT s, intT o, intT id]
+    let lits := growLits lits (max s (max p o) + 1)
+    { lits
+      facts := facts.push k
+      tuples := tuples.push #[lits[p]!, lits[s]!, lits[o]!, intT id]
       spo := spo.insert k id
       byP := push1 byP p id
       byS := push1 byS s id
@@ -339,11 +351,14 @@ inductive HeadTerm where
   | mk (s p o : HeadTerm)
   deriving Inhabited
 
-/-- One solution of `rdf.step`: the clause, the premises in body order, the head. -/
+/-- One solution of `rdf.step`: the clause, the delta premise, the premises in body order, the
+head as term numbers, or, when it builds triple terms, as head terms to intern. -/
 structure Sol where
   clause : Nat
+  delta : Nat
   premises : Array Nat
-  head : HeadTerm × HeadTerm × HeadTerm
+  head : Nat × Nat × Nat
+  build : Option (HeadTerm × HeadTerm × HeadTerm) := none
   deriving Inhabited
 
 private partial def decodeHead (t : Elpi.Term) : Except String HeadTerm :=
@@ -355,15 +370,42 @@ private partial def decodeHead (t : Elpi.Term) : Except String HeadTerm :=
     else .error s!"not a head term: {Elpi.showTerm t}"
   | _ => .error s!"not a head term: {Elpi.showTerm t}"
 
-private def decodeSol (t : Elpi.Term) : Except String Sol :=
+private def natOf : Elpi.Term → Except String Nat
+  | .lit (.int i) => if i ≥ 0 then .ok i.toNat else .error "negative term or fact number"
+  | x => .error s!"not a number: {Elpi.showTerm x}"
+
+/-- A plain head position: `rdf.n K`. -/
+private def headNum? : Elpi.Term → Option Nat
+  | .app (.const c) #[.lit (.int k)] => if c == Elpi.constIdOf "rdf.n" && k ≥ 0 then some k.toNat else none
+  | _ => none
+
+/-- The number of a head term, if every triple term in it is interned. -/
+private def HeadTerm.find? (I : Intern) : HeadTerm → Option Nat
+  | .n k => some k
+  | .mk s p o => do I.tts[(← HeadTerm.find? I s, ← HeadTerm.find? I p, ← HeadTerm.find? I o)]?
+
+/-- Decode a solution, or `none` when its head is already in the closure: such a solution
+cannot add anything, whatever its place in the order. -/
+private def decodeSol (c : Closure) (infos : Array ClauseInfo) (t : Elpi.Term) : Except String (Option Sol) :=
   match t with
-  | .app (.const c) #[.lit (.int k), ps, s, p, o] =>
-    if c == Elpi.constIdOf "rdf.r" then do
-      let prem ← decodeList (fun
-        | .lit (.int i) => if i ≥ 0 then .ok i.toNat else .error "negative fact number"
-        | x => .error s!"not a fact number: {Elpi.showTerm x}") ps
-      return { clause := k.toNat, premises := prem.toArray,
-               head := (← decodeHead s, ← decodeHead p, ← decodeHead o) }
+  | .app (.const r) #[.lit (.int k), ps, s, p, o] =>
+    if r == Elpi.constIdOf "rdf.r" && k ≥ 0 then do
+      let clause := k.toNat
+      let some info := infos[clause]? | throw s!"no clause {clause}"
+      match headNum? s, headNum? p, headNum? o with
+      | some x, some y, some z =>
+        if c.index.spo.contains (x, y, z) then return none
+        let prem := (← decodeList natOf ps).toArray
+        unless prem.size == info.arity do throw s!"clause {clause} returned {prem.size} premises"
+        return some { clause, delta := prem[info.delta]!, premises := prem, head := (x, y, z) }
+      | _, _, _ =>
+        let h := (← decodeHead s, ← decodeHead p, ← decodeHead o)
+        if let (some x, some y, some z) := (HeadTerm.find? c.intern h.1, HeadTerm.find? c.intern h.2.1,
+            HeadTerm.find? c.intern h.2.2) then
+          if c.index.spo.contains (x, y, z) then return none
+        let prem := (← decodeList natOf ps).toArray
+        unless prem.size == info.arity do throw s!"clause {clause} returned {prem.size} premises"
+        return some { clause, delta := prem[info.delta]!, premises := prem, head := (0, 0, 0), build := some h }
     else .error s!"not a solution: {Elpi.showTerm t}"
   | _ => .error s!"not a solution: {Elpi.showTerm t}"
 
@@ -374,36 +416,49 @@ def budgetExhausted : String := "search budget exhausted"
 /-- Did a saturation error come from the search budget? -/
 def isBudgetExhausted (e : String) : Bool := e.startsWith budgetExhausted
 
-/-- Run the machine to exhaustion, collecting solutions; the steps used, or an error. -/
-private partial def drain (env : Elpi.Env Id) (u : Elpi.UVarId) (fuel : Nat) (M : Elpi.Machine Unit)
-    (acc : Array Sol) : Except (Option String) (Array Sol × Nat) :=
+/-- Run the machine to exhaustion, collecting the solutions that may add a triple; the steps
+used, or an error (`none` for an exhausted budget). -/
+private partial def drain (c : Closure) (infos : Array ClauseInfo) (env : Elpi.Env Id) (u : Elpi.UVarId)
+    (fuel : Nat) (M : Elpi.Machine Unit) (acc : Array Sol) : Except (Option String) (Array Sol × Nat) :=
   match Id.run (Elpi.runLoop env M) with
   | .yield sol M' =>
-    match decodeSol (sol.store.zonk (.uvar u #[]) 0) with
-    | .ok s => drain env u fuel M' (acc.push s)
+    match decodeSol c infos (sol.store.zonk (.uvar u #[]) 0) with
+    | .ok (some s) => drain c infos env u fuel M' (acc.push s)
+    | .ok none => drain c infos env u fuel M' acc
     | .error e => .error (some e)
   | .exhausted _ left => .ok (acc, fuel - left)
   | .outOfFuel => .error none
   | .error e => .error (some e.toString)
 
-/-- One round: every solution of `rdf.step` with the facts from `lo` on as the delta, within
-`fuel` steps. `none` as the error is an exhausted budget. -/
-private def runRound (e : Engine) (c : Closure) (lo fuel : Nat) : Except (Option String) (Array Sol × Nat) :=
-  let pr := { e.prog with extra := roundBuiltins c (Delta.of c.index lo) }
-  let prep := pr.prepareRaw ["O0"] (fun vs => .app (.const (Elpi.constIdOf "rdf.step")) #[vs[0]!]) fuel
-  match prep.names[0]? with
-  | none => .error (some "no answer variable")
-  | some (_, u) => drain (pr.env Id prep.syms) u fuel prep.machine #[]
+/-- One round: every solution of `rdf.step K R` for `K = 0` and `K = 1 +` each predicate of
+the facts from `lo` on (the delta), within `fuel` steps in all, but those whose head is already
+known. `none` as the error is an exhausted budget. -/
+private def runRound (e : Engine) (c : Closure) (lo fuel : Nat) : Except (Option String) (Array Sol × Nat) := do
+  let d := Delta.of c.index lo
+  let pr := { e.prog with extra := roundBuiltins c d }
+  let stepC := Elpi.constIdOf "rdf.step"
+  let keys := #[0] ++ (d.byP.keys.toArray.qsort (· < ·)).map (· + 1)
+  let mut env? : Option (Elpi.Env Id) := none
+  let mut sols : Array Sol := #[]
+  let mut used := 0
+  for k in keys do
+    let prep := pr.prepareRaw ["O0"] (fun vs => .app (.const stepC) #[intT k, vs[0]!]) (fuel - used)
+    let env := env?.getD (pr.env Id prep.syms)
+    env? := some env
+    let some (_, u) := prep.names[0]? | throw (some "no answer variable")
+    let (s, n) ← drain c e.clauses env u (fuel - used) prep.machine sols
+    sols := s
+    used := used + n
+  return (sols, used)
 
 /-- The original enumeration order of a round's solutions: by clause, then the delta premise,
 then the other premises in body order, each newest round first and in closure order within a
 round. -/
 private def solLt (infos : Array ClauseInfo) (batch : Array Nat) (a b : Sol) : Bool :=
-  if a.clause != b.clause then a.clause < b.clause else
-  let i := (infos[a.clause]?.map (·.delta)).getD 0
-  let da := a.premises[i]!
-  let db := b.premises[i]!
-  if da != db then da < db else Id.run do
+  if a.clause != b.clause then a.clause < b.clause
+  else if a.delta != b.delta then a.delta < b.delta
+  else Id.run do
+    let i := infos[a.clause]!.delta
     for j in [0:a.premises.size] do
       if j != i then
         let x := a.premises[j]!
@@ -415,11 +470,6 @@ private def solLt (infos : Array ClauseInfo) (batch : Array Nat) (a b : Sol) : B
           return x < y
     return false
 
-/-- The number of a head term, if every triple term in it is interned. -/
-private def HeadTerm.find? (I : Intern) : HeadTerm → Option Nat
-  | .n k => some k
-  | .mk s p o => do I.tts[(← HeadTerm.find? I s, ← HeadTerm.find? I p, ← HeadTerm.find? I o)]?
-
 /-- The number of a head term, interning its triple terms. -/
 private def HeadTerm.add (I : Intern) : HeadTerm → Intern × Nat
   | .n k => (I, k)
@@ -429,29 +479,34 @@ private def HeadTerm.add (I : Intern) : HeadTerm → Intern × Nat
     let (I, c) := HeadTerm.add I o
     I.addTT a b c
 
+/-- The term numbers of a head, interning its triple terms (in place). -/
+private def Closure.internHead (c : Closure) (h : HeadTerm × HeadTerm × HeadTerm) :
+    Closure × Nat × Nat × Nat :=
+  match c with
+  | ⟨entries, premiseIds, batch, round, intern, index⟩ =>
+    let (intern, x) := HeadTerm.add intern h.1
+    let (intern, y) := HeadTerm.add intern h.2.1
+    let (intern, z) := HeadTerm.add intern h.2.2
+    (⟨entries, premiseIds, batch, round, intern, index⟩, x, y, z)
+
 /-- Add the new triples of a round, in the original order, as round `b`. -/
 private def addRound (c : Closure) (infos : Array ClauseInfo) (sols : Array Sol) (b : Nat) :
     Except String Closure := do
-  -- solutions whose head is already known cannot add anything, whatever their order
-  let isNew (s : Sol) : Bool :=
-    match HeadTerm.find? c.intern s.head.1, HeadTerm.find? c.intern s.head.2.1,
-        HeadTerm.find? c.intern s.head.2.2 with
-    | some x, some y, some z => !c.index.spo.contains (x, y, z)
-    | _, _, _ => true
-  let fresh := (sols.filter isNew).qsort (solLt infos c.batch)
   let mut c := c
-  for s in fresh do
-    let some info := infos[s.clause]? | throw s!"no clause {s.clause}"
-    unless s.premises.size == info.arity && s.premises.all (· < c.size) do
+  -- a merge sort: `Array.qsort` degrades on the runs that the per-key queries produce
+  for s in sols.toList.mergeSort (fun a b => !solLt infos c.batch b a) do
+    unless s.premises.all (· < c.size) do
       throw s!"clause {s.clause} returned bad premises {s.premises}"
-    let (I, x) := HeadTerm.add c.intern s.head.1
-    let (I, y) := HeadTerm.add I s.head.2.1
-    let (I, z) := HeadTerm.add I s.head.2.2
-    unless x < I.terms.size && y < I.terms.size && z < I.terms.size do
+    let k ← match s.build with
+      | none => pure s.head
+      | some h =>
+        let (c', x, y, z) := c.internHead h
+        c := c'
+        pure (x, y, z)
+    unless k.1 < c.intern.terms.size && k.2.1 < c.intern.terms.size && k.2.2 < c.intern.terms.size do
       throw s!"clause {s.clause} returned an unknown term"
-    c := { c with intern := I }
-    unless c.index.spo.contains (x, y, z) do
-      c := c.push (x, y, z) info.name s.premises b
+    unless c.index.spo.contains k do
+      c := c.push k infos[s.clause]!.name s.premises b
   return { c with round := b }
 
 /-- Run rounds until one adds nothing, with the facts from `lo` on as the first delta, within

@@ -16,10 +16,15 @@
 %   pred rdf.is-lang i:int.                        % a language-tagged literal
 %   pred rdf.is-dirlang i:int.                     % a directional language-tagged literal
 %
-% The rule clauses rdf.step are generated from the Lean rule list (LeanRDFElpi/Codegen.lean),
-% one per rule and premise position: that premise comes from the last round. A solution
-% names the clause, the fact numbers of the premises in body order, and the head, whose
-% triple terms are built with rdf.mk and interned by the Lean side.
+%
+% The rule clauses rdf.step K R are generated from the Lean rule list
+% (LeanRDFElpi/Codegen.lean), one per rule and premise position: that premise comes from the
+% last round. K is 1 + the number of that premise's predicate when it is a constant, and 0
+% when it is a variable. A round asks rdf.step K R once for K = 0 and once for each
+% predicate of the last round (separate queries, so that no choice point spans the round),
+% and the first-argument index tries only the clauses that can start. A solution R names
+% the clause, the fact numbers of the premises in body order, and the head, whose triple
+% terms are built with rdf.mk and interned by the Lean side.
 
 kind rdfn type.
 type rdf.n int -> rdfn.
@@ -28,4 +33,4 @@ type rdf.mk rdfn -> rdfn -> rdfn -> rdfn.
 kind rdfstep type.
 type rdf.r int -> list int -> rdfn -> rdfn -> rdfn -> rdfstep.
 
-pred rdf.step o:rdfstep.
+pred rdf.step o:int, o:rdfstep.
