@@ -76,6 +76,74 @@ instance (q : Graph) : Decidable (P.QueryFails q) := by unfold QueryFails; infer
 /-- The number of query assignments to try. -/
 def searchSize (q : Graph) : Nat := P.irSorts.length ^ (graphBNodes q).length
 
+/-- The first assignment of `assignments bs ks` for which `k` gives a value, enumerated in the
+same order without building the list of assignments (`firstAssignment_eq`). -/
+def firstAssignment {α : Type} (ks : List Nat) :
+    List BlankNode → (List (BlankNode × Nat) → Option α) → Option α
+  | [], k => k []
+  | b :: bs, k => firstAssignment ks bs fun f => ks.findSome? fun c => k ((b, c) :: f)
+
+theorem findSome?_flatMap {α β γ : Type} (l : List α) (g : α → List β) (k : β → Option γ) :
+    (l.flatMap g).findSome? k = l.findSome? fun a => (g a).findSome? k := by
+  induction l with
+  | nil => rfl
+  | cons a l ih =>
+    rw [List.flatMap_cons, List.findSome?_append, ih, List.findSome?_cons]
+    cases (g a).findSome? k <;> rfl
+
+theorem firstAssignment_eq {α : Type} (ks : List Nat) :
+    ∀ (bs : List BlankNode) (k : List (BlankNode × Nat) → Option α),
+      firstAssignment ks bs k = (assignments bs ks).findSome? k
+  | [], k => by simp only [firstAssignment, assignments, List.findSome?_cons, List.findSome?_nil]; cases k [] <;> rfl
+  | b :: bs, k => by
+    rw [firstAssignment, firstAssignment_eq ks bs, assignments, findSome?_flatMap]
+    congr 1
+    funext f
+    rw [List.findSome?_map]
+    rfl
+
+/-- `dedup` through a hash set of the elements seen: the same list (`dedupX_eq`), in linear
+time. -/
+def dedupX {α : Type} [DecidableEq α] [Hashable α] (l : List α) : List α :=
+  (l.foldr (fun x (acc : List α × Std.HashSet α) =>
+    if acc.2.contains x then acc else (x :: acc.1, acc.2.insert x)) ([], ∅)).1
+
+theorem dedupX_foldr {α : Type} [DecidableEq α] [Hashable α] (l : List α) :
+    let r := l.foldr (fun x (acc : List α × Std.HashSet α) =>
+      if acc.2.contains x then acc else (x :: acc.1, acc.2.insert x)) ([], ∅)
+    r.1 = dedup l ∧ ∀ y, r.2.contains y = true ↔ y ∈ l := by
+  induction l with
+  | nil => simp [dedup]
+  | cons x xs ih =>
+    obtain ⟨h1, h2⟩ := ih
+    simp only [List.foldr_cons]
+    generalize xs.foldr _ _ = r at h1 h2
+    by_cases hx : x ∈ xs
+    · have hc : r.2.contains x = true := (h2 x).2 hx
+      have hd : x ∈ dedup xs := mem_dedup.2 hx
+      simp only [hc, ite_true, dedup, hd, h1, true_and, List.mem_cons]
+      intro y
+      rw [h2 y]
+      exact ⟨.inr, fun h => h.elim (fun e => e ▸ hx) id⟩
+    · have hc : r.2.contains x = false := by
+        cases h : r.2.contains x
+        · rfl
+        · exact absurd ((h2 x).1 h) hx
+      have hd : x ∉ dedup xs := fun h => hx (mem_dedup.1 h)
+      simp only [hc, Bool.false_eq_true, ite_false, dedup, hd, h1, true_and, List.mem_cons,
+        Std.HashSet.contains_insert, Bool.or_eq_true, beq_iff_eq]
+      intro y
+      rw [h2 y]
+      exact ⟨fun h => h.elim (fun e => .inl e.symm) .inr, fun h => h.elim (fun e => .inl e.symm) .inr⟩
+
+theorem dedupX_eq {α : Type} [DecidableEq α] [Hashable α] (l : List α) : dedupX l = dedup l :=
+  (dedupX_foldr l).1
+
+/-- `graphBNodes` through `dedupX`. -/
+def graphBNodesX (g : Graph) : List BlankNode := dedupX (g.toList.flatMap tripleBNodes)
+
+theorem graphBNodesX_eq (g : Graph) : graphBNodesX g = graphBNodes g := dedupX_eq _
+
 /-- `assignSort` through the index. -/
 def Idx.assignSort (x : Idx) (b : BlankNode) : Nat := (x.assign[b]?).getD 0
 
@@ -102,6 +170,12 @@ def showTerm (t : Term) : String :=
     if s.length ≤ 1000 then s else (s.take 1000).toString ++ "…"
   else "<<( … )>>"
 
+/-- The number of assignments `k ^ m` as a message shows it: in decimal below `10 ^ 100`, and
+as the power above, which spares printing a number of a hundred thousand digits. -/
+def showCount (k m : Nat) : String :=
+  let n := k ^ m
+  if n < 10 ^ 100 then toString n else s!"{k}^{m}"
+
 /-- Why a presentation is not a countermodel, if it is not: the conditions decided over the
 lists of the presentation, as they are defined. -/
 def countermodelFailureSpec (r : CRegime) (g q : Graph) (P : Presentation) (budget : Nat) :
@@ -119,7 +193,7 @@ def countermodelFailureSpec (r : CRegime) (g q : Graph) (P : Presentation) (budg
         | some t => some s!"a data triple does not hold: {showTerm t.s} {showTerm t.p} {showTerm t.o}"
         | none =>
           if P.searchSize q > budget then
-            some s!"the query search needs {P.searchSize q} assignments, over the budget of {budget}"
+            some s!"the query search needs {showCount P.irSorts.length (graphBNodes q).length} assignments, over the budget of {budget}"
           else
             match (assignments (graphBNodes q) P.irSorts).find?
                 (fun f => q.toList.all (P.sHolds (asFun f))) with
@@ -144,11 +218,14 @@ def countermodelFailure (r : CRegime) (g q : Graph) (P : Presentation) (budget :
         match g.toList.find? (fun t => !P.sHoldsX x x.assignSort t) with
         | some t => some s!"a data triple does not hold: {showTerm t.s} {showTerm t.p} {showTerm t.o}"
         | none =>
-          if P.searchSize q > budget then
-            some s!"the query search needs {P.searchSize q} assignments, over the budget of {budget}"
+          let bs := graphBNodesX q
+          let ks := P.irSorts
+          let size := ks.length ^ bs.length
+          if size > budget then
+            some s!"the query search needs {showCount ks.length bs.length} assignments, over the budget of {budget}"
           else
-            match (assignments (graphBNodes q) P.irSorts).find?
-                (fun f => q.toList.all (P.sHoldsX x (asFun f))) with
+            match firstAssignment ks bs
+                (fun f => if q.toList.all (P.sHoldsX x (asFun f)) then some f else none) with
             | some f => some s!"the query holds under the assignment {f.map fun (b, k) => s!"_:{b.label}↦{k}"}"
             | none => none
 
@@ -156,7 +233,9 @@ def countermodelFailure (r : CRegime) (g q : Graph) (P : Presentation) (budget :
 theorem countermodelFailure_eq_spec (r : CRegime) (g q : Graph) (P : Presentation)
     (budget : Nat) : countermodelFailure r g q P budget = countermodelFailureSpec r g q P budget := by
   simp only [countermodelFailure, countermodelFailureSpec, wfChecksX_eq, rdfChecksX_eq,
-    rdfsChecksX_eq, sHoldsX_eq, assignSortX_eq]
+    rdfsChecksX_eq, sHoldsX_eq, assignSortX_eq, graphBNodesX_eq, firstAssignment_eq,
+    List.find?_eq_findSome?_guard]
+  rfl
 
 -- @tg: implements:: [[openspec:countermodels#Model checker]]
 /-- Check a countermodel to `g ⊨ q` under a regime, with a step budget for the query search. -/
