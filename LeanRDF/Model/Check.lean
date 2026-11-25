@@ -87,6 +87,21 @@ end Presentation
 
 open Presentation
 
+/-- A term nests triple terms at most `n` deep. -/
+def termDepthLE : Nat → Term → Bool
+  | n, .triple s p o => n != 0 && termDepthLE (n - 1) s && termDepthLE (n - 1) p &&
+      termDepthLE (n - 1) o
+  | _, _ => true
+
+/-- A term of the data as a failure message shows it: in N-Triples, cut after 1000 characters,
+and elided when it nests triple terms more than 64 deep, so a rejection does not echo unbounded
+input. -/
+def showTerm (t : Term) : String :=
+  if termDepthLE 64 t then
+    let s := t.toNTriples
+    if s.length ≤ 1000 then s else (s.take 1000).toString ++ "…"
+  else "<<( … )>>"
+
 /-- Why a presentation is not a countermodel, if it is not: the conditions decided over the
 lists of the presentation, as they are defined. -/
 def countermodelFailureSpec (r : CRegime) (g q : Graph) (P : Presentation) (budget : Nat) :
@@ -101,7 +116,7 @@ def countermodelFailureSpec (r : CRegime) (g q : Graph) (P : Presentation) (budg
       | some e => some s!"condition failed: {e}"
       | none =>
         match g.toList.find? (fun t => !P.sHolds P.assignSort t) with
-        | some t => some s!"a data triple does not hold: {t.s.toNTriples} {t.p.toNTriples} {t.o.toNTriples}"
+        | some t => some s!"a data triple does not hold: {showTerm t.s} {showTerm t.p} {showTerm t.o}"
         | none =>
           if P.searchSize q > budget then
             some s!"the query search needs {P.searchSize q} assignments, over the budget of {budget}"
@@ -127,7 +142,7 @@ def countermodelFailure (r : CRegime) (g q : Graph) (P : Presentation) (budget :
       | some e => some s!"condition failed: {e}"
       | none =>
         match g.toList.find? (fun t => !P.sHoldsX x x.assignSort t) with
-        | some t => some s!"a data triple does not hold: {t.s.toNTriples} {t.p.toNTriples} {t.o.toNTriples}"
+        | some t => some s!"a data triple does not hold: {showTerm t.s} {showTerm t.p} {showTerm t.o}"
         | none =>
           if P.searchSize q > budget then
             some s!"the query search needs {P.searchSize q} assignments, over the budget of {budget}"

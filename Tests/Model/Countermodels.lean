@@ -101,6 +101,32 @@ private def noAliceRex : Presentation :=
 #guard (failure .rdfs petsG (Graph.ofList [⟨.bnode ⟨"x"⟩, .iri rdf.type, .iri (ex "Dog")⟩]) petsM 3).startsWith
   "the query search needs"
 
+/-! ## The indexed checker -/
+
+/- `countermodelFailure` decides the conditions through hash indexes; it gives the result of
+the list definitions, `countermodelFailureSpec`, on every model and regime here. -/
+private def agrees (g q : Graph) (P : Presentation) (budget : Nat := 1000000) : Bool :=
+  [CRegime.simple, .rdf, .rdfs].all fun r =>
+    countermodelFailure r g q P budget == countermodelFailureSpec r g q P budget
+#guard agrees petsG tomDog petsM && agrees petsG tomDog noAliceRex &&
+  agrees petsG (Graph.ofList [⟨.bnode ⟨"x"⟩, .iri rdf.type, .iri (ex "Mammal")⟩]) petsM &&
+  agrees petsG (Graph.ofList [⟨.bnode ⟨"x"⟩, .iri rdf.type, .iri (ex "Dog")⟩]) petsM 3 &&
+  agrees (Graph.ofList [T (ex "A") rdfs.subClassOf (ex "B")])
+    (Graph.ofList [T (ex "B") rdfs.subClassOf (ex "A")]) subclassM &&
+  agrees petsG tomDog subclassM && agrees petsG tomDog typeM && agrees petsG tomDog domainM &&
+  agrees petsG tomDog membersM
+
+/- A rejection does not echo a deeply nested data term in full. -/
+private def deepTerm : Nat → Term
+  | 0 => .iri (ex "o")
+  | n + 1 => .triple (.iri (ex "s")) (.iri (ex "p")) (deepTerm n)
+#guard failure .rdfs (Graph.ofList [⟨.iri (ex "x"), .iri (ex "q"), deepTerm 100⟩]) tomDog petsM ==
+  "a data triple does not hold: <http://example.org/x> <http://example.org/q> <<( … )>>"
+
+/-- info: 'LeanRDF.Model.countermodelFailure_eq_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms countermodelFailure_eq_spec
+
 /-! ## Soundness -/
 
 -- @tg: verifies:: [[openspec:countermodels#Countermodel soundness#An accepted countermodel gives non-entailment]] {level: unit}
