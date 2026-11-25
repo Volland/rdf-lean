@@ -253,7 +253,9 @@ instance : Decidable P.IrisOK := by unfold IrisOK; infer_instance
 instance : Decidable P.LitsOK := by unfold LitsOK; infer_instance
 instance : Decidable P.TripleOK := by unfold TripleOK; infer_instance
 instance : Decidable P.OverridesOK := by unfold OverridesOK; infer_instance
-instance : Decidable P.LitSortsUsed := by unfold LitSortsUsed; infer_instance
+-- Lean 4.37: `infer_instance` on the unfolded form exceeds `synthInstance.maxSize` (answer size
+-- doubles at each implication), so the bounded-quantifier instance is named.
+instance : Decidable P.LitSortsUsed := Nat.decidableBallLT _ _
 instance : Decidable P.ExtOK := by unfold ExtOK; infer_instance
 instance : Decidable P.AssignOK := by unfold AssignOK; infer_instance
 

@@ -482,7 +482,7 @@ private theorem safeAssign_eq {I : SimpleInterp} {A : BlankNode → I.Dom} {μ :
     safeAssign I A μ b = d := by
   have h : ∃ d, I.denote A (μ b) = some d ∧ I.IR d := ⟨d, hd, hr⟩
   unfold safeAssign
-  rw [dif_pos h]
+  rw [dite_eq_left h]
   exact Option.some.inj ((Classical.choose_spec h).1.symm.trans hd)
 
 private theorem isObject_of_isSubject {t : Term} (h : t.isSubject = true) : t.isObject = true := by

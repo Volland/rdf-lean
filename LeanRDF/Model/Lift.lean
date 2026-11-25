@@ -166,7 +166,7 @@ theorem iriIdx_member (n : Nat) : P.iriIdx (rdf.member n) ∈ P.memberSorts := b
   · rename_i k h
     exact .tail _ (List.mem_map.2 ⟨(rdf.member n, k),
       List.mem_filter.2 ⟨lookup_mem h, isMemberIri_member n⟩, rfl⟩)
-  · rw [if_pos (isMemberIri_member n)]; exact .head _
+  · rw [ite_eq_left (isMemberIri_member n)]; exact .head _
 
 theorem sI_eq (hw : P.WellFormed) (i : IRI) : P.sI i = P.iriIdx i := sortOf_IS hw i
 
