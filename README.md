@@ -74,7 +74,7 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by nativ
 | `leanrdf-sg check\|export\|decode\|kernel\|quote FILE` | `statements/` | statement records to RDF 1.2 and back, the export kernel, the quoting view |
 | `leanrdf-check --data D --query Q (--cert C \| --countermodel M) [--rules R] [--json]` | `check/` | check a certificate someone else wrote, with no search: simple, RDF, RDFS, OWL 2 RL or EL; verifies the data, query and rules digests of a version-2 certificate |
 
-Exit codes are the same for every tool: `0` proven or ran, `1` not derived or does not conform, `2` a certificate was rejected (a bug on the untrusted side), `3` input error. "Not derived" is never a claim that something is false, because the rules are proven sound, not complete.
+Exit codes are the same for every tool: `0` proven or ran, `1` not derived or does not conform, `2` a certificate was rejected (a bug on the untrusted side), `3` input error. "Not derived" is never a claim that something is false, because the rules are proven sound, not complete. A search that stops at its step budget also reports not derived, with exit `1`: a resource limit is never a verdict.
 
 ## Examples
 
