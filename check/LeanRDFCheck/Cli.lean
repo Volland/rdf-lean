@@ -54,10 +54,51 @@ where
     | "--emit-envelope" :: p :: rest => go { a with emitEnvelope := some p } rest
     | arg :: _ => .error s!"unexpected argument {arg}"
 
+/-- The byte offset of the first byte that does not continue well-formed UTF-8 (RFC 3629 §3:
+no overlong forms, no surrogates, nothing past U+10FFFF), if any. -/
+def firstBadUTF8 (b : ByteArray) : Option Nat := Id.run do
+  let mut i := 0
+  while i < b.size do
+    let c := b[i]!.toNat
+    let (n, lo, hi) :=
+      if c < 0x80 then (0, 0, 0)
+      else if 0xC2 ≤ c && c ≤ 0xDF then (1, 0x80, 0xBF)
+      else if c == 0xE0 then (2, 0xA0, 0xBF)
+      else if c == 0xED then (2, 0x80, 0x9F)
+      else if 0xE1 ≤ c && c ≤ 0xEF then (2, 0x80, 0xBF)
+      else if c == 0xF0 then (3, 0x90, 0xBF)
+      else if 0xF1 ≤ c && c ≤ 0xF3 then (3, 0x80, 0xBF)
+      else if c == 0xF4 then (3, 0x80, 0x8F)
+      else (4, 0, 0)
+    if n == 4 then return some i
+    for k in [1:n+1] do
+      let d := b[i + k]?.map (·.toNat)
+      let (l, h) := if k == 1 then (lo, hi) else (0x80, 0xBF)
+      unless d.any (fun d => l ≤ d && d ≤ h) do return some (i + k)
+    i := i + n + 1
+  return none
+
+/-- Line and column (in characters) of a byte offset of UTF-8 text. -/
+private def lineCol (b : ByteArray) (off : Nat) : Nat × Nat := Id.run do
+  let mut line := 1
+  let mut col := 1
+  for i in [0:off] do
+    let c := b[i]!
+    if c == 10 then line := line + 1; col := 1
+    else if c &&& 0xC0 != 0x80 then col := col + 1
+  return (line, col)
+
 private def readText (what : String) (path : System.FilePath) : ExceptT String IO String := do
-  match ← (IO.FS.readFile path).toBaseIO with
-  | .ok s => return s
+  match ← (IO.FS.readBinFile path).toBaseIO with
   | .error e => throw s!"cannot read {what} {path}: {e}"
+  | .ok b =>
+    match String.fromUTF8? b with
+    | some s => return s
+    | none =>
+      let off := (firstBadUTF8 b).getD 0
+      let (line, col) := lineCol b off
+      let byte := (b[off]?.map fun x => s!"byte 0x{String.ofList (Nat.toDigits 16 x.toNat)}").getD "end of file"
+      throw s!"{what} {path}:{line}:{col}: not UTF-8: {byte} at byte offset {off}"
 
 /-- Read a graph: Turtle for `.ttl`, N-Triples otherwise. -/
 def readGraph (what : String) (path : System.FilePath) : ExceptT String IO Graph := do
