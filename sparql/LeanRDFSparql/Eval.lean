@@ -1,4 +1,4 @@
-import LeanRDFSparql.Index
+import LeanRDFSparql.PathEval
 
 /-!
 # The reference evaluator
@@ -170,7 +170,7 @@ def evalNI : Nat → Dataset → Graph → TIdx → Pattern → List Mapping
     | .extend a v e => Spec.extend (evalNI n D G I a) v fun μ => e.eval ex μ
     | .minus a b => minus (evalNI n D G I a) (evalNI n D G I b)
     | .table rows => rows
-    | .path s p o => Spec.pathOp G s p o
+    | .path s p o => pathOp G s p o
     | .group keys aggs a => groupOp ex keys aggs (evalNI n D G I a)
     | .subquery pr d ob off lim a => subqueryOp ex pr d ob off lim (evalNI n D G I a)
 

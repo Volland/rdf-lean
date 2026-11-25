@@ -222,7 +222,7 @@ theorem evalN_perm : ∀ (n : Nat) (D : Dataset) (G : Graph) (P : Pattern),
     | extend a v e => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; rw [hex]; exact (ih G a).map _
     | minus a b => simp only [Eval.evalN, Eval.evalNI, Spec.evalN, evalMinus_eq]; exact minus_perm (ih G a) (ih G b)
     | table rows => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; exact .refl _
-    | path s p o => simp only [Eval.evalN, Eval.evalNI, Spec.evalN]; exact .refl _
+    | path s p o => simp only [Eval.evalN, Eval.evalNI, Spec.evalN, pathOp_eq]; exact .refl _
     | group keys aggs a => simp only [Eval.evalN, Eval.evalNI, Spec.evalN, evalGroupOp_eq]; rw [hex]
     | subquery pr d ob off lim a =>
       simp only [Eval.evalN, Eval.evalNI, Spec.evalN, evalSubqueryOp_eq]; rw [hex]
