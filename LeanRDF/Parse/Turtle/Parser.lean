@@ -31,11 +31,20 @@ private structure St where
   fresh : Nat
   graph : Option Term
   quads : Array Quad
+  /-- The IRIs seen so far, so that repeated IRIs share one string. -/
+  iris : Interner := {}
+  /-- The number of triple terms being read, one inside the other. -/
+  depth : Nat := 0
 
-private abbrev P := ReaderT (Array Char) (StateT St (Except (Nat × String)))
+/-- What the parser reads: the input and the limit on triple-term nesting. -/
+private structure Input where
+  src : Src
+  maxDepth : Nat
 
-private def peek? : P (Option Char) := do return (← read)[(← get).pos]?
-private def peekAt? (k : Nat) : P (Option Char) := do return (← read)[(← get).pos + k]?
+private abbrev P := ReaderT Input (StateT St (Except (Nat × String)))
+
+private def peek? : P (Option Char) := do return (← read).src.get? (← get).pos
+private def peekAt? (k : Nat) : P (Option Char) := do return (← read).src.get? ((← get).pos + k)
 private def bump : P Unit := modify fun s => { s with pos := s.pos + 1 }
 private def fail {α : Type} (msg : String) : P α := do throw ((← get).pos, msg)
 private def expect (c : Char) : P Unit := do
@@ -43,10 +52,10 @@ private def expect (c : Char) : P Unit := do
 
 /-- Whether the input continues with `s`, without consuming anything. -/
 private def lookingAt (s : String) : P Bool := do
-  let cs ← read
+  let cs := (← read).src
   let pos := (← get).pos
   let ks := s.toList
-  return (List.range ks.length).all fun i => cs[pos + i]? == ks[i]?
+  return (List.range ks.length).all fun i => cs.get? (pos + i) == ks[i]?
 
 private def emit (t : Triple) : P Unit :=
   modify fun s => { s with quads := s.quads.push (Quad.ofTriple t s.graph) }
@@ -85,9 +94,13 @@ private def uchar : P Char := do
   | some 'U' => bump; hexChar 8
   | _ => fail "invalid escape"
 
+/-- The interned copy of an IRI string. -/
+private def intern (iri : String) : P String :=
+  modifyGet fun s => let (iri, iris) := s.iris.intern iri; (iri, { s with iris })
+
 private def resolveIRI (ref : String) (start : Nat) : P IRI := do
   let iri := resolve (← get).base ref
-  if isAbsoluteIRI iri then return ⟨iri⟩
+  if isAbsoluteIRI iri then return ⟨← intern iri⟩
   else throw (start, s!"relative IRI <{ref}> with no absolute base")
 
 /-- `IRIREF` (production [18]), resolved against the base. -/
@@ -175,7 +188,7 @@ private def prefixedName : P IRI := do
   bump
   let local_ ← pnLocal
   match (← get).prefixes.lookup pre with
-  | some ns => return ⟨ns ++ local_⟩
+  | some ns => return ⟨← intern (ns ++ local_)⟩
   | none => throw (start, s!"undeclared prefix '{pre}:'")
 
 private def iri : P IRI := do
@@ -311,12 +324,13 @@ private def rdfLiteral : P Literal := do
 
 /-- The next characters are a keyword (`a`, `true`, `false`) and not the start of a name. -/
 private def keywordAhead (kw : String) : P Bool := do
-  let cs := (← read)
+  let cs := (← read).src
   let pos := (← get).pos
   let ks := kw.toList
-  if (List.range ks.length).all fun i => cs[pos + i]? == ks[i]? then
-    match cs[pos + ks.length]? with
-    | some c => return !(isPNChars c || c == ':' || c == '.' && (cs[pos + ks.length + 1]?.any isPNChars))
+  if (List.range ks.length).all fun i => cs.get? (pos + i) == ks[i]? then
+    match cs.get? (pos + ks.length) with
+    | some c =>
+      return !(isPNChars c || c == ':' || c == '.' && ((cs.get? (pos + ks.length + 1)).any isPNChars))
     | none => return true
   else return false
 
@@ -358,6 +372,10 @@ private def reifierTerm? : P (Option Term) := do
 verb, an object that is an IRI, a blank node, a literal or a triple term, then `)>>`. Built
 without emitting anything; collections, property lists and reified triples are syntax errors. -/
 private partial def tripleTerm : P Term := do
+  let depth := (← get).depth + 1
+  let max := (← read).maxDepth
+  if depth > max then fail s!"triple term nested deeper than {max}"
+  modify fun s => { s with depth }
   skipKeyword "<<("; ws
   let s ← match ← peek? with
     | some '<' =>
@@ -379,6 +397,7 @@ private partial def tripleTerm : P Term := do
   ws
   unless ← lookingAt ")>>" do fail "expected ')>>'"
   skipKeyword ")>>"
+  modify fun s => { s with depth := depth - 1 }
   return .triple s p o
 
 /-- `reifiedTriple` (productions [29]–[31]): `<<`, a subject (IRI, blank node or reified triple),
@@ -451,9 +470,16 @@ private partial def collection : P Term := do
   ws
   let rec items (acc : Array Term) : P (Array Term) := do
     ws
-    if (← peek?) == some ')' then bump; return acc
-    let o ← object
-    items (acc.push o)
+    match ← peek? with
+    | some ')' => bump; return acc
+    | none => fail "expected ')'"
+    | some c =>
+      -- a character that ends a statement or a list cannot start an object (`.5` can)
+      if c == ';' || c == ',' || c == ']' || c == '}' ||
+          c == '.' && !((← peekAt? 1).any Char.isDigit) then
+        fail "expected ')'"
+      let o ← object
+      items (acc.push o)
   let objs ← items #[]
   let mut rest : Term := .iri rdf.nil
   for o in objs.reverse do
@@ -559,11 +585,11 @@ private def baseDecl : P Unit := do
 
 /-- A SPARQL-style keyword (`PREFIX`, `BASE`, `VERSION`), case-insensitive, not followed by `:`. -/
 private def sparqlKeyword (kw : String) : P Bool := do
-  let cs := (← read)
+  let cs := (← read).src
   let pos := (← get).pos
   let ks := kw.toList
-  if (List.range ks.length).all fun i => (cs[pos + i]?.map Char.toUpper) == ks[i]? then
-    match cs[pos + ks.length]? with
+  if (List.range ks.length).all fun i => ((cs.get? (pos + i)).map Char.toUpper) == ks[i]? then
+    match cs.get? (pos + ks.length) with
     | some c =>
       return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '<' || c == '#' ||
         c == '"' || c == '\''
@@ -587,11 +613,11 @@ private def directive : P Bool := do
   if (← peek?) == some '@' then
     -- `@prefix` and `@base` are whole tokens (like `LANGTAG`), so `@prefix:` is `@prefix` `:`
     let atKeyword (kw : String) : P Bool := do
-      let cs := (← read)
+      let cs := (← read).src
       let pos := (← get).pos
       let ks := kw.toList
-      return (List.range ks.length).all (fun i => cs[pos + i]? == ks[i]?) &&
-        !(cs[pos + ks.length]?.any fun c => c.isAlphanum || c == '-')
+      return (List.range ks.length).all (fun i => cs.get? (pos + i) == ks[i]?) &&
+        !((cs.get? (pos + ks.length)).any fun c => c.isAlphanum || c == '-')
     if ← (do bump; atKeyword "prefix") then
       skipKeyword "prefix"; prefixDecl; ws; expect '.'
     else if ← atKeyword "base" then
@@ -625,11 +651,11 @@ private partial def document : P Unit := do
 
 /-- The keyword `GRAPH`, case-insensitive, not the start of a prefixed name. -/
 private def graphKeyword : P Bool := do
-  let cs := (← read)
+  let cs := (← read).src
   let pos := (← get).pos
   let ks := "GRAPH".toList
-  if (List.range ks.length).all fun i => (cs[pos + i]?.map Char.toUpper) == ks[i]? then
-    match cs[pos + ks.length]? with
+  if (List.range ks.length).all fun i => ((cs.get? (pos + i)).map Char.toUpper) == ks[i]? then
+    match cs.get? (pos + ks.length) with
     | some c => return !(isPNChars c || c == ':' || c == '.')
     | none => return true
   else return false
@@ -764,12 +790,16 @@ private def renameFresh (qs : Array Quad) : Array Quad := Id.run do
     return ⟨s, p, o, g⟩
   return (go.run ({}, 1)).1
 
-private def position (chars : Array Char) (pos : Nat) : Nat × Nat := Id.run do
-  let mut line := 1
-  let mut col := 1
-  for c in chars.extract 0 pos do
-    if c == '\n' then line := line + 1; col := 1 else col := col + 1
-  return (line, col)
+/-- Run a document parser on `src`, with line and column on failure. -/
+private def runDoc (doc : P Unit) (src : String) (base : String) (maxDepth : Nat) :
+    Except ParseError (Array Quad) :=
+  let input : Input := { src := Src.ofString src, maxDepth }
+  let st : St := { pos := 0, base, prefixes := [], fresh := 0, graph := none, quads := #[] }
+  match (doc.run input).run st with
+  | .ok ((), s) => .ok (renameFresh s.quads)
+  | .error (pos, msg) =>
+    let (line, col) := input.src.position pos
+    .error { line, col, msg }
 
 -- @tg: implements:: [[openspec:turtle#Turtle parsing]]
 -- @tg: implements:: [[openspec:turtle#Triple terms in Turtle]] {since: "0.2.0"}
@@ -777,33 +807,24 @@ private def position (chars : Array Char) (pos : Nat) : Nat × Nat := Id.run do
 -- @tg: implements:: [[openspec:turtle#Annotations]] {since: "0.2.0"}
 -- @tg: implements:: [[openspec:turtle#Version directives]] {since: "0.2.0"}
 /-- Parse a Turtle document (RDF 1.2 Turtle §6.5, §7) into its triples, relative IRIs resolved
-against `base`. -/
-def parseTriples (src : String) (base : String := "") : Except ParseError (Array Triple) :=
-  let chars := src.toList.toArray
-  let st : St := { pos := 0, base, prefixes := [], fresh := 0, graph := none, quads := #[] }
-  match (document.run chars).run st with
-  | .ok ((), s) => .ok ((renameFresh s.quads).map (·.triple))
-  | .error (pos, msg) =>
-    let (line, col) := position chars pos
-    .error { line, col, msg }
+against `base`. Triple terms nested deeper than `maxDepth` are an error. -/
+def parseTriples (src : String) (base : String := "") (maxDepth : Nat := defaultMaxTermDepth) :
+    Except ParseError (Array Triple) :=
+  (runDoc document src base maxDepth).map (·.map (·.triple))
 
 -- @tg: implements:: [[openspec:datasets#TriG]]
 -- @tg: implements:: [[openspec:datasets#RDF 1.2 TriG conformance]] {since: "0.2.0"}
 /-- Parse a TriG document (RDF 1.2 TriG §5, §6) into its quads, relative IRIs resolved against
 `base`. -/
-def parseTriG (src : String) (base : String := "") : Except ParseError (Array Quad) :=
-  let chars := src.toList.toArray
-  let st : St := { pos := 0, base, prefixes := [], fresh := 0, graph := none, quads := #[] }
-  match (trigDocument.run chars).run st with
-  | .ok ((), s) => .ok (renameFresh s.quads)
-  | .error (pos, msg) =>
-    let (line, col) := position chars pos
-    .error { line, col, msg }
+def parseTriG (src : String) (base : String := "") (maxDepth : Nat := defaultMaxTermDepth) :
+    Except ParseError (Array Quad) :=
+  runDoc trigDocument src base maxDepth
 
 -- @tg: implements:: [[openspec:turtle#W3C conformance]]
 -- @tg: implements:: [[openspec:turtle#RDF 1.2 Turtle conformance]] {since: "0.2.0"}
 /-- Parse a Turtle document into a graph. -/
-def parse (src : String) (base : String := "") : Except ParseError Graph :=
-  (parseTriples src base).map (fun ts => Graph.ofList ts.toList)
+def parse (src : String) (base : String := "") (maxDepth : Nat := defaultMaxTermDepth) :
+    Except ParseError Graph :=
+  (parseTriples src base maxDepth).map (fun ts => Graph.ofList ts.toList)
 
 end LeanRDF.Turtle

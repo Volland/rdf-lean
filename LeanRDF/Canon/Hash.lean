@@ -144,8 +144,8 @@ def permutations {α : Type} : List α → List (List α)
       (List.range (p.length + 1)).map fun i => p.take i ++ [x] ++ p.drop i
 
 /-- The state of N-degree hashing: the work counter (Hash N-Degree Quads calls and permutations
-examined) and the hashes computed so far, by input. The hash function is pure, so reusing a
-hash is the same as recomputing it; on symmetric blank-node structures most inputs repeat. -/
+examined) and the hashes computed so far, by input, up to `memoLimit` of them. The hash function is pure, so reusing a hash is the same as recomputing it; on
+symmetric blank-node structures most inputs repeat. -/
 structure WorkState where
   ticks : Nat := 0
   memo : Std.HashMap String String := {}
@@ -155,19 +155,22 @@ abbrev Work := StateT WorkState (Except String)
 
 /-- Count one unit of work; fail once the limit is passed (RDFC-1.0 §4.4.3). -/
 def tick (c : Ctx) : Work Unit := do
-  let s ← get
-  if s.ticks ≥ c.limit then
+  if (← get).ticks ≥ c.limit then
     throw s!"RDFC-1.0 work limit of {c.limit} exceeded: the dataset needs too much N-degree hashing"
-  set { s with ticks := s.ticks + 1 }
+  modify fun s => { s with ticks := s.ticks + 1 }
+
+/-- The most hashes the memo keeps. -/
+def memoLimit : Nat := 65536
 
 /-- `c.hash x`, from the memo when it was computed before. -/
 def hashMemo (c : Ctx) (x : String) : Work String := do
-  let s ← get
-  match s.memo.get? x with
+  match (← get).memo.get? x with
   | some h => return h
   | none =>
     let h := c.hash x
-    set { s with memo := s.memo.insert x h }
+    -- `modify` owns the state, so the insertion does not copy the table; the memo is bounded
+    if (← get).memo.size < memoLimit then
+      modify fun s => { s with memo := s.memo.insert x h }
     return h
 
 /-- Hash N-Degree Quads (§4.8): the hash of the paths to the related blank nodes, with the
@@ -179,7 +182,9 @@ partial def hashNDegree (c : Ctx) (n : BlankNode) (issuer : Issuer) : Work (Stri
   for q in c.quadsOf.getD n [] do
     for (r, pos) in relatedOf q n do
       let h ← hashMemo c (relatedInput c r q issuer pos)
-      hn := hn.insert h ((hn.getD h #[]).push r)
+      let rs := hn.getD h #[]
+      hn := hn.erase h
+      hn := hn.insert h (rs.push r)
   let mut data := ""
   let mut issuer := issuer
   for h in sortStrings (hn.toList.map (·.1)) do

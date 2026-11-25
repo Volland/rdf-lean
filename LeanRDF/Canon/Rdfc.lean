@@ -97,7 +97,10 @@ def canonicalLabelsWith (hash : HashFn) (limit : Nat → Nat) (d : Dataset) :
   for b in nodes do
     let h := hashFirstDegree hash ((quadsOf.getD b []).reverse) b
     firstDegree := firstDegree.insert b h
-    byHash := byHash.insert h ((byHash.getD h #[]).push b)
+    -- take the array out of the map before pushing, so that the push does not copy it
+    let bs := byHash.getD h #[]
+    byHash := byHash.erase h
+    byHash := byHash.insert h (bs.push b)
   -- Step 4: blank nodes with a unique first-degree hash, in hash order.
   let mut canonical : Issuer := { pfx := "c14n" }
   let hashes := sortStrings (byHash.toList.map (·.1))
@@ -109,7 +112,8 @@ def canonicalLabelsWith (hash : HashFn) (limit : Nat → Nat) (d : Dataset) :
   let nShared := shared.foldl (· + ·.size) 0
   for bs in shared do
     let ctx : Ctx := { hash, quadsOf, firstDegree, canonical, limit := limit nShared }
-    let mut results : Array (String × Issuer) := #[]
+    -- each result keeps only the blank nodes its issuer issued, newest first
+    let mut results : Array (String × List BlankNode) := #[]
     let mut work : WorkState := {}
     for b in bs do
       if (canonical.find? b).isSome then continue
@@ -117,9 +121,9 @@ def canonicalLabelsWith (hash : HashFn) (limit : Nat → Nat) (d : Dataset) :
       let ctx := { ctx with canonical }
       let ((r, iss), w) ← (hashNDegree ctx b temp).run work
       work := w
-      results := results.push (r, iss)
-    for (_, iss) in results.toList.mergeSort (fun a b => decide (a.1 ≤ b.1)) do
-      for b in iss.order do
+      results := results.push (r, iss.issued)
+    for (_, issued) in results.toList.mergeSort (fun a b => decide (a.1 ≤ b.1)) do
+      for b in issued.reverse do
         canonical := (canonical.issue b).2
   return { order := canonical.order }
 
