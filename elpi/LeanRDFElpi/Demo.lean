@@ -18,8 +18,9 @@ When no instance is derived under the RDFS profile, the demo builds a candidate 
 from the closure. REFUTED is printed only when the verified model checker accepts it; otherwise
 the verdict stays NOT DERIVED, with the condition the candidate failed.
 
-Exit codes: `0` entailed and checked, `1` not derived, `2` certificate rejected or search failed
-(a bug on the untrusted side), `3` usage, input or parse error, `4` inconsistent, `5` refuted.
+Exit codes: `0` entailed and checked, `1` not derived (also when the search stops at its step
+budget, which is reported as such), `2` certificate rejected or search failed (a bug on the
+untrusted side), `3` usage, input or parse error, `4` inconsistent, `5` refuted.
 -/
 
 namespace LeanRDF.Demo
@@ -139,12 +140,14 @@ def clashVerdict (g : Graph) (a : Args) (closure : Closure) (out : String) :
 
 /-- No instance is derived: try a countermodel (RDFS profile only). REFUTED (exit 5) when the
 verified model checker accepts it, NOT DERIVED (exit 1) with the failed condition otherwise. -/
-def refuteOrNotDerived (g q : Graph) (a : Args) (out why : String) : IO (UInt32 × String) := do
+def refuteOrNotDerived (g q : Graph) (a : Args) (e : Engine) (closure : Closure) (out why : String) :
+    IO (UInt32 × String) := do
   let notDerived (reason : String) : UInt32 × String :=
     (1, out ++ s!"Verdict: NOT DERIVED ({why}).\n{reason}\nThis is not a claim of non-entailment: completeness is not proven.")
   if a.profile != .rdfs then
     return notDerived "No countermodel was tried: countermodels are for simple, RDF and RDFS entailment."
-  match findCountermodel .rdfs g q with
+  -- the closure of the data under the RDFS rules continues with the representatives
+  match findCountermodelFrom e closure q with
   | .error e => return notDerived s!"The countermodel finder failed: {e}"
   | .ok P =>
     match Model.checkCountermodel .rdfs g q P with
@@ -169,14 +172,20 @@ def run (a : Args) : IO (UInt32 × String) := do
     let q ← readGraph "query" a.query
     let rules := a.profile.rules
     let mut out := s!"LeanRDF: {g.size} data triples, {q.size} query triples\n"
-    let closure ← match saturate rules g with
-      | .ok c => pure c
+    let engine ← match program rules with
+      | .ok e => pure e
       | .error e => throw (2, out ++ s!"search failed: {e}")
+    let closure ← match saturateWith engine g with
+      | .ok c => pure c
+      | .error e =>
+        if isBudgetExhausted e then
+          throw (1, out ++ s!"{e}.\nVerdict: NOT DERIVED (the search stopped at its budget). This is not a claim of non-entailment: completeness is not proven.")
+        else throw (2, out ++ s!"search failed: {e}")
     out := out ++ s!"Elpi closure under {rules.length} rules: {closure.size} triples\n"
     if let some (code, report) ← clashVerdict g a closure out then throw (code, report)
     let cert ← match certify closure q with
       | .ok c => pure c
-      | .error e => throw (← refuteOrNotDerived g q a out e)
+      | .error e => throw (← refuteOrNotDerived g q a engine closure out e)
     let (code, why) := verdict g q cert rules
     if code != 0 then throw (code, out ++ why)
     for (b, t) in cert.mapping do

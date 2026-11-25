@@ -1,98 +1,36 @@
 % Forward-chaining saturation for LeanRDF: the untrusted search.
 %
-% Facts and derived triples are `rdf.known P S O` clauses, added with `=>`, indexed on the
-% predicate; the triples of the last round are also `rdf.delta P S O`. The rule clauses
-% `rdf.step Name Premises Head` are generated from the Lean rule list, one per rule and
-% premise position: that premise comes from the last round (semi-naive evaluation); rules
-% without premises are `rdf.axiom` facts, added after the input facts. A run
-% ends when a round adds nothing; the rules invent no terms, so it always ends. The result
-% lists every triple once, with its rule and premises, premises before conclusions.
+% Terms are interned by the Lean side: every RDF term is an int, a triple term too (its
+% parts through rdf.tt-of). The semi-naive rounds are driven from Lean
+% (LeanRDFElpi/Saturate.lean): each round is one query for every solution of rdf.step,
+% the triples found so far are rdf.known P S O Id facts and those of the last round
+% rdf.delta P S O Id facts, where Id is the fact's number (its place in the closure). The
+% facts, the triple-term table and the guard tables are Lean builtins over hash indexes,
+% attached per round, so the Elpi database holds only the rule clauses:
+%
+%   pred rdf.known   o:int, o:int, o:int, o:int.   % P S O Id, any argument may be bound
+%   pred rdf.delta   o:int, o:int, o:int, o:int.
+%   pred rdf.tt-of   o:int, o:int, o:int, o:int.   % Z S P O: Z is the triple term <<( S P O )>>
+%   pred rdf.is-cmp  i:int.                        % an rdf:_n IRI
+%   pred rdf.is-str  i:int.                        % an xsd:string literal
+%   pred rdf.is-lang i:int.                        % a language-tagged literal
+%   pred rdf.is-dirlang i:int.                     % a directional language-tagged literal
+%
+%
+% The rule clauses rdf.step K R are generated from the Lean rule list
+% (LeanRDFElpi/Codegen.lean), one per rule and premise position: that premise comes from the
+% last round. K is 1 + the number of that premise's predicate when it is a constant, and 0
+% when it is a variable. A round asks rdf.step K R once for K = 0 and once for each
+% predicate of the last round (separate queries, so that no choice point spans the round),
+% and the first-argument index tries only the clauses that can start. A solution R names
+% the clause, the fact numbers of the premises in body order, and the head, whose triple
+% terms are built with rdf.mk and interned by the Lean side.
 
-kind rdfterm type.
-type rdf.iri string -> rdfterm.
-type rdf.bnode string -> rdfterm.
-type rdf.typed string -> string -> rdfterm.
-type rdf.lang string -> string -> rdfterm.
-type rdf.dirlang string -> string -> string -> rdfterm.
-type rdf.tt rdfterm -> rdfterm -> rdfterm -> rdfterm.
+kind rdfn type.
+type rdf.n int -> rdfn.
+type rdf.mk rdfn -> rdfn -> rdfn -> rdfn.
 
-kind rdftriple type.
-type rdf.t rdfterm -> rdfterm -> rdfterm -> rdftriple.
+kind rdfstep type.
+type rdf.r int -> list int -> rdfn -> rdfn -> rdfn -> rdfstep.
 
-kind rdfentry type.
-type rdf.entry rdftriple -> string -> list rdftriple -> rdfentry.
-
-:index (2 2 2)
-pred rdf.known o:rdfterm, o:rdfterm, o:rdfterm.
-:index (2 2 2)
-pred rdf.delta o:rdfterm, o:rdfterm, o:rdfterm.
-pred rdf.step o:string, o:list rdftriple, o:rdftriple.
-% Rules without premises, generated from the Lean axiom rules.
-pred rdf.axiom o:string, o:rdftriple.
-% Container membership IRIs rdf:_n of the input graph, asserted from Lean.
-pred rdf.is-cmp i:rdfterm.
-
-pred rdf.axiom-step i:prop, o:prop.
-rdf.axiom-step (rdf.axiom N T) (rdf.step N [] T).
-
-pred rdf.known-clause i:rdftriple, o:prop.
-rdf.known-clause (rdf.t S P O) (rdf.known P S O).
-
-pred rdf.delta-clause i:rdftriple, o:prop.
-rdf.delta-clause (rdf.t S P O) (rdf.delta P S O).
-
-% The set of triples seen so far is keyed by the printed triple.
-pred rdf.key i:rdftriple, o:string.
-rdf.key T K :- term_to_string T K.
-
-pred rdf.seen i:rdftriple, i:std.set string.
-rdf.seen T S :- rdf.key T K, std.set.mem K S.
-
-pred rdf.see i:rdftriple, i:std.set string, o:std.set string.
-rdf.see T S S1 :- rdf.key T K, std.set.add K S S1.
-
-pred rdf.dedupe i:list rdftriple, i:std.set string, i:list rdftriple, o:list rdftriple,
-  o:std.set string.
-rdf.dedupe [] S Acc Out S :- std.rev Acc Out.
-rdf.dedupe [T|Ts] S Acc Out S1 :- rdf.seen T S, !, rdf.dedupe Ts S Acc Out S1.
-rdf.dedupe [T|Ts] S Acc Out S2 :- rdf.see T S S1, rdf.dedupe Ts S1 [T|Acc] Out S2.
-
-pred rdf.fact-entry i:rdftriple, o:rdfentry.
-rdf.fact-entry T (rdf.entry T "fact" []).
-
-% New entries of a round, in order, without triples already seen.
-pred rdf.fresh i:list prop, i:std.set string, i:list rdfentry, o:list rdfentry,
-  o:std.set string.
-rdf.fresh [] S Acc Out S :- std.rev Acc Out.
-rdf.fresh [rdf.step _ _ H | Ss] S Acc Out S1 :- rdf.seen H S, !, rdf.fresh Ss S Acc Out S1.
-rdf.fresh [rdf.step N Ps H | Ss] S Acc Out S2 :-
-  rdf.see H S S1, rdf.fresh Ss S1 [rdf.entry H N Ps | Acc] Out S2.
-
-pred rdf.entry-triple i:rdfentry, o:rdftriple.
-rdf.entry-triple (rdf.entry T _ _) T.
-
-pred rdf.loop i:list rdftriple, i:std.set string, i:list rdfentry, o:list rdfentry.
-rdf.loop [] _ Acc Acc :- !.
-rdf.loop Delta Seen Acc Out :-
-  std.map Delta rdf.delta-clause D,
-  (D => std.findall (rdf.step _ _ _) Sols),
-  rdf.fresh Sols Seen [] New Seen1,
-  std.map New rdf.entry-triple NewTs,
-  std.map NewTs rdf.known-clause K,
-  std.append Acc New Acc1,
-  K => rdf.loop NewTs Seen1 Acc1 Out.
-
-% rdf.saturate Facts Entries: the closure of Facts and the axioms under the step clauses.
-pred rdf.saturate i:list rdftriple, o:list rdfentry.
-rdf.saturate Facts Out :-
-  std.set.make cmp_term S0,
-  rdf.dedupe Facts S0 [] Uniq S1,
-  std.map Uniq rdf.fact-entry E0,
-  std.findall (rdf.axiom _ _) Axs,
-  std.map Axs rdf.axiom-step AxSteps,
-  rdf.fresh AxSteps S1 [] AxEntries S2,
-  std.map AxEntries rdf.entry-triple AxTs,
-  std.append Uniq AxTs Start,
-  std.append E0 AxEntries E1,
-  std.map Start rdf.known-clause K0,
-  K0 => rdf.loop Start S2 E1 Out.
+pred rdf.step o:int, o:rdfstep.

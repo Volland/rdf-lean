@@ -102,4 +102,34 @@ info: (["triple-term-not-asserted (simple)"],
 #guard_msgs in
 #eval runRefutations
 
+/-- The demo's finder continues the closure of the data with the representatives instead of
+saturating again. On every test that is run it reaches the same verdict as the finder that
+saturates from scratch: the same tests are refuted, and no positive test is refuted. -/
+def continuedAgrees : IO Bool := do
+  let skip := (← IO.FS.lines (dir / "expected-not-run.txt")).toList.filterMap fun l =>
+    if l.startsWith "#" || l.trimAscii.isEmpty then none else (l.splitOn ":").head?
+  let mut ok := true
+  for line in ← IO.FS.lines (dir / "index.txt") do
+    let ws := line.splitOn " "
+    let (name, regime, action, result) := (ws[1]!, ws[2]!, ws[3]!, ws[4]!)
+    if skip.contains name then continue
+    let some r := regimeOf regime | continue
+    let g ← graphOf action
+    let q ← graphOf result
+    let fresh := match findCountermodel r g q with
+      | .ok P => (countermodelFailure r g q P 1000000).isNone
+      | .error _ => false
+    let continued := match program r.rules with
+      | .ok e => match saturateWith e g >>= fun c => findCountermodelFrom e c q with
+        | .ok P => (countermodelFailure r g q P 1000000).isNone
+        | .error _ => false
+      | .error _ => false
+    if fresh != continued then
+      IO.eprintln s!"{name} ({regime}): from scratch {fresh}, continued {continued}"
+      ok := false
+  return ok
+
+#guard_msgs in
+#eval do unless ← continuedAgrees do throw (IO.userError "the continued finder disagrees")
+
 end LeanRDF.BridgeTests.Countermodel
