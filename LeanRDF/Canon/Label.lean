@@ -1,3 +1,4 @@
+import Std.Data.HashMap
 import LeanRDF.Core.Iso
 import LeanRDF.Core.Dataset
 
@@ -56,6 +57,82 @@ theorem apply_unapply (l : List (BlankNode × BlankNode)) (y : BlankNode) :
 theorem applySwaps_bijective (l : List (BlankNode × BlankNode)) : Bijective (applySwaps l) :=
   ⟨fun a b h => by rw [← unapply_apply l a, h, unapply_apply],
    fun y => ⟨unapplySwaps l y, apply_unapply l y⟩⟩
+
+theorem applySwaps_append (l : List (BlankNode × BlankNode)) (a c x : BlankNode) :
+    applySwaps (l ++ [(a, c)]) x = swapB a c (applySwaps l x) := by
+  simp [applySwaps, List.foldl_append]
+
+theorem unapplySwaps_append (l : List (BlankNode × BlankNode)) (a c y : BlankNode) :
+    unapplySwaps (l ++ [(a, c)]) y = unapplySwaps l (swapB a c y) := by
+  simp [unapplySwaps, List.foldr_append]
+
+/-! ## Swaps as finite maps
+
+Applying a list of `n` swaps costs `n` steps per blank node. A `SwapMap` holds the same
+composition as two hash maps, the image and the preimage of every blank node that it moves, so
+adding a swap and applying the composition take one lookup each. `SwapMap.Represents` ties a map
+to the list of swaps it stands for. -/
+
+/-- A composition of swaps: the image (`fwd`) and the preimage (`bwd`) of the blank nodes it
+moves; every other blank node is fixed. -/
+structure SwapMap where
+  fwd : Std.HashMap BlankNode BlankNode := {}
+  bwd : Std.HashMap BlankNode BlankNode := {}
+
+namespace SwapMap
+
+/-- The image of `x`. -/
+def apply (m : SwapMap) (x : BlankNode) : BlankNode := m.fwd.getD x x
+
+/-- The preimage of `y`. -/
+def unapply (m : SwapMap) (y : BlankNode) : BlankNode := m.bwd.getD y y
+
+/-- Compose with the swap of `a` and `c`, applied after the others: the preimages of `a` and
+`c` exchange their images. -/
+def push (m : SwapMap) (a c : BlankNode) : SwapMap :=
+  let pa := m.unapply a
+  let pc := m.unapply c
+  { fwd := (m.fwd.insert pa c).insert pc a, bwd := (m.bwd.insert a pc).insert c pa }
+
+/-- `m` computes the composition of the swaps of `l` and its inverse. -/
+def Represents (m : SwapMap) (l : List (BlankNode × BlankNode)) : Prop :=
+  (∀ x, m.apply x = applySwaps l x) ∧ (∀ y, m.unapply y = unapplySwaps l y)
+
+theorem represents_empty : ({} : SwapMap).Represents [] :=
+  ⟨fun _ => by simp [apply, applySwaps], fun _ => by simp [unapply, unapplySwaps]⟩
+
+theorem represents_push {m : SwapMap} {l : List (BlankNode × BlankNode)} (h : m.Represents l)
+    (a c : BlankNode) : (m.push a c).Represents (l ++ [(a, c)]) := by
+  have hpa : applySwaps l (m.unapply a) = a := by rw [h.2, apply_unapply]
+  have hpc : applySwaps l (m.unapply c) = c := by rw [h.2, apply_unapply]
+  constructor
+  · intro x
+    show ((m.fwd.insert _ c).insert _ a).getD x x = _
+    rw [applySwaps_append, Std.HashMap.getD_insert, Std.HashMap.getD_insert]
+    by_cases hxc : m.unapply c = x
+    · subst hxc; rw [hpc]; simp only [swapB, beq_self_eq_true, ite_true]; split <;> simp_all
+    · by_cases hxa : m.unapply a = x
+      · subst hxa; rw [hpa]; simp [hxc, swapB]
+      · have hx : m.fwd.getD x x = applySwaps l x := h.1 x
+        have ha : applySwaps l x ≠ a := fun e => hxa (by rw [h.2, ← e, unapply_apply])
+        have hc : applySwaps l x ≠ c := fun e => hxc (by rw [h.2, ← e, unapply_apply])
+        simp [hxc, hxa, hx, swapB, ha, hc]
+  · intro y
+    show ((m.bwd.insert a _).insert c _).getD y y = _
+    have hb : ∀ y, m.bwd.getD y y = unapplySwaps l y := h.2
+    rw [unapplySwaps_append, Std.HashMap.getD_insert, Std.HashMap.getD_insert]
+    by_cases hyc : c = y
+    · subst hyc
+      by_cases hac : c = a
+      · subst hac; simp [swapB, h.2]
+      · simp [swapB, hb, unapply, hac]
+    · by_cases hya : a = y
+      · subst hya; simp [hyc, swapB, unapply, hb]
+      · have hya' : y ≠ a := fun e => hya e.symm
+        have hyc' : y ≠ c := fun e => hyc e.symm
+        simp [hyc, hya, swapB, hya', hyc', hb]
+
+end SwapMap
 
 /-! ## Renaming is injective -/
 

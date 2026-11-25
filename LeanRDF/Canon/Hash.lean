@@ -1,7 +1,9 @@
 import Std.Data.HashMap
+import Lean.Data.PersistentHashMap
 import LeanRDF.Core.Dataset
 import LeanRDF.Parse.NTriples.Serializer
 import LeanRDF.Text.Hash
+import LeanRDF.Canon.Sha256
 
 /-!
 # RDFC-1.0 hashing
@@ -59,27 +61,35 @@ def sortStrings (l : List String) : List String :=
 
 /-! ## The identifier issuer (§4.5) -/
 
-/-- An identifier issuer: a prefix and the blank nodes issued so far, in issue order. The
-identifier of the `i`-th issued blank node is the prefix followed by `i`. -/
+/-- An identifier issuer: a prefix and the blank nodes issued so far. The identifier of the
+`i`-th issued blank node is the prefix followed by `i`. The issued nodes are kept newest first
+and indexed in a persistent map, so the copies that Hash N-Degree Quads makes for every
+permutation share their structure instead of copying it (§4.8.3 step 5.4.2). -/
 structure Issuer where
   pfx : String
-  order : Array BlankNode := #[]
-  index : Std.HashMap BlankNode Nat := {}
+  /-- The issued blank nodes, the most recent first. -/
+  issued : List BlankNode := []
+  size : Nat := 0
+  index : Lean.PersistentHashMap BlankNode Nat := {}
   deriving Inhabited
 
 namespace Issuer
 
+/-- The issued blank nodes in issue order. -/
+def order (i : Issuer) : List BlankNode := i.issued.reverse
+
 /-- The identifier issued for `b`, if any. -/
 def find? (i : Issuer) (b : BlankNode) : Option String :=
-  (i.index.get? b).map (i.pfx ++ toString ·)
+  (i.index.find? b).map (i.pfx ++ toString ·)
 
 /-- Issue an identifier for `b`: the existing one, or the next one. -/
 def issue (i : Issuer) (b : BlankNode) : String × Issuer :=
-  match i.index.get? b with
+  match i.index.find? b with
   | some n => (i.pfx ++ toString n, i)
   | none =>
-    let n := i.order.size
-    (i.pfx ++ toString n, { i with order := i.order.push b, index := i.index.insert b n })
+    let n := i.size
+    (i.pfx ++ toString n,
+      { i with issued := b :: i.issued, size := n + 1, index := i.index.insert b n })
 
 end Issuer
 
@@ -105,8 +115,8 @@ def predicateValue : Term → String
   | .iri i => i.val
   | t => t.toNTriples
 
-/-- Hash Related Blank Node (§4.7). -/
-def hashRelated (c : Ctx) (related : BlankNode) (q : Quad) (issuer : Issuer) (pos : String) :
+/-- The string that Hash Related Blank Node (§4.7) hashes. -/
+def relatedInput (c : Ctx) (related : BlankNode) (q : Quad) (issuer : Issuer) (pos : String) :
     String :=
   let input := pos ++ (if pos = "g" then "" else "<" ++ predicateValue q.p ++ ">")
   let ident := match c.canonical.find? related with
@@ -114,7 +124,12 @@ def hashRelated (c : Ctx) (related : BlankNode) (q : Quad) (issuer : Issuer) (po
     | none => match issuer.find? related with
       | some s => "_:" ++ s
       | none => c.firstDegree.getD related ""
-  c.hash (input ++ ident)
+  input ++ ident
+
+/-- Hash Related Blank Node (§4.7). -/
+def hashRelated (c : Ctx) (related : BlankNode) (q : Quad) (issuer : Issuer) (pos : String) :
+    String :=
+  c.hash (relatedInput c related q issuer pos)
 
 /-- The related blank nodes of a quad for `n` (§4.8.3 step 3): every other blank node of the
 subject, object and graph name, at any depth, with the position of its top-level term. -/
@@ -128,15 +143,32 @@ def permutations {α : Type} : List α → List (List α)
   | x :: xs => (permutations xs).flatMap fun p =>
       (List.range (p.length + 1)).map fun i => p.take i ++ [x] ++ p.drop i
 
-/-- The work counter: Hash N-Degree Quads calls and permutations examined. -/
-abbrev Work := StateT Nat (Except String)
+/-- The state of N-degree hashing: the work counter (Hash N-Degree Quads calls and permutations
+examined) and the hashes computed so far, by input. The hash function is pure, so reusing a
+hash is the same as recomputing it; on symmetric blank-node structures most inputs repeat. -/
+structure WorkState where
+  ticks : Nat := 0
+  memo : Std.HashMap String String := {}
+
+/-- The work counter and the hash memo. -/
+abbrev Work := StateT WorkState (Except String)
 
 /-- Count one unit of work; fail once the limit is passed (RDFC-1.0 §4.4.3). -/
 def tick (c : Ctx) : Work Unit := do
-  let n ← get
-  if n ≥ c.limit then
+  let s ← get
+  if s.ticks ≥ c.limit then
     throw s!"RDFC-1.0 work limit of {c.limit} exceeded: the dataset needs too much N-degree hashing"
-  set (n + 1)
+  set { s with ticks := s.ticks + 1 }
+
+/-- `c.hash x`, from the memo when it was computed before. -/
+def hashMemo (c : Ctx) (x : String) : Work String := do
+  let s ← get
+  match s.memo.get? x with
+  | some h => return h
+  | none =>
+    let h := c.hash x
+    set { s with memo := s.memo.insert x h }
+    return h
 
 /-- Hash N-Degree Quads (§4.8): the hash of the paths to the related blank nodes, with the
 issuer that the chosen path leaves. -/
@@ -146,7 +178,7 @@ partial def hashNDegree (c : Ctx) (n : BlankNode) (issuer : Issuer) : Work (Stri
   let mut hn : Std.HashMap String (Array BlankNode) := {}
   for q in c.quadsOf.getD n [] do
     for (r, pos) in relatedOf q n do
-      let h := hashRelated c r q issuer pos
+      let h ← hashMemo c (relatedInput c r q issuer pos)
       hn := hn.insert h ((hn.getD h #[]).push r)
   let mut data := ""
   let mut issuer := issuer
@@ -187,6 +219,6 @@ partial def hashNDegree (c : Ctx) (n : BlankNode) (issuer : Issuer) : Work (Stri
         chosenIssuer := some copy
     data := data ++ chosenPath
     issuer := chosenIssuer.getD issuer
-  return (c.hash data, issuer)
+  return (← hashMemo c data, issuer)
 
 end LeanRDF.Canon

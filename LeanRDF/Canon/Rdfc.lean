@@ -11,8 +11,11 @@ step 6, §4.3).
 
 The relabeling is applied as a composition of swaps (`LeanRDF.Canon.Label`), so it is a
 bijection however the order was chosen: `canonicalLabels_injective` and `canonical_iso` hold for
-every labeling, and need no proof about the hashing. That isomorphic datasets get the same
-output is tested on the W3C rdf-canon suite.
+every labeling, and need no proof about the hashing. The swaps are applied through a `SwapMap`,
+one hash-map lookup per blank node, proven equal to the list of swaps
+(`Labeling.renameFast_eq`); the issuers of Hash N-Degree Quads are persistent, and hashes are
+memoized (`LeanRDF.Canon.Hash`), so a symmetric structure costs its work limit, not more.
+That isomorphic datasets get the same output is tested on the W3C rdf-canon suite.
 -- SIMPLIFICATION: [[simplifications#Canonicity is tested, not proven]]
 -/
 
@@ -27,17 +30,48 @@ def swapsFor (order : List BlankNode) : List (BlankNode × BlankNode) :=
   (order.zip (List.range order.length)).foldl
     (fun acc (b, i) => acc ++ [(applySwaps acc b, c14n i)]) []
 
-/-- A canonical labeling: the canonical issue order and the relabeling it gives. -/
+/-- The swaps of `swapsFor order` as a `SwapMap`, built with one lookup per blank node. -/
+def swapMapFor (order : List BlankNode) : SwapMap :=
+  (order.zip (List.range order.length)).foldl (fun m (b, i) => m.push (m.apply b) (c14n i)) {}
+
+private theorem foldl_represents (L : List (BlankNode × Nat)) (m : SwapMap)
+    (l : List (BlankNode × BlankNode)) (h : m.Represents l) :
+    (L.foldl (fun m (b, i) => m.push (m.apply b) (c14n i)) m).Represents
+      (L.foldl (fun acc (b, i) => acc ++ [(applySwaps acc b, c14n i)]) l) := by
+  induction L generalizing m l with
+  | nil => exact h
+  | cons p L ih =>
+    obtain ⟨b, i⟩ := p
+    simp only [List.foldl_cons]
+    apply ih
+    rw [h.1 b]
+    exact SwapMap.represents_push h _ _
+
+theorem swapMapFor_represents (order : List BlankNode) :
+    (swapMapFor order).Represents (swapsFor order) :=
+  foldl_represents _ _ _ SwapMap.represents_empty
+
+/-- A canonical labeling: the canonical issue order, which determines the relabeling. -/
 structure Labeling where
   order : List BlankNode
-  swaps : List (BlankNode × BlankNode) := swapsFor order
 
-/-- The relabeling of blank nodes. -/
+/-- The swaps of the relabeling: the `i`-th blank node of the order goes to `c14n i`. -/
+def Labeling.swaps (σ : Labeling) : List (BlankNode × BlankNode) := swapsFor σ.order
+
+/-- The relabeling of blank nodes: the composition of `σ.swaps`. -/
 def Labeling.rename (σ : Labeling) : BlankNode → BlankNode := applySwaps σ.swaps
+
+/-- The relabeling as computed: `m.apply` for `m := swapMapFor σ.order`, one lookup per blank
+node instead of one step per swap. Bind the result once; each call builds the map. -/
+def Labeling.renameFast (σ : Labeling) : BlankNode → BlankNode := (swapMapFor σ.order).apply
+
+theorem Labeling.renameFast_eq (σ : Labeling) : σ.renameFast = σ.rename :=
+  funext (swapMapFor_represents σ.order).1
 
 /-- The labeling as a list from input label to canonical label, in issue order. -/
 def Labeling.toList (σ : Labeling) : List (String × String) :=
-  σ.order.map fun b => (b.label, (σ.rename b).label)
+  let m := swapMapFor σ.order
+  σ.order.map fun b => (b.label, (m.apply b).label)
 
 /-- The default work limit: Hash N-Degree Quads calls and permutations together, for a dataset
 with `n` blank nodes that share a first-degree hash. -/
@@ -76,7 +110,7 @@ def canonicalLabelsWith (hash : HashFn) (limit : Nat → Nat) (d : Dataset) :
   for bs in shared do
     let ctx : Ctx := { hash, quadsOf, firstDegree, canonical, limit := limit nShared }
     let mut results : Array (String × Issuer) := #[]
-    let mut work := 0
+    let mut work : WorkState := {}
     for b in bs do
       if (canonical.find? b).isSome then continue
       let temp := (({ pfx := "b" } : Issuer).issue b).2
@@ -87,16 +121,18 @@ def canonicalLabelsWith (hash : HashFn) (limit : Nat → Nat) (d : Dataset) :
     for (_, iss) in results.toList.mergeSort (fun a b => decide (a.1 ≤ b.1)) do
       for b in iss.order do
         canonical := (canonical.issue b).2
-  return { order := canonical.order.toList }
+  return { order := canonical.order }
 
 -- @tg: implements:: [[openspec:rdf-canonicalization#Canonical labeling]]
 -- @tg: implements:: [[openspec:rdf-canonicalization#Triple terms in canonicalization]]
 /-- RDFC-1.0 with SHA-256 and the default work limit. -/
 def canonicalLabels (d : Dataset) : Except String Labeling :=
-  canonicalLabelsWith LeanRDF.Hash.sha256 defaultLimit d
+  canonicalLabelsWith sha256 defaultLimit d
 
 /-- The canonical dataset: the input relabeled by its canonical labeling. -/
-def canonicalize (σ : Labeling) (d : Dataset) : Dataset := d.renameBNodes σ.rename
+def canonicalize (σ : Labeling) (d : Dataset) : Dataset :=
+  let m := swapMapFor σ.order
+  d.renameBNodes m.apply
 
 /-- A relabeled dataset as canonical N-Quads lines in code-point order. -/
 def nquadsSorted (d : Dataset) : String :=
@@ -110,7 +146,7 @@ def canonicalNQuadsWith (hash : HashFn) (d : Dataset) : Except String String := 
 
 /-- The canonical N-Quads of a dataset: RDFC-1.0 with SHA-256. -/
 def canonicalNQuads (d : Dataset) : Except String String :=
-  canonicalNQuadsWith LeanRDF.Hash.sha256 d
+  canonicalNQuadsWith sha256 d
 
 -- @tg: implements:: [[openspec:rdf-canonicalization#Canonical isomorphism]]
 /-- Every canonical labeling is injective on blank nodes (indeed a bijection), in particular on
@@ -120,7 +156,9 @@ theorem canonicalLabels_injective (σ : Labeling) :
   (applySwaps_bijective σ.swaps).1
 
 /-- The canonical dataset is isomorphic to its input. -/
-theorem canonical_iso (σ : Labeling) (d : Dataset) : Dataset.Iso d (canonicalize σ d) :=
-  Dataset.iso_renameBNodes (applySwaps_bijective σ.swaps) d
+theorem canonical_iso (σ : Labeling) (d : Dataset) : Dataset.Iso d (canonicalize σ d) := by
+  show Dataset.Iso d (d.renameBNodes σ.renameFast)
+  rw [Labeling.renameFast_eq]
+  exact Dataset.iso_renameBNodes (applySwaps_bijective σ.swaps) d
 
 end LeanRDF.Canon
