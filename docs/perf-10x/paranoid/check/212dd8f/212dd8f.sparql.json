@@ -1,0 +1,45 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output":
+    {"proc":
+     {"stdout": "Skipped exported but unpermitted axioms [\"sorryAx\"]\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "lean4lean":
+   {"output":
+    {"proc": {"stdout": "checked 91169 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 91172 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 91172 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 0.7s (index 0.0s), check 8.3s\ncon-leche: stats: check pool: 8.298s wall, 12 workers, 91172 records, busy 97.707s (98.1%); tail 0.189s after the last start, 12 busy then, 0.466s worker-time in it (20.5%)\ncon-leche: stats: slowest checks: 0.973s theorem _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10 (#83073); 0.486s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_append._proof_1 (#88463); 0.382s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#34721); 0.380s theorem _private.Init.Data.Array.Extract.0.Array.extract_add_left._proof_1_2 (#71941); 0.292s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_reverse._proof_1_1 (#88072)\ncon-leche: stats: peak RSS 0.78 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "check_axioms":
+  {"output":
+   {"str": {"string": "Uses axioms: propext, Classical.choice, Quot.sound"}},
+   "judgement": "success"},
+  "build_report":
+  {"output":
+   {"proc":
+    {"stdout": "",
+     "stderr":
+     "✔ [4/56] Built LeanRDF.Parse.Turtle.Iri (284ms)\n✔ [6/84] Built LeanRDF.Core.Term (450ms)\n✔ [8/84] Built LeanRDF.Text.Hash (420ms)\n✔ [10/84] Built LeanRDF.Xsd.Lexical (580ms)\n✔ [12/143] Built LeanRDF.Core.Triple (173ms)\n✔ [14/143] Built LeanRDF.Parse.NTriples.Chars (628ms)\n✔ [17/143] Built LeanRDF.Canon.Sha256 (369ms)\n✔ [19/143] Built LeanRDF.Core.Index (259ms)\n✔ [21/143] Built LeanRDF.Core.Vocab (137ms)\n✔ [23/143] Built LeanRDF.Text.Regex (719ms)\n✔ [25/143] Built LeanRDFSparql.Hash (84ms)\n✔ [27/143] Built LeanRDF.Core.Literal (122ms)\n✔ [29/143] Built LeanRDF.Core.Graph (186ms)\n✔ [31/143] Built LeanRDF.Xsd.DateTime (281ms)\n✔ [33/143] Built LeanRDF.Semantics.Axioms (119ms)\n✔ [35/143] Built LeanRDF.Core.Iso (114ms)\n✔ [37/143] Built LeanRDF.Parse.NTriples.Serializer (171ms)\n✔ [39/143] Built LeanRDF.Core.Dataset (251ms)\n✔ [41/143] Built LeanRDF.Semantics.Interpretation (257ms)\n✔ [43/143] Built LeanRDF.Entailment.Rule (309ms)\n✔ [45/143] Built LeanRDF.Xsd.Value (232ms)\n✔ [46/143] Built LeanRDF.Entailment.Derivation (155ms)\n✔ [48/143] Built LeanRDF.Semantics.RDFS (213ms)\n✔ [50/143] Built LeanRDF.Entailment.Rules (184ms)\n✔ [53/143] Built LeanRDF.Cert.Match (260ms)\n✔ [54/143] Built LeanRDF.Parse.NQuads.Serializer (142ms)\n✔ [56/143] Built LeanRDF.Canon.Label (289ms)\n✔ [58/143] Built LeanRDF.Semantics.Entails (116ms)\n✔ [61/143] Built LeanRDF.Xsd.Compare (192ms)\n✔ [63/143] Built LeanRDF.Canon.Hash (344ms)\n✔ [65/143] Built LeanRDF.Canon.Rdfc (223ms)\n✔ [67/143] Built LeanRDF.Entailment.Soundness (302ms)\n✔ [69/143] Built LeanRDF.Canon.Digest (97ms)\n✔ [71/143] Built LeanRDF.Parse.NTriples.Parser (633ms)\n✔ [73/143] Built LeanRDF.Entailment.Clash (127ms)\n✔ [75/143] Built LeanRDF.Parse.NQuads.Parser (99ms)\n✔ [77/143] Built LeanRDF.Cert.Envelope (180ms)\n✔ [79/143] Built LeanRDF.Model.Presentation (518ms)\n✔ [81/143] Built LeanRDF.Model.Interp (243ms)\n✔ [83/143] Built LeanRDF.Cert.Check (287ms)\n✔ [85/143] Built LeanRDF.Cert.Clash (134ms)\n✔ [87/143] Built LeanRDF.Cert.Json (173ms)\n✔ [89/143] Built LeanRDF.Model.Lift (272ms)\n✔ [91/143] Built LeanRDF.Cert.Datalog (120ms)\n✔ [93/143] Built LeanRDF.Parse.Turtle.Parser (859ms)\n✔ [95/143] Built LeanRDF.Parse.TriG.Parser (87ms)\n✔ [97/143] Built LeanRDF.Model.Index (581ms)\n✔ [99/143] Built LeanRDF.Model.Check (266ms)\n✔ [101/143] Built LeanRDF.Model.Json (182ms)\n✔ [103/143] Built LeanRDF.Model.Canonical (228ms)\n✔ [105/143] Built LeanRDF (86ms)\n✔ [107/143] Built LeanRDFSparql.Mapping (207ms)\n✔ [109/143] Built LeanRDFSparql.Algebra (965ms)\n✔ [111/143] Built LeanRDFSparql.Expr (486ms)\n✔ [113/143] Built LeanRDFSparql.Order (204ms)\n✔ [115/143] Built LeanRDFSparql.Ops (217ms)\n✔ [117/143] Built LeanRDFSparql.Index (154ms)\n✔ [119/143] Built LeanRDFSparql.PathEval (298ms)\n✔ [121/143] Built LeanRDFSparql.PathBound (528ms)\n✔ [123/143] Built LeanRDFSparql.Eval (209ms)\n✔ [125/143] Built LeanRDFSparql.Semantics (119ms)\n⚠ [127/143] Built LeanRDFSparql.BgpCorrect (272ms)\nwarning: LeanRDFSparql/BgpCorrect.lean:55:10: This simp argument is unused:\n  hs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, ho, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:55:14: This simp argument is unused:\n  hp\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hs, ho, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:55:18: This simp argument is unused:\n  ho\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hs, hp, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:331:25: This simp argument is unused:\n  μ\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Mapping.find?_restrict]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [129/143] Built LeanRDFSparql.Correct (314ms)\nwarning: LeanRDFSparql/Correct.lean:71:22: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, hf, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/Correct.lean:80:12: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/Correct.lean:85:12: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, this, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/Correct.lean:93:12: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/Correct.lean:95:12: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, this, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [131/143] Built LeanRDFSparql.Query (137ms)\nwarning: LeanRDFSparql/Query.lean:81:9: Variable name `a` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _a\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: LeanRDFSparql/Query.lean:81:11: Variable name `b` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _b\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n✔ [133/143] Built LeanRDFSparql.Syntax (372ms)\n✔ [135/143] Built LeanRDFSparql.Parser (1.4s)\n✔ [137/143] Built LeanRDFSparql.Results (421ms)\n✔ [139/143] Built LeanRDFSparql.Run (158ms)\n✔ [141/143] Built LeanRDFSparql (88ms)\n"}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

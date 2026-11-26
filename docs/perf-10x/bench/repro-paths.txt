@@ -1,0 +1,24 @@
+== timings at 50000 nodes (merged)
+case                      wall_s    peak_MB result
+chain:s-plus                2.03         74 22ae39b47f84
+chain:s-star                0.28         76 28951f49663c
+chain:o-plus                0.26         78 382d352455bc
+chain:o-star                0.27         79 e3235e3fc387
+chain:so-plus               0.22         68 f5080e263448
+chain:inv-plus              0.25         74 b79bfa3eb324
+chain:seq-plus              0.25         70 0d2c98ba90a8
+chain:alt-star              0.27         78 e3235e3fc387
+tangle:s-plus               0.67        114 e36f184aaefd
+tangle:s-star               0.70        113 4e6ec8fcae00
+tangle:o-plus               0.71        121 23802f0bf574
+tangle:o-star               0.73        123 f90e588cfcda
+tangle:so-plus              0.64        114 f5080e263448
+tangle:inv-plus             0.67        114 4024a0abc914
+tangle:seq-plus             0.75        125 e3ca1e04fc1a
+tangle:alt-star             0.75        127 46e2bfb8149d
+== identity p3000 (merged)
+p3000: byte-identical 40, different 0
+== identity p300 (merged)
+p300: byte-identical 72, different 0
+== identity p60 (merged)
+p60: byte-identical 144, different 0

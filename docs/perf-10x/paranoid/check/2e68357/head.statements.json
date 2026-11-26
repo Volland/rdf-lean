@@ -1,0 +1,45 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output":
+    {"proc":
+     {"stdout": "Skipped exported but unpermitted axioms [\"sorryAx\"]\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "lean4lean":
+   {"output":
+    {"proc": {"stdout": "checked 90243 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 90246 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 90246 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 1.2s (index 0.0s), check 10.3s\ncon-leche: stats: check pool: 10.361s wall, 12 workers, 90246 records, busy 121.736s (97.9%); tail 0.237s after the last start, 12 busy then, 0.442s worker-time in it (15.5%)\ncon-leche: stats: slowest checks: 1.219s theorem _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10 (#82133); 1.096s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#34720); 0.477s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_append._proof_1 (#87537); 0.419s theorem _private.Init.Data.BitVec.Lemmas.0.BitVec.getMsbD_extractLsb._proof_1_4 (#77577); 0.313s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_1 (#34438)\ncon-leche: stats: peak RSS 0.77 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "check_axioms":
+  {"output":
+   {"str": {"string": "Uses axioms: propext, Classical.choice, Quot.sound"}},
+   "judgement": "success"},
+  "build_report":
+  {"output":
+   {"proc":
+    {"stdout": "",
+     "stderr":
+     "✔ [105/137] Built LeanRDFStatements.Abstract.Kernel (228ms)\n✔ [107/137] Built LeanRDFStatements.Abstract.Export (204ms)\n✔ [109/137] Built LeanRDFStatements.Abstract.History (188ms)\n✔ [111/137] Built LeanRDFStatements.Abstract.Quoting (361ms)\n✔ [113/137] Built LeanRDFStatements.Abstract.Encoding (386ms)\n✔ [115/137] Built LeanRDFStatements.Model (568ms)\n✔ [117/137] Built LeanRDFStatements.View (170ms)\n⚠ [119/137] Built LeanRDFStatements.Export (156ms)\nwarning: LeanRDFStatements/Export.lean:60:46: This simp argument is unused:\n  or_assoc\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hl]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [121/137] Built LeanRDFStatements.Kernel (381ms)\nwarning: LeanRDFStatements/Kernel.lean:85:56: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Kernel.lean:88:35: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Kernel.lean:92:54: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n✔ [123/137] Built LeanRDFStatements.Criterion (119ms)\n✔ [125/137] Built LeanRDFStatements.History (153ms)\n⚠ [127/137] Built LeanRDFStatements.Quote (292ms)\nwarning: LeanRDFStatements/Quote.lean:133:12: This simp argument is unused:\n  h\n\nHint: Omit it from the simp argument list.\n  [apply] simp [this]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [129/137] Built LeanRDFStatements.Decode (827ms)\nwarning: LeanRDFStatements/Decode.lean:386:4: This simp argument is unused:\n  nodeOf_nodeTerm hs\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Record.reifying, Record.base, Triple.toTerm, Option.bind_some, litNat?_intLit, nodeOf_nodeTerm ho]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:386:24: This simp argument is unused:\n  nodeOf_nodeTerm ho\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Record.reifying, Record.base, Triple.toTerm, Option.bind_some, litNat?_intLit, nodeOf_nodeTerm hs]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:411:10: This simp argument is unused:\n  reifying_p\n\nHint: Omit it from the simp argument list.\n  [apply] simp [isMeta, metaPreds, Record.reifying, Record.stmt, stmtEid?_stmtIRI]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:453:19: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [h, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n✔ [131/137] Built LeanRDFStatements.Json (141ms)\n✔ [133/137] Built LeanRDFStatements.Cli (226ms)\n✔ [135/137] Built LeanRDFStatements (103ms)\n"}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

@@ -1,0 +1,58 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "lean4lean":
+   {"output": {"proc": {"stdout": "checked 7640 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 7643 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 7643 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 0.0s (index 0.0s), check 0.8s\ncon-leche: stats: check pool: 0.813s wall, 12 workers, 7644 records, busy 9.044s (92.6%); tail 0.071s after the last start, 12 busy then, 0.149s worker-time in it (17.3%)\ncon-leche: stats: slowest checks: 0.419s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_1 (#4772); 0.339s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#5171); 0.268s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_4 (#5174); 0.196s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_3 (#4779); 0.196s theorem _private.Init.Data.Nat.Bitwise.Lemmas.0.Nat.two_pow_succ_sub_succ_div_two._proof_1_1 (#4374)\ncon-leche: stats: peak RSS 0.16 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "export_solution":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "export_challenge":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "config":
+  {"theorem_names":
+   ["LeanRDF.Shacl.Challenge.validate_conforms",
+    "LeanRDF.Shacl.Challenge.validate_sound"],
+   "solution_module": "Solution",
+   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+   "definition_names": null,
+   "challenge_module": "Challenge"},
+  "compare_statements":
+  {"output": {"str": {"string": ""}}, "judgement": "success"},
+  "check_axioms": {"output": {"str": {"string": ""}}, "judgement": "success"},
+  "build_solution":
+  {"output":
+   {"proc":
+    {"stdout":
+     "⚠ [118/122] Replayed LeanRDFShacl.Correct\nwarning: LeanRDFShacl/Correct.lean:54:54: Variable name `m` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _m\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: LeanRDFShacl/Correct.lean:60:9: Variable name `m` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _m\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n✔ [120/122] Built Solution (91ms)\nBuild completed successfully (122 jobs).\n",
+     "stderr": ""}},
+   "judgement": "success"},
+  "build_challenge":
+  {"output":
+   {"proc":
+    {"stdout":
+     "✔ [6/122] Built LeanRDF.Parse.NTriples.Chars (369ms)\n✔ [8/122] Built LeanRDF.Parse.Turtle.Iri (370ms)\n✔ [10/122] Built LeanRDF.Core.Index (389ms)\n✔ [12/122] Built LeanRDF.Core.Term (596ms)\n✔ [14/122] Built LeanRDF.Text.Hash (547ms)\n✔ [16/122] Built LeanRDF.Canon.Sha256 (513ms)\n✔ [18/122] Built LeanRDF.Xsd.Lexical (670ms)\n✔ [20/122] Built LeanRDF.Core.Vocab (108ms)\n✔ [22/122] Built LeanRDF.Core.Triple (158ms)\n✔ [24/122] Built LeanRDF.Core.Literal (134ms)\n✔ [26/122] Built LeanRDF.Text.Regex (809ms)\n✔ [28/122] Built LeanRDF.Semantics.Axioms (119ms)\n✔ [30/122] Built LeanRDF.Core.Graph (182ms)\n✔ [32/122] Built LeanRDF.Xsd.DateTime (269ms)\n✔ [34/122] Built LeanRDF.Core.Iso (96ms)\n✔ [36/122] Built LeanRDF.Parse.NTriples.Serializer (162ms)\n✔ [38/122] Built LeanRDF.Entailment.Rule (340ms)\n✔ [40/122] Built LeanRDF.Core.Dataset (309ms)\n✔ [42/122] Built LeanRDF.Xsd.Value (270ms)\n✔ [44/122] Built LeanRDF.Semantics.Interpretation (282ms)\n✔ [46/122] Built LeanRDF.Entailment.Derivation (196ms)\n✔ [48/122] Built LeanRDF.Entailment.Rules (264ms)\n✔ [50/122] Built LeanRDF.Parse.NQuads.Serializer (195ms)\n✔ [52/122] Built LeanRDF.Xsd.Compare (331ms)\n✔ [54/122] Built LeanRDF.Semantics.RDFS (322ms)\n✔ [56/122] Built LeanRDF.Cert.Match (449ms)\n✔ [58/122] Built LeanRDF.Canon.Hash (434ms)\n✔ [60/122] Built LeanRDF.Canon.Label (406ms)\n✔ [62/122] Built LeanRDF.Semantics.Entails (108ms)\n✔ [64/122] Built LeanRDF.Parse.NTriples.Parser (720ms)\n✔ [66/122] Built LeanRDF.Canon.Rdfc (250ms)\n✔ [68/122] Built LeanRDF.Entailment.Soundness (335ms)\n✔ [70/122] Built LeanRDF.Parse.NQuads.Parser (94ms)\n✔ [72/122] Built LeanRDF.Canon.Digest (111ms)\n✔ [74/122] Built LeanRDF.Entailment.Clash (174ms)\n✔ [76/122] Built LeanRDF.Model.Presentation (551ms)\n✔ [78/122] Built LeanRDF.Cert.Envelope (192ms)\n✔ [80/122] Built LeanRDF.Model.Interp (240ms)\n✔ [82/122] Built LeanRDF.Cert.Check (306ms)\n✔ [84/122] Built LeanRDF.Cert.Clash (158ms)\n✔ [86/122] Built LeanRDF.Cert.Json (189ms)\n✔ [88/122] Built LeanRDF.Model.Lift (289ms)\n✔ [90/122] Built LeanRDF.Parse.Turtle.Parser (918ms)\n✔ [92/122] Built LeanRDF.Cert.Datalog (126ms)\n✔ [94/122] Built LeanRDF.Parse.TriG.Parser (92ms)\n✔ [96/122] Built LeanRDF.Model.Index (598ms)\n✔ [98/122] Built LeanRDF.Model.Check (287ms)\n✔ [100/122] Built LeanRDF.Model.Json (191ms)\n✔ [102/122] Built LeanRDF.Model.Canonical (232ms)\n✔ [104/122] Built LeanRDF (89ms)\n✔ [106/122] Built LeanRDFShacl.Vocab (127ms)\n✔ [108/122] Built LeanRDFShacl.Path (433ms)\n✔ [110/122] Built LeanRDFShacl.Shapes (325ms)\n✔ [112/122] Built LeanRDFShacl.Semantics (139ms)\n✔ [114/122] Built LeanRDFShacl.Index (495ms)\n✔ [116/122] Built LeanRDFShacl.Validate (214ms)\n⚠ [118/122] Built LeanRDFShacl.Correct (784ms)\nwarning: LeanRDFShacl/Correct.lean:54:54: Variable name `m` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _m\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: LeanRDFShacl/Correct.lean:60:9: Variable name `m` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _m\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n⚠ [120/122] Built Challenge (90ms)\nwarning: Challenge.lean:13:8: declaration uses `sorry`\nwarning: Challenge.lean:16:8: declaration uses `sorry`\nBuild completed successfully (122 jobs).\n",
+     "stderr": ""}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

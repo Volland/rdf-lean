@@ -1,0 +1,45 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output":
+    {"proc":
+     {"stdout": "Skipped exported but unpermitted axioms [\"sorryAx\"]\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "lean4lean":
+   {"output":
+    {"proc": {"stdout": "checked 90895 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 90898 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 90898 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 0.8s (index 0.0s), check 10.9s\ncon-leche: stats: check pool: 10.967s wall, 12 workers, 90898 records, busy 128.466s (97.6%); tail 0.275s after the last start, 12 busy then, 0.358s worker-time in it (10.8%)\ncon-leche: stats: slowest checks: 1.354s theorem _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10 (#82799); 0.580s theorem _private.Init.Data.Array.Extract.0.Array.extract_extract._proof_1_1 (#34713); 0.529s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_append._proof_1 (#88189); 0.498s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#34721); 0.368s theorem _private.Init.Data.BitVec.Lemmas.0.BitVec.getMsbD_extractLsb._proof_1_3 (#78963)\ncon-leche: stats: peak RSS 0.80 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "check_axioms":
+  {"output":
+   {"str": {"string": "Uses axioms: propext, Classical.choice, Quot.sound"}},
+   "judgement": "success"},
+  "build_report":
+  {"output":
+   {"proc":
+    {"stdout": "",
+     "stderr":
+     "✔ [105/141] Built LeanRDFSparql.Hash (86ms)\n✔ [107/141] Built LeanRDFSparql.Mapping (481ms)\n✔ [109/141] Built LeanRDFSparql.Algebra (1.1s)\n✔ [111/141] Built LeanRDFSparql.Expr (584ms)\n✔ [113/141] Built LeanRDFSparql.Order (224ms)\n✔ [115/141] Built LeanRDFSparql.Ops (231ms)\n✔ [117/141] Built LeanRDFSparql.Index (174ms)\n✔ [119/141] Built LeanRDFSparql.PathEval (334ms)\n✔ [121/141] Built LeanRDFSparql.Eval (204ms)\n✔ [123/141] Built LeanRDFSparql.Semantics (119ms)\n⚠ [125/141] Built LeanRDFSparql.BgpCorrect (309ms)\nwarning: LeanRDFSparql/BgpCorrect.lean:55:10: This simp argument is unused:\n  hs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, ho, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:55:14: This simp argument is unused:\n  hp\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hs, ho, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:55:18: This simp argument is unused:\n  ho\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hs, hp, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:331:25: This simp argument is unused:\n  μ\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Mapping.find?_restrict]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [127/141] Built LeanRDFSparql.Correct (358ms)\nwarning: LeanRDFSparql/Correct.lean:71:22: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, hf, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/Correct.lean:80:12: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/Correct.lean:85:12: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, this, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/Correct.lean:93:12: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/Correct.lean:95:12: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, this, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [129/141] Built LeanRDFSparql.Query (130ms)\nwarning: LeanRDFSparql/Query.lean:81:9: Variable name `a` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _a\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: LeanRDFSparql/Query.lean:81:11: Variable name `b` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _b\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n✔ [131/141] Built LeanRDFSparql.Syntax (397ms)\n✔ [133/141] Built LeanRDFSparql.Parser (1.5s)\n✔ [135/141] Built LeanRDFSparql.Results (441ms)\n✔ [137/141] Built LeanRDFSparql.Run (176ms)\n✔ [139/141] Built LeanRDFSparql (91ms)\n"}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

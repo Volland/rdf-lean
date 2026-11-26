@@ -1,0 +1,59 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "lean4lean":
+   {"output": {"proc": {"stdout": "checked 6914 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 6917 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 6917 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 0.0s (index 0.0s), check 0.7s\ncon-leche: stats: check pool: 0.792s wall, 12 workers, 6918 records, busy 8.892s (93.4%); tail 0.057s after the last start, 12 busy then, 0.086s worker-time in it (12.6%)\ncon-leche: stats: slowest checks: 0.427s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#3971); 0.265s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_4 (#3974); 0.240s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_1 (#3555); 0.208s theorem _private.Init.Data.Array.Extract.0.Array.extract_extract._proof_1_1 (#3960); 0.182s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_3 (#3973)\ncon-leche: stats: peak RSS 0.16 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "export_solution":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "export_challenge":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "config":
+  {"theorem_names":
+   ["LeanRDF.Derives.Challenge.owl_sound",
+    "LeanRDF.Derives.Challenge.el_sound",
+    "LeanRDF.Cert.Challenge.checkClash_sound_owl"],
+   "solution_module": "Solution",
+   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+   "definition_names": null,
+   "challenge_module": "Challenge"},
+  "compare_statements":
+  {"output": {"str": {"string": ""}}, "judgement": "success"},
+  "check_axioms": {"output": {"str": {"string": ""}}, "judgement": "success"},
+  "build_solution":
+  {"output":
+   {"proc":
+    {"stdout":
+     "✔ [124/126] Built Solution (133ms)\nBuild completed successfully (126 jobs).\n",
+     "stderr": ""}},
+   "judgement": "success"},
+  "build_challenge":
+  {"output":
+   {"proc":
+    {"stdout":
+     "✔ [6/126] Built LeanRDF.Parse.Turtle.Iri (487ms)\n✔ [8/126] Built LeanRDF.Core.Index (692ms)\n✔ [10/126] Built LeanRDF.Core.Term (863ms)\n✔ [12/126] Built LeanRDF.Parse.NTriples.Chars (806ms)\n✔ [14/126] Built LeanRDF.Text.Hash (808ms)\n✔ [16/126] Built LeanRDF.Canon.Sha256 (792ms)\n✔ [18/126] Built LeanRDF.Core.Triple (214ms)\n✔ [20/126] Built LeanRDF.Xsd.Lexical (1.0s)\n✔ [22/126] Built LeanRDF.Core.Vocab (235ms)\n✔ [24/126] Built LeanRDF.Text.Regex (1.3s)\n✔ [26/126] Built LeanRDF.Core.Literal (214ms)\n✔ [28/126] Built LeanRDF.Core.Graph (276ms)\n✔ [30/126] Built LeanRDF.Semantics.Axioms (205ms)\n✔ [32/126] Built LeanRDF.Xsd.DateTime (404ms)\n✔ [34/126] Built LeanRDF.Core.Iso (157ms)\n✔ [36/126] Built LeanRDF.Parse.NTriples.Serializer (299ms)\n✔ [38/126] Built LeanRDF.Entailment.Rule (563ms)\n✔ [40/126] Built LeanRDF.Core.Dataset (434ms)\n✔ [42/126] Built LeanRDF.Semantics.Interpretation (483ms)\n✔ [44/126] Built LeanRDF.Xsd.Value (538ms)\n✔ [46/126] Built LeanRDF.Entailment.Derivation (396ms)\n✔ [48/126] Built LeanRDF.Parse.NQuads.Serializer (370ms)\n✔ [50/126] Built LeanRDF.Entailment.Rules (536ms)\n✔ [52/126] Built LeanRDF.Semantics.RDFS (463ms)\n✔ [54/126] Built LeanRDF.Cert.Match (597ms)\n✔ [56/126] Built LeanRDF.Xsd.Compare (393ms)\n✔ [58/126] Built LeanRDF.Canon.Label (550ms)\n✔ [60/126] Built LeanRDF.Canon.Hash (617ms)\n✔ [62/126] Built LeanRDF.Semantics.Entails (122ms)\n✔ [64/126] Built LeanRDF.Canon.Rdfc (260ms)\n✔ [66/126] Built LeanRDF.Parse.NTriples.Parser (974ms)\n✔ [68/126] Built LeanRDF.Canon.Digest (119ms)\n✔ [70/126] Built LeanRDF.Entailment.Soundness (375ms)\n✔ [72/126] Built LeanRDF.Parse.NQuads.Parser (149ms)\n✔ [74/126] Built LeanRDF.Entailment.Clash (198ms)\n✔ [76/126] Built LeanRDF.Cert.Envelope (264ms)\n✔ [78/126] Built LeanRDF.Model.Presentation (617ms)\n✔ [80/126] Built LeanRDF.Model.Interp (294ms)\n✔ [82/126] Built LeanRDF.Cert.Check (365ms)\n✔ [84/126] Built LeanRDF.Cert.Clash (184ms)\n✔ [86/126] Built LeanRDF.Cert.Json (214ms)\n✔ [88/126] Built LeanRDF.Model.Lift (347ms)\n✔ [90/126] Built LeanRDF.Cert.Datalog (142ms)\n✔ [92/126] Built LeanRDF.Parse.Turtle.Parser (1.1s)\n✔ [94/126] Built LeanRDF.Parse.TriG.Parser (129ms)\n✔ [96/126] Built LeanRDF.Model.Index (685ms)\n✔ [98/126] Built LeanRDF.Model.Check (315ms)\n✔ [100/126] Built LeanRDF.Model.Json (219ms)\n✔ [102/126] Built LeanRDF.Model.Canonical (298ms)\n✔ [104/126] Built LeanRDF (144ms)\n✔ [106/126] Built LeanRDFOwl.Vocab (682ms)\n✔ [108/126] Built LeanRDFOwl.Lists (740ms)\n✔ [110/126] Built LeanRDFOwl.Semantics (315ms)\n✔ [112/126] Built LeanRDFOwl.Clash (205ms)\n✔ [114/126] Built LeanRDFOwl.Rules (275ms)\n✔ [116/126] Built LeanRDFOwl.EL (255ms)\n✔ [118/126] Built LeanRDFOwl.Soundness (2.5s)\n✔ [120/126] Built LeanRDFOwl.ELSoundness (1.3s)\n✔ [122/126] Built LeanRDFOwl.ClashSoundness (634ms)\n⚠ [124/126] Built Challenge (149ms)\nwarning: Challenge.lean:15:8: declaration uses `sorry`\nwarning: Challenge.lean:28:8: declaration uses `sorry`\nwarning: Challenge.lean:39:8: declaration uses `sorry`\nBuild completed successfully (126 jobs).\n",
+     "stderr": ""}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

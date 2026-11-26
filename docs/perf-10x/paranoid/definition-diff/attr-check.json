@@ -1,0 +1,439 @@
+{
+ "LeanRDF.Cert.checkQuery_sound": {
+  "Eq": "unchanged",
+  "Except": "unchanged",
+  "Except.ok": "unchanged",
+  "LeanRDF.Cert.Certificate": "unchanged",
+  "LeanRDF.Cert.checkQuery": {
+   "differ": [
+    "LeanRDF.Cert.checkQuery",
+    "LeanRDF.Graph",
+    "LeanRDF.Graph.toList"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.Cert.Certificate.muFast",
+    "LeanRDF.Index.assocMap",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted"
+   ],
+   "base_only_LeanRDF": [
+    "LeanRDF.Cert.Certificate.mu",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Graph": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Graph.RDFSEntails": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.RDFS.rdfsRules": "unchanged",
+  "String": "unchanged",
+  "Unit": "unchanged",
+  "Unit.unit": "unchanged"
+ },
+ "LeanRDF.Canon.canonical_iso": {
+  "LeanRDF.Canon.Labeling": "unchanged",
+  "LeanRDF.Canon.canonicalize": {
+   "differ": [
+    "LeanRDF.Canon.canonicalize",
+    "LeanRDF.Dataset",
+    "LeanRDF.Dataset.toList",
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.SwapMap",
+    "LeanRDF.SwapMap.apply",
+    "LeanRDF.SwapMap.bwd",
+    "LeanRDF.SwapMap.fwd",
+    "LeanRDF.SwapMap.mk",
+    "LeanRDF.SwapMap.ofList",
+    "LeanRDF.SwapMap.push",
+    "LeanRDF.SwapMap.unapply",
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk'",
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk._proof_1",
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.sorted"
+   ],
+   "base_only_LeanRDF": [
+    "LeanRDF.Canon.Labeling.rename",
+    "LeanRDF.applySwaps",
+    "LeanRDF.swapB",
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.quads"
+   ]
+  },
+  "LeanRDF.Dataset": {
+   "differ": [
+    "LeanRDF.Dataset"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdQuad",
+    "LeanRDF.instOrdQuad.ord",
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk"
+   ]
+  },
+  "LeanRDF.Dataset.Iso": {
+   "differ": [
+    "LeanRDF.Dataset"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdQuad",
+    "LeanRDF.instOrdQuad.ord",
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk"
+   ]
+  }
+ },
+ "LeanRDF.Model.checkCountermodel_sound_rdfs": {
+  "Eq": "unchanged",
+  "Except": "unchanged",
+  "Except.ok": "unchanged",
+  "LeanRDF.Graph": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Graph.RDFSEntails": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Model.CRegime.rdfs": "unchanged",
+  "LeanRDF.Model.Presentation": "unchanged",
+  "LeanRDF.Model.checkCountermodel": {
+   "differ": [
+    "LeanRDF.Graph",
+    "LeanRDF.Graph.toList",
+    "LeanRDF.Model.checkCountermodel",
+    "LeanRDF.Model.countermodelFailure"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.Index.assocMap",
+    "LeanRDF.Index.groupBy",
+    "LeanRDF.Model.Presentation.Idx",
+    "LeanRDF.Model.Presentation.Idx.E",
+    "LeanRDF.Model.Presentation.Idx.assign",
+    "LeanRDF.Model.Presentation.Idx.assignSort",
+    "LeanRDF.Model.Presentation.Idx.byP",
+    "LeanRDF.Model.Presentation.Idx.byPO",
+    "LeanRDF.Model.Presentation.Idx.byPS",
+    "LeanRDF.Model.Presentation.Idx.ext",
+    "LeanRDF.Model.Presentation.Idx.iris",
+    "LeanRDF.Model.Presentation.Idx.mk",
+    "LeanRDF.Model.Presentation.Idx.ovSorts",
+    "LeanRDF.Model.Presentation.Idx.overrides",
+    "LeanRDF.Model.Presentation.Idx.withP",
+    "LeanRDF.Model.Presentation.Idx.withPO",
+    "LeanRDF.Model.Presentation.Idx.withPS",
+    "LeanRDF.Model.Presentation.allSorts",
+    "LeanRDF.Model.Presentation.firstAssignment",
+    "LeanRDF.Model.Presentation.firstAssignment._f",
+    "LeanRDF.Model.Presentation.firstAssignment.match_1",
+    "LeanRDF.Model.Presentation.graphBNodesX",
+    "LeanRDF.Model.Presentation.holdsIX",
+    "LeanRDF.Model.Presentation.index",
+    "LeanRDF.Model.Presentation.iriIdxX",
+    "LeanRDF.Model.Presentation.iriIdxX.match_1",
+    "LeanRDF.Model.Presentation.rdfChecksX",
+    "LeanRDF.Model.Presentation.rdfsChecksX",
+    "LeanRDF.Model.Presentation.sHoldsX",
+    "LeanRDF.Model.Presentation.sIX",
+    "LeanRDF.Model.Presentation.sdenX",
+    "LeanRDF.Model.Presentation.sdenX._f",
+    "LeanRDF.Model.Presentation.sdenX.match_1",
+    "LeanRDF.Model.Presentation.sdenX.match_3",
+    "LeanRDF.Model.Presentation.sortOfLitX",
+    "LeanRDF.Model.Presentation.wfChecksX",
+    "LeanRDF.Model.countermodelFailureSpec.match_1",
+    "LeanRDF.Model.countermodelFailureSpec.match_3",
+    "LeanRDF.Model.countermodelFailureSpec.match_5",
+    "LeanRDF.Model.countermodelFailureSpec.match_7",
+    "LeanRDF.Model.dedupX",
+    "LeanRDF.Model.showCount",
+    "LeanRDF.Model.showTerm",
+    "LeanRDF.Model.termDepthLE",
+    "LeanRDF.Model.termDepthLE._f",
+    "LeanRDF.Model.termDepthLE.match_1",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted"
+   ],
+   "base_only_LeanRDF": [
+    "LeanRDF.Model.Presentation.E",
+    "LeanRDF.Model.Presentation.HoldsI",
+    "LeanRDF.Model.Presentation.IS",
+    "LeanRDF.Model.Presentation.LitSortsUsed",
+    "LeanRDF.Model.Presentation.assignSort",
+    "LeanRDF.Model.Presentation.assignments",
+    "LeanRDF.Model.Presentation.assignments._f",
+    "LeanRDF.Model.Presentation.assignments.match_1",
+    "LeanRDF.Model.Presentation.graphBNodes",
+    "LeanRDF.Model.Presentation.instDecidableE",
+    "LeanRDF.Model.Presentation.instDecidableE._proof_1",
+    "LeanRDF.Model.Presentation.instDecidableHoldsI",
+    "LeanRDF.Model.Presentation.instDecidableLitSortsUsed",
+    "LeanRDF.Model.Presentation.instDecidableLitSortsUsed._proof_1",
+    "LeanRDF.Model.Presentation.iriIdx",
+    "LeanRDF.Model.Presentation.iriIdx.match_1",
+    "LeanRDF.Model.Presentation.rdfChecks",
+    "LeanRDF.Model.Presentation.rdfsChecks",
+    "LeanRDF.Model.Presentation.sHolds",
+    "LeanRDF.Model.Presentation.sI",
+    "LeanRDF.Model.Presentation.sden",
+    "LeanRDF.Model.Presentation.sden._f",
+    "LeanRDF.Model.Presentation.sden.match_1",
+    "LeanRDF.Model.Presentation.sden.match_3",
+    "LeanRDF.Model.Presentation.searchSize",
+    "LeanRDF.Model.Presentation.wfChecks",
+    "LeanRDF.Model.countermodelFailure.match_1",
+    "LeanRDF.Model.countermodelFailure.match_3",
+    "LeanRDF.Model.countermodelFailure.match_5",
+    "LeanRDF.Model.countermodelFailure.match_7",
+    "LeanRDF.Model.dedup",
+    "LeanRDF.Model.dedup._f",
+    "LeanRDF.Model.dedup.match_1",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.triples"
+   ]
+  },
+  "Nat": "unchanged",
+  "Not": "unchanged",
+  "String": "unchanged",
+  "Unit": "unchanged",
+  "Unit.unit": "unchanged"
+ },
+ "LeanRDF.Derives.owl_sound": {
+  "LeanRDF.Derives": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Graph": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Graph.OWLEntails": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Graph.singleton": {
+   "differ": [
+    "LeanRDF.Graph",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk._proof_1"
+   ],
+   "base_only_LeanRDF": []
+  },
+  "LeanRDF.Owl.owlRules": "unchanged",
+  "LeanRDF.Triple": "unchanged"
+ },
+ "LeanRDF.Cert.checkClash_sound_owl": {
+  "And": "unchanged",
+  "Eq": "unchanged",
+  "Except": "unchanged",
+  "Except.ok": "unchanged",
+  "Exists": "unchanged",
+  "LeanRDF.Cert.Certificate": "unchanged",
+  "LeanRDF.Cert.checkClash": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.DInterp": "unchanged",
+  "LeanRDF.DInterp.IsOWL": "unchanged",
+  "LeanRDF.DInterp.toSimpleInterp": "unchanged",
+  "LeanRDF.Graph": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Owl.owlClashRules": "unchanged",
+  "LeanRDF.Owl.owlRules": "unchanged",
+  "LeanRDF.SimpleInterp.Satisfies": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "Not": "unchanged",
+  "String": "unchanged",
+  "Unit": "unchanged",
+  "Unit.unit": "unchanged"
+ },
+ "LeanRDF.Check.checkRegime_sound": {
+  "Eq": "unchanged",
+  "Except": "unchanged",
+  "Except.ok": "unchanged",
+  "LeanRDF.Cert.Certificate": "unchanged",
+  "LeanRDF.Check.Regime": "unchanged",
+  "LeanRDF.Check.Regime.Entails": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Check.checkRegime": {
+   "differ": [
+    "LeanRDF.Cert.checkQuery",
+    "LeanRDF.Graph",
+    "LeanRDF.Graph.toList"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.Cert.Certificate.muFast",
+    "LeanRDF.Index.assocMap",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted"
+   ],
+   "base_only_LeanRDF": [
+    "LeanRDF.Cert.Certificate.mu",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Graph": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "String": "unchanged",
+  "Unit": "unchanged",
+  "Unit.unit": "unchanged"
+ }
+}

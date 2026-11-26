@@ -1,0 +1,1237 @@
+{
+ "LeanRDF.Cert.checkQuery_sound": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1775,
+   1839
+  ],
+  "only_in_base": [
+   "Array.any",
+   "Array.anyM",
+   "Array.anyM.loop",
+   "Array.anyM.loop._proof_1",
+   "Array.contains",
+   "LeanRDF.Cert.Certificate.mu",
+   "Nat.sub_succ_lt_self",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+  ],
+  "only_in_head": [
+   "Bool.false_or",
+   "Bool.of_not_eq_true",
+   "EmptyCollection",
+   "EmptyCollection.emptyCollection",
+   "EmptyCollection.mk",
+   "Eq.mpr",
+   "Exists.casesOn",
+   "Exists.rec",
+   "LeanRDF.Cert.Certificate.muFast",
+   "LeanRDF.Index.assocMap",
+   "List.foldl",
+   "List.foldl._f",
+   "List.foldl.match_1",
+   "List.forIn'",
+   "List.forIn'._proof_1",
+   "List.forIn'._proof_2",
+   "List.forIn'._proof_3",
+   "List.forIn'.loop",
+   "List.forIn'.loop._f",
+   "List.forIn'.loop.match_1",
+   "List.forIn'.loop.match_3",
+   "List.forIn'.loop.match_5",
+   "List.instForIn'InferInstanceMembershipOfMonad",
+   "Pi.instInhabited",
+   "Std.DHashMap.Const.get",
+   "Std.DHashMap.Const.get!",
+   "Std.DHashMap.Const.get?",
+   "Std.DHashMap.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Const.unitOfList",
+   "Std.DHashMap.Internal.AssocList.get",
+   "Std.DHashMap.Internal.AssocList.get!",
+   "Std.DHashMap.Internal.AssocList.get!._f",
+   "Std.DHashMap.Internal.AssocList.get._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get!",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get?",
+   "Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Raw.emptyWithCapacity",
+   "Std.DHashMap.emptyWithCapacity",
+   "Std.DHashMap.insertIfNew",
+   "Std.DHashMap.instEmptyCollection",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.get",
+   "Std.HashMap.get!",
+   "Std.HashMap.get?",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashMap.instGetElem?Mem",
+   "Std.HashMap.unitOfList",
+   "Std.HashSet.ofList",
+   "String.Internal.append",
+   "String.instInhabited",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.contains.eq_2",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_2",
+   "mkPanicMessageWithDecl",
+   "panic",
+   "panicCore",
+   "panicWithPosWithDecl"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Cert.checkQuery",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   5979,
+   6032
+  ],
+  "full_closure_differing_count": 3
+ },
+ "LeanRDF.Cert.checkQuery_sound_rdf": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1717,
+   1781
+  ],
+  "only_in_base": [
+   "Array.any",
+   "Array.anyM",
+   "Array.anyM.loop",
+   "Array.anyM.loop._proof_1",
+   "Array.contains",
+   "LeanRDF.Cert.Certificate.mu",
+   "Nat.sub_succ_lt_self",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+  ],
+  "only_in_head": [
+   "Bool.false_or",
+   "Bool.of_not_eq_true",
+   "EmptyCollection",
+   "EmptyCollection.emptyCollection",
+   "EmptyCollection.mk",
+   "Eq.mpr",
+   "Exists.casesOn",
+   "Exists.rec",
+   "LeanRDF.Cert.Certificate.muFast",
+   "LeanRDF.Index.assocMap",
+   "List.foldl",
+   "List.foldl._f",
+   "List.foldl.match_1",
+   "List.forIn'",
+   "List.forIn'._proof_1",
+   "List.forIn'._proof_2",
+   "List.forIn'._proof_3",
+   "List.forIn'.loop",
+   "List.forIn'.loop._f",
+   "List.forIn'.loop.match_1",
+   "List.forIn'.loop.match_3",
+   "List.forIn'.loop.match_5",
+   "List.instForIn'InferInstanceMembershipOfMonad",
+   "Pi.instInhabited",
+   "Std.DHashMap.Const.get",
+   "Std.DHashMap.Const.get!",
+   "Std.DHashMap.Const.get?",
+   "Std.DHashMap.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Const.unitOfList",
+   "Std.DHashMap.Internal.AssocList.get",
+   "Std.DHashMap.Internal.AssocList.get!",
+   "Std.DHashMap.Internal.AssocList.get!._f",
+   "Std.DHashMap.Internal.AssocList.get._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get!",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get?",
+   "Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Raw.emptyWithCapacity",
+   "Std.DHashMap.emptyWithCapacity",
+   "Std.DHashMap.insertIfNew",
+   "Std.DHashMap.instEmptyCollection",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.get",
+   "Std.HashMap.get!",
+   "Std.HashMap.get?",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashMap.instGetElem?Mem",
+   "Std.HashMap.unitOfList",
+   "Std.HashSet.ofList",
+   "String.Internal.append",
+   "String.instInhabited",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.contains.eq_2",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_2",
+   "mkPanicMessageWithDecl",
+   "panic",
+   "panicCore",
+   "panicWithPosWithDecl"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Cert.checkQuery",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   5921,
+   5974
+  ],
+  "full_closure_differing_count": 3
+ },
+ "LeanRDF.Cert.checkQuery_sound_simple": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1629,
+   1693
+  ],
+  "only_in_base": [
+   "Array.any",
+   "Array.anyM",
+   "Array.anyM.loop",
+   "Array.anyM.loop._proof_1",
+   "Array.contains",
+   "LeanRDF.Cert.Certificate.mu",
+   "Nat.sub_succ_lt_self",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+  ],
+  "only_in_head": [
+   "Bool.false_or",
+   "Bool.of_not_eq_true",
+   "EmptyCollection",
+   "EmptyCollection.emptyCollection",
+   "EmptyCollection.mk",
+   "Eq.mpr",
+   "Exists.casesOn",
+   "Exists.rec",
+   "LeanRDF.Cert.Certificate.muFast",
+   "LeanRDF.Index.assocMap",
+   "List.foldl",
+   "List.foldl._f",
+   "List.foldl.match_1",
+   "List.forIn'",
+   "List.forIn'._proof_1",
+   "List.forIn'._proof_2",
+   "List.forIn'._proof_3",
+   "List.forIn'.loop",
+   "List.forIn'.loop._f",
+   "List.forIn'.loop.match_1",
+   "List.forIn'.loop.match_3",
+   "List.forIn'.loop.match_5",
+   "List.instForIn'InferInstanceMembershipOfMonad",
+   "Pi.instInhabited",
+   "Std.DHashMap.Const.get",
+   "Std.DHashMap.Const.get!",
+   "Std.DHashMap.Const.get?",
+   "Std.DHashMap.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Const.unitOfList",
+   "Std.DHashMap.Internal.AssocList.get",
+   "Std.DHashMap.Internal.AssocList.get!",
+   "Std.DHashMap.Internal.AssocList.get!._f",
+   "Std.DHashMap.Internal.AssocList.get._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get!",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get?",
+   "Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Raw.emptyWithCapacity",
+   "Std.DHashMap.emptyWithCapacity",
+   "Std.DHashMap.insertIfNew",
+   "Std.DHashMap.instEmptyCollection",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.get",
+   "Std.HashMap.get!",
+   "Std.HashMap.get?",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashMap.instGetElem?Mem",
+   "Std.HashMap.unitOfList",
+   "Std.HashSet.ofList",
+   "String.Internal.append",
+   "String.instInhabited",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.contains.eq_2",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_2",
+   "mkPanicMessageWithDecl",
+   "panic",
+   "panicCore",
+   "panicWithPosWithDecl"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Cert.checkQuery",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   5716,
+   5769
+  ],
+  "full_closure_differing_count": 3
+ },
+ "LeanRDF.Canon.canonical_iso": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   972,
+   996
+  ],
+  "only_in_base": [
+   "LeanRDF.Canon.Labeling.rename",
+   "LeanRDF.applySwaps",
+   "LeanRDF.swapB"
+  ],
+  "only_in_head": [
+   "LeanRDF.SwapMap",
+   "LeanRDF.SwapMap.apply",
+   "LeanRDF.SwapMap.bwd",
+   "LeanRDF.SwapMap.fwd",
+   "LeanRDF.SwapMap.mk",
+   "LeanRDF.SwapMap.ofList",
+   "LeanRDF.SwapMap.push",
+   "LeanRDF.SwapMap.unapply",
+   "Std.DHashMap.Const.getD",
+   "Std.DHashMap.Internal.AssocList.getD",
+   "Std.DHashMap.Internal.AssocList.getD._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.getD",
+   "Std.DHashMap.insert",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.getD",
+   "Std.HashMap.insert",
+   "Std.HashMap.instEmptyCollection",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk'",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk._proof_1",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insert._proof_2",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Canon.canonicalize",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.ofList",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.renameBNodes",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk",
+    "kind": "def",
+    "differs_in": [
+     "kind ctor->def",
+     "value",
+     "metadata"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   2849,
+   2874
+  ],
+  "full_closure_differing_count": 4
+ },
+ "LeanRDF.Model.checkCountermodel_sound_rdfs": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1816,
+   1889
+  ],
+  "only_in_base": [
+   "And.casesOn",
+   "Iff.mp",
+   "LeanRDF.Model.Presentation.E",
+   "LeanRDF.Model.Presentation.HoldsI",
+   "LeanRDF.Model.Presentation.IS",
+   "LeanRDF.Model.Presentation.LitSortsUsed",
+   "LeanRDF.Model.Presentation.assignSort",
+   "LeanRDF.Model.Presentation.assignments",
+   "LeanRDF.Model.Presentation.assignments._f",
+   "LeanRDF.Model.Presentation.assignments.match_1",
+   "LeanRDF.Model.Presentation.graphBNodes",
+   "LeanRDF.Model.Presentation.instDecidableE",
+   "LeanRDF.Model.Presentation.instDecidableE._proof_1",
+   "LeanRDF.Model.Presentation.instDecidableHoldsI",
+   "LeanRDF.Model.Presentation.instDecidableLitSortsUsed",
+   "LeanRDF.Model.Presentation.instDecidableLitSortsUsed._proof_1",
+   "LeanRDF.Model.Presentation.iriIdx",
+   "LeanRDF.Model.Presentation.iriIdx.match_1",
+   "LeanRDF.Model.Presentation.rdfChecks",
+   "LeanRDF.Model.Presentation.rdfsChecks",
+   "LeanRDF.Model.Presentation.sHolds",
+   "LeanRDF.Model.Presentation.sI",
+   "LeanRDF.Model.Presentation.sden",
+   "LeanRDF.Model.Presentation.sden._f",
+   "LeanRDF.Model.Presentation.sden.match_1",
+   "LeanRDF.Model.Presentation.sden.match_3",
+   "LeanRDF.Model.Presentation.searchSize",
+   "LeanRDF.Model.Presentation.wfChecks",
+   "LeanRDF.Model.countermodelFailure.match_1",
+   "LeanRDF.Model.countermodelFailure.match_3",
+   "LeanRDF.Model.countermodelFailure.match_5",
+   "LeanRDF.Model.countermodelFailure.match_7",
+   "LeanRDF.Model.dedup",
+   "LeanRDF.Model.dedup._f",
+   "LeanRDF.Model.dedup.match_1",
+   "List.decidableBEx",
+   "List.decidableBEx._f",
+   "List.decidableBEx.match_1",
+   "List.decidableBEx.match_3",
+   "List.decidableBEx.match_5",
+   "List.decidableBEx.match_7",
+   "List.instDecidableMemOfLawfulBEq",
+   "List.instDecidableMemOfLawfulBEq._proof_1",
+   "Nat.decidableBallLT",
+   "Nat.decidableBallLT._f",
+   "Nat.decidableBallLT._proof_7",
+   "Nat.decidableBallLT._proof_8",
+   "Nat.decidableBallLT.match_1",
+   "Nat.decidableBallLT.match_3",
+   "Nat.decidableBallLT.match_5",
+   "Nat.lt_succ_iff_lt_or_eq",
+   "Nat.lt_succ_of_lt",
+   "Or.elim",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk",
+   "forall_prop_decidable",
+   "forall_prop_decidable._proof_1",
+   "instDecidableIff",
+   "instDecidableIff._proof_1",
+   "instLawfulBEq"
+  ],
+  "only_in_head": [
+   "Bool.false_or",
+   "Bool.of_not_eq_true",
+   "EmptyCollection",
+   "EmptyCollection.emptyCollection",
+   "EmptyCollection.mk",
+   "Eq.mpr",
+   "LeanRDF.Index.assocMap",
+   "LeanRDF.Index.groupBy",
+   "LeanRDF.Model.Presentation.Idx",
+   "LeanRDF.Model.Presentation.Idx.E",
+   "LeanRDF.Model.Presentation.Idx.assign",
+   "LeanRDF.Model.Presentation.Idx.assignSort",
+   "LeanRDF.Model.Presentation.Idx.byP",
+   "LeanRDF.Model.Presentation.Idx.byPO",
+   "LeanRDF.Model.Presentation.Idx.byPS",
+   "LeanRDF.Model.Presentation.Idx.ext",
+   "LeanRDF.Model.Presentation.Idx.iris",
+   "LeanRDF.Model.Presentation.Idx.mk",
+   "LeanRDF.Model.Presentation.Idx.ovSorts",
+   "LeanRDF.Model.Presentation.Idx.overrides",
+   "LeanRDF.Model.Presentation.Idx.withP",
+   "LeanRDF.Model.Presentation.Idx.withPO",
+   "LeanRDF.Model.Presentation.Idx.withPS",
+   "LeanRDF.Model.Presentation.allSorts",
+   "LeanRDF.Model.Presentation.firstAssignment",
+   "LeanRDF.Model.Presentation.firstAssignment._f",
+   "LeanRDF.Model.Presentation.firstAssignment.match_1",
+   "LeanRDF.Model.Presentation.graphBNodesX",
+   "LeanRDF.Model.Presentation.holdsIX",
+   "LeanRDF.Model.Presentation.index",
+   "LeanRDF.Model.Presentation.iriIdxX",
+   "LeanRDF.Model.Presentation.iriIdxX.match_1",
+   "LeanRDF.Model.Presentation.rdfChecksX",
+   "LeanRDF.Model.Presentation.rdfsChecksX",
+   "LeanRDF.Model.Presentation.sHoldsX",
+   "LeanRDF.Model.Presentation.sIX",
+   "LeanRDF.Model.Presentation.sdenX",
+   "LeanRDF.Model.Presentation.sdenX._f",
+   "LeanRDF.Model.Presentation.sdenX.match_1",
+   "LeanRDF.Model.Presentation.sdenX.match_3",
+   "LeanRDF.Model.Presentation.sortOfLitX",
+   "LeanRDF.Model.Presentation.wfChecksX",
+   "LeanRDF.Model.countermodelFailureSpec.match_1",
+   "LeanRDF.Model.countermodelFailureSpec.match_3",
+   "LeanRDF.Model.countermodelFailureSpec.match_5",
+   "LeanRDF.Model.countermodelFailureSpec.match_7",
+   "LeanRDF.Model.dedupX",
+   "LeanRDF.Model.showCount",
+   "LeanRDF.Model.showTerm",
+   "LeanRDF.Model.termDepthLE",
+   "LeanRDF.Model.termDepthLE._f",
+   "LeanRDF.Model.termDepthLE.match_1",
+   "List.findSome?",
+   "List.findSome?._f",
+   "List.findSome?.match_1",
+   "List.foldr",
+   "List.foldr._f",
+   "List.forIn'",
+   "List.forIn'._proof_1",
+   "List.forIn'._proof_2",
+   "List.forIn'._proof_3",
+   "List.forIn'.loop",
+   "List.forIn'.loop._f",
+   "List.forIn'.loop.match_1",
+   "List.forIn'.loop.match_3",
+   "List.forIn'.loop.match_5",
+   "List.instForIn'InferInstanceMembershipOfMonad",
+   "Std.DHashMap.Const.get",
+   "Std.DHashMap.Const.get!",
+   "Std.DHashMap.Const.get?",
+   "Std.DHashMap.Const.getD",
+   "Std.DHashMap.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Const.unitOfList",
+   "Std.DHashMap.Internal.AssocList.get",
+   "Std.DHashMap.Internal.AssocList.get!",
+   "Std.DHashMap.Internal.AssocList.get!._f",
+   "Std.DHashMap.Internal.AssocList.get._f",
+   "Std.DHashMap.Internal.AssocList.getD",
+   "Std.DHashMap.Internal.AssocList.getD._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get!",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get?",
+   "Std.DHashMap.Internal.Raw\u2080.Const.getD",
+   "Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Raw.emptyWithCapacity",
+   "Std.DHashMap.emptyWithCapacity",
+   "Std.DHashMap.insert",
+   "Std.DHashMap.insertIfNew",
+   "Std.DHashMap.instEmptyCollection",
+   "Std.HashMap.contains",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.get",
+   "Std.HashMap.get!",
+   "Std.HashMap.get?",
+   "Std.HashMap.getD",
+   "Std.HashMap.insert",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashMap.instGetElem?Mem",
+   "Std.HashMap.unitOfList",
+   "Std.HashSet.contains",
+   "Std.HashSet.emptyWithCapacity",
+   "Std.HashSet.insert",
+   "Std.HashSet.instEmptyCollection",
+   "Std.HashSet.ofList",
+   "String.Slice.Pos.nextn",
+   "String.Slice.Pos.nextn._f",
+   "String.Slice.take",
+   "String.Slice.toString",
+   "String.length",
+   "String.take",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.Init.Data.String.Basic.0.String.Slice.Pos.nextn.match_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insert._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.contains.eq_2",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_2",
+   "instHashableNat",
+   "instHashableProd",
+   "instHashableProd.match_1"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Model.checkCountermodel",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Model.countermodelFailure",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   6004,
+   6070
+  ],
+  "full_closure_differing_count": 4
+ },
+ "LeanRDF.Derives.owl_sound": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1386,
+   1475
+  ],
+  "only_in_base": [],
+  "only_in_head": [
+   "Array.foldrM",
+   "Array.foldrM.fold",
+   "Array.foldrM.fold._f",
+   "Array.isEqvAux.match_1",
+   "LeanRDF.instOrdTerm",
+   "LeanRDF.instOrdTerm.ord",
+   "LeanRDF.instOrdTriple",
+   "LeanRDF.instOrdTriple.ord",
+   "List.MergeSort.Internal.splitInTwo",
+   "List._sizeOf_1",
+   "List._sizeOf_inst",
+   "List.merge",
+   "List.merge._auto_1",
+   "List.merge._unary",
+   "List.mergeSort",
+   "List.mergeSort._auto_1",
+   "List.mergeSort._unary",
+   "List.reverse",
+   "List.reverseAux",
+   "List.reverseAux._f",
+   "List.reverseAux.match_1",
+   "List.splitAt",
+   "List.splitAt.go",
+   "List.splitAt.go._f",
+   "List.splitAt.go.match_1",
+   "Nat.hasNotBit",
+   "Nat.le_of_lt",
+   "Nat.lt_wfRel",
+   "Nat.lt_wfRel._proof_3",
+   "Nat.ne_of_beq_eq_false",
+   "Ord",
+   "Ord.compare",
+   "Ord.mk",
+   "Ordering",
+   "Ordering.casesOn",
+   "Ordering.ctorIdx",
+   "Ordering.eq",
+   "Ordering.gt",
+   "Ordering.lt",
+   "Ordering.rec",
+   "Ordering.then",
+   "Ordering.then._sparseCasesOn_1",
+   "Ordering.then.match_1",
+   "Prod.Lex",
+   "Prod.Lex.left",
+   "Prod.Lex.right",
+   "Prod.instWellFoundedRelation",
+   "Prod.lex",
+   "Prod.lex._proof_1",
+   "SizeOf",
+   "SizeOf.mk",
+   "SizeOf.sizeOf",
+   "Std.DHashMap.Internal.AssocList.foldrM",
+   "Std.DHashMap.Internal.AssocList.foldrM._f",
+   "Std.DHashMap.Raw.Internal.foldRev",
+   "Std.DHashMap.Raw.Internal.foldRevM",
+   "Std.DHashMap.Raw.keys",
+   "Std.DHashMap.keys",
+   "Std.HashMap.keys",
+   "Std.HashSet.toList",
+   "String.toRawSubstring",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.Init.Data.List.Sort.Basic.0.List.MergeSort.Internal.splitInTwo._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.MergeSort.Internal.splitInTwo._proof_4",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_2",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge.match_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_2",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_4",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_5",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort.match_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk._proof_1",
+   "default.sizeOf",
+   "default.sizeOf.match_1",
+   "instDecidableEqOrdering",
+   "instDecidableEqOrdering._proof_1",
+   "instDecidableEqOrdering._proof_2",
+   "instInhabitedOrdering",
+   "instInhabitedOrdering.default",
+   "instSizeOfDefault",
+   "measure",
+   "sizeOfWFRel"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.empty",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.insert",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.singleton",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk",
+    "kind": "def",
+    "differs_in": [
+     "kind ctor->def",
+     "value",
+     "metadata"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   5057,
+   5161
+  ],
+  "full_closure_differing_count": 2
+ },
+ "LeanRDF.Derives.el_sound": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1406,
+   1495
+  ],
+  "only_in_base": [],
+  "only_in_head": [
+   "Array.foldrM",
+   "Array.foldrM.fold",
+   "Array.foldrM.fold._f",
+   "Array.isEqvAux.match_1",
+   "LeanRDF.instOrdTerm",
+   "LeanRDF.instOrdTerm.ord",
+   "LeanRDF.instOrdTriple",
+   "LeanRDF.instOrdTriple.ord",
+   "List.MergeSort.Internal.splitInTwo",
+   "List._sizeOf_1",
+   "List._sizeOf_inst",
+   "List.merge",
+   "List.merge._auto_1",
+   "List.merge._unary",
+   "List.mergeSort",
+   "List.mergeSort._auto_1",
+   "List.mergeSort._unary",
+   "List.reverse",
+   "List.reverseAux",
+   "List.reverseAux._f",
+   "List.reverseAux.match_1",
+   "List.splitAt",
+   "List.splitAt.go",
+   "List.splitAt.go._f",
+   "List.splitAt.go.match_1",
+   "Nat.hasNotBit",
+   "Nat.le_of_lt",
+   "Nat.lt_wfRel",
+   "Nat.lt_wfRel._proof_3",
+   "Nat.ne_of_beq_eq_false",
+   "Ord",
+   "Ord.compare",
+   "Ord.mk",
+   "Ordering",
+   "Ordering.casesOn",
+   "Ordering.ctorIdx",
+   "Ordering.eq",
+   "Ordering.gt",
+   "Ordering.lt",
+   "Ordering.rec",
+   "Ordering.then",
+   "Ordering.then._sparseCasesOn_1",
+   "Ordering.then.match_1",
+   "Prod.Lex",
+   "Prod.Lex.left",
+   "Prod.Lex.right",
+   "Prod.instWellFoundedRelation",
+   "Prod.lex",
+   "Prod.lex._proof_1",
+   "SizeOf",
+   "SizeOf.mk",
+   "SizeOf.sizeOf",
+   "Std.DHashMap.Internal.AssocList.foldrM",
+   "Std.DHashMap.Internal.AssocList.foldrM._f",
+   "Std.DHashMap.Raw.Internal.foldRev",
+   "Std.DHashMap.Raw.Internal.foldRevM",
+   "Std.DHashMap.Raw.keys",
+   "Std.DHashMap.keys",
+   "Std.HashMap.keys",
+   "Std.HashSet.toList",
+   "String.toRawSubstring",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.Init.Data.List.Sort.Basic.0.List.MergeSort.Internal.splitInTwo._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.MergeSort.Internal.splitInTwo._proof_4",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_2",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge.match_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_2",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_4",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_5",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort.match_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk._proof_1",
+   "default.sizeOf",
+   "default.sizeOf.match_1",
+   "instDecidableEqOrdering",
+   "instDecidableEqOrdering._proof_1",
+   "instDecidableEqOrdering._proof_2",
+   "instInhabitedOrdering",
+   "instInhabitedOrdering.default",
+   "instSizeOfDefault",
+   "measure",
+   "sizeOfWFRel"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.empty",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.insert",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.singleton",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk",
+    "kind": "def",
+    "differs_in": [
+     "kind ctor->def",
+     "value",
+     "metadata"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   5077,
+   5181
+  ],
+  "full_closure_differing_count": 2
+ },
+ "LeanRDF.Cert.checkClash_sound_owl": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1826,
+   1900
+  ],
+  "only_in_base": [
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+  ],
+  "only_in_head": [
+   "Array.foldrM",
+   "Array.foldrM.fold",
+   "Array.foldrM.fold._f",
+   "Array.isEqvAux.match_1",
+   "LeanRDF.instOrdTerm",
+   "LeanRDF.instOrdTerm.ord",
+   "LeanRDF.instOrdTriple",
+   "LeanRDF.instOrdTriple.ord",
+   "List.MergeSort.Internal.splitInTwo",
+   "List._sizeOf_1",
+   "List._sizeOf_inst",
+   "List.merge",
+   "List.merge._auto_1",
+   "List.merge._unary",
+   "List.mergeSort",
+   "List.mergeSort._auto_1",
+   "List.mergeSort._unary",
+   "List.reverse",
+   "List.reverseAux",
+   "List.reverseAux._f",
+   "List.reverseAux.match_1",
+   "List.splitAt",
+   "List.splitAt.go",
+   "List.splitAt.go._f",
+   "List.splitAt.go.match_1",
+   "Nat.le_of_lt",
+   "Nat.lt_wfRel",
+   "Nat.lt_wfRel._proof_3",
+   "Ordering.then",
+   "Ordering.then._sparseCasesOn_1",
+   "Ordering.then.match_1",
+   "Prod.Lex",
+   "Prod.Lex.left",
+   "Prod.Lex.right",
+   "Prod.instWellFoundedRelation",
+   "Prod.lex",
+   "Prod.lex._proof_1",
+   "SizeOf",
+   "SizeOf.mk",
+   "SizeOf.sizeOf",
+   "Std.DHashMap.Internal.AssocList.foldrM",
+   "Std.DHashMap.Internal.AssocList.foldrM._f",
+   "Std.DHashMap.Raw.Internal.foldRev",
+   "Std.DHashMap.Raw.Internal.foldRevM",
+   "Std.DHashMap.Raw.keys",
+   "Std.DHashMap.keys",
+   "Std.HashMap.keys",
+   "Std.HashSet.toList",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.Init.Data.List.Sort.Basic.0.List.MergeSort.Internal.splitInTwo._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.MergeSort.Internal.splitInTwo._proof_4",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_2",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge._unary._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.merge.match_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_1",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_2",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_3",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_4",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort._unary._proof_5",
+   "_private.Init.Data.List.Sort.Basic.0.List.mergeSort.match_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "default.sizeOf",
+   "default.sizeOf.match_1",
+   "instDecidableEqOrdering",
+   "instDecidableEqOrdering._proof_1",
+   "instDecidableEqOrdering._proof_2",
+   "instInhabitedOrdering",
+   "instInhabitedOrdering.default",
+   "instSizeOfDefault",
+   "measure",
+   "sizeOfWFRel"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   6022,
+   6105
+  ],
+  "full_closure_differing_count": 1
+ },
+ "LeanRDF.Check.checkRegime_sound": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1935,
+   1999
+  ],
+  "only_in_base": [
+   "Array.any",
+   "Array.anyM",
+   "Array.anyM.loop",
+   "Array.anyM.loop._proof_1",
+   "Array.contains",
+   "LeanRDF.Cert.Certificate.mu",
+   "Nat.sub_succ_lt_self",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+  ],
+  "only_in_head": [
+   "Bool.false_or",
+   "Bool.of_not_eq_true",
+   "EmptyCollection",
+   "EmptyCollection.emptyCollection",
+   "EmptyCollection.mk",
+   "Eq.mpr",
+   "Exists.casesOn",
+   "Exists.rec",
+   "LeanRDF.Cert.Certificate.muFast",
+   "LeanRDF.Index.assocMap",
+   "List.foldl",
+   "List.foldl._f",
+   "List.foldl.match_1",
+   "List.forIn'",
+   "List.forIn'._proof_1",
+   "List.forIn'._proof_2",
+   "List.forIn'._proof_3",
+   "List.forIn'.loop",
+   "List.forIn'.loop._f",
+   "List.forIn'.loop.match_1",
+   "List.forIn'.loop.match_3",
+   "List.forIn'.loop.match_5",
+   "List.instForIn'InferInstanceMembershipOfMonad",
+   "Pi.instInhabited",
+   "Std.DHashMap.Const.get",
+   "Std.DHashMap.Const.get!",
+   "Std.DHashMap.Const.get?",
+   "Std.DHashMap.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Const.unitOfList",
+   "Std.DHashMap.Internal.AssocList.get",
+   "Std.DHashMap.Internal.AssocList.get!",
+   "Std.DHashMap.Internal.AssocList.get!._f",
+   "Std.DHashMap.Internal.AssocList.get._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get!",
+   "Std.DHashMap.Internal.Raw\u2080.Const.get?",
+   "Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit",
+   "Std.DHashMap.Raw.emptyWithCapacity",
+   "Std.DHashMap.emptyWithCapacity",
+   "Std.DHashMap.insertIfNew",
+   "Std.DHashMap.instEmptyCollection",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.get",
+   "Std.HashMap.get!",
+   "Std.HashMap.get?",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashMap.instGetElem?Mem",
+   "Std.HashMap.unitOfList",
+   "Std.HashSet.ofList",
+   "String.Internal.append",
+   "String.instInhabited",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.insertManyIfNewUnit._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.contains.eq_2",
+   "_private.Std.Data.DHashMap.Internal.AssocList.Basic.0.Std.DHashMap.Internal.AssocList.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get.match_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.insertManyIfNewUnit._proof_2",
+   "mkPanicMessageWithDecl",
+   "panic",
+   "panicCore",
+   "panicWithPosWithDecl"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Cert.checkQuery",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Check.queryWellFormed",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   6138,
+   6191
+  ],
+  "full_closure_differing_count": 3
+ }
+}
