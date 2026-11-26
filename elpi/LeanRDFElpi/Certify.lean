@@ -116,9 +116,16 @@ def prune (c : Closure) (goals : List Triple) : Except String (List Node × Std.
 /-- A certificate for `q` from a closure: the needed entries, renumbered, and the mapping. -/
 def certify (c : Closure) (q : Graph) : Except String Certificate := do
   -- the transitive pairs the query can match, when the saturation left them implicit
-  let c := c.withQueryPairs q
+  let c ← c.withQueryPairs q
   let qs := q.toList
-  let some μ := findMu c qs []
+  -- a query triple of a transitive predicate with both ends blank: first the facts and the
+  -- pairs above, then, if no instance is found, the pairs its ends can take
+  let (c, some μ) ← (match findMu c qs [] with
+      | some μ => pure (c, some μ)
+      | none => do
+        if !c.needsBlankPairs q then pure (c, none) else
+        let c ← c.withBlankPairs q
+        pure (c, findMu c qs []))
     | throw "no instance of the query is derived"
   let base : Certificate := { nodes := [], goals := [], mapping := μ.reverse }
   let goals ← (qs.map (·.instantiate base.mu)).mapM fun t =>

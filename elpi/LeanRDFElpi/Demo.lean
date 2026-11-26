@@ -191,7 +191,10 @@ def run (a : Args) : IO (UInt32 × String) := do
     if let some (code, report) ← clashVerdict g a closure out then throw (code, report)
     let cert ← match certify closure q with
       | .ok c => pure c
-      | .error e => throw (← refuteOrNotDerived g q a engine closure out e)
+      | .error e =>
+        if isBudgetExhausted e then
+          throw (1, out ++ s!"{e}.\nVerdict: NOT DERIVED (the search stopped at its budget). This is not a claim of non-entailment: completeness is not proven.")
+        throw (← refuteOrNotDerived g q a engine closure out e)
     let (code, why) := verdict g q cert rules
     if code != 0 then throw (code, out ++ why)
     for (b, t) in cert.mapping do

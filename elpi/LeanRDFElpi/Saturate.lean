@@ -110,6 +110,13 @@ structure TransPred where
   pre : Array Nat := #[]
   deriving Inhabited, Repr
 
+/-- The step budget of a whole saturation, by default. Every solution Elpi yields costs a step
+too, and so does each fact the Lean steps for transitive rules derive or find present, so the
+budget bounds the work of the search, and with it the time: about half a minute on a laptop at
+the rate of the slowest searches measured. Only rules that build new triple terms in their
+heads can make a saturation go on without end; this bounds them too. -/
+def defaultTotalFuel : Nat := 30000000
+
 /-- The closure as Elpi found it, premises before conclusions, with the intern table and the
 fact indexes, so that a triple's entry is found in constant time and saturation can continue
 with more facts. -/
@@ -123,6 +130,9 @@ structure Closure where
   round : Nat := 0
   /-- The Elpi steps the rounds took. -/
   steps : Nat := 0
+  /-- The step budget `steps` may reach: the saturation's, which the Lean steps after it (the
+  pairs of a query, of a countermodel) count against too. -/
+  totalFuel : Nat := defaultTotalFuel
   intern : Intern := {}
   index : FactIndex := {}
   /-- How the transitive rules are handled from the round after `round` on. -/
@@ -174,16 +184,16 @@ private def push (c : Closure) (k : Nat × Nat × Nat) (rule : String) (prem : A
   let e : Entry := { conclusion := c.intern.triple k, rule,
                      premises := prem.toList.map fun i => (c.entries[i]!).conclusion }
   match c with
-  | { entries, premiseIds, batch, round, steps, intern, index, mode, transPreds } =>
+  | { entries, premiseIds, batch, round, steps, totalFuel, intern, index, mode, transPreds } =>
     { entries := entries.push e, premiseIds := premiseIds.push prem, batch := batch.push b, round,
-      steps, intern, index := index.add k, mode, transPreds }
+      steps, totalFuel, intern, index := index.add k, mode, transPreds }
 
 /-- Add a triple in round `b` unless it is present. -/
 def addTriple (c : Closure) (t : Triple) (rule : String) (b : Nat) : Closure :=
   match c with
-  | { entries, premiseIds, batch, round, steps, intern, index, mode, transPreds } =>
+  | { entries, premiseIds, batch, round, steps, totalFuel, intern, index, mode, transPreds } =>
     let (intern, k) := intern.addTriple t
-    let c : Closure := ⟨entries, premiseIds, batch, round, steps, intern, index, mode, transPreds⟩
+    let c : Closure := ⟨entries, premiseIds, batch, round, steps, totalFuel, intern, index, mode, transPreds⟩
     if c.index.spo.contains k then c else c.push k rule #[] b
 
 end Closure
@@ -613,11 +623,11 @@ private def HeadTerm.add (I : Intern) : HeadTerm → Intern × Nat
 private def Closure.internHead (c : Closure) (h : HeadTerm × HeadTerm × HeadTerm) :
     Closure × Nat × Nat × Nat :=
   match c with
-  | ⟨entries, premiseIds, batch, round, steps, intern, index, mode, transPreds⟩ =>
+  | ⟨entries, premiseIds, batch, round, steps, totalFuel, intern, index, mode, transPreds⟩ =>
     let (intern, x) := HeadTerm.add intern h.1
     let (intern, y) := HeadTerm.add intern h.2.1
     let (intern, z) := HeadTerm.add intern h.2.2
-    (⟨entries, premiseIds, batch, round, steps, intern, index, mode, transPreds⟩, x, y, z)
+    (⟨entries, premiseIds, batch, round, steps, totalFuel, intern, index, mode, transPreds⟩, x, y, z)
 
 /-- Add the new triples of a round, in the original order, as round `b`. -/
 private def addRound (c : Closure) (infos : Array ClauseInfo) (sols : Array Sol) (b : Nat) :
@@ -638,13 +648,6 @@ private def addRound (c : Closure) (infos : Array ClauseInfo) (sols : Array Sol)
     unless c.index.spo.contains k do
       c := c.push k infos[s.clause]!.name s.premises b
   return { c with round := b }
-
-/-- The step budget of a whole saturation, by default. Every solution Elpi yields costs a step
-too, and so does each fact the Lean steps for transitive rules derive or find present, so the
-budget bounds the work of the search, and with it the time: about half a minute on a laptop at
-the rate of the slowest searches measured. Only rules that build new triple terms in their
-heads can make a saturation go on without end; this bounds them too. -/
-def defaultTotalFuel : Nat := 30000000
 
 /-- The number of triples a saturation may add, by default (about four million, some 2.5 GB of
 closure at the 600 bytes a triple measured); more is a resource limit, which bounds the memory
@@ -869,7 +872,7 @@ closures are returned as they are. -/
 def Closure.materialize (c : Closure) (maxDerived : Nat := defaultMaxDerived) : Except String Closure := do
   if c.mode != .implicit then return c
   let mut c := c
-  let lim : Lim := { size := c.size + maxDerived, steps := c.steps + defaultTotalFuel }
+  let lim : Lim := { size := c.size + maxDerived, steps := c.totalFuel }
   for t in c.transPreds do c ← closeAll c t lim c.round
   return { c with mode := .lean }
 
@@ -879,22 +882,83 @@ private def groundTerm : Term → Bool
   | _ => true
 
 -- @tg: implements:: [[decisions#Transitive rules in Lean past a threshold]] {note: "transitive pairs on demand"}
-/-- The pairs a query can match, when the closure left them implicit: for a query triple whose
-predicate is a transitive one, every pair from its subject when that is ground, otherwise every
-pair to its object when that is ground (both blank: only the facts). Other closures are
-returned as they are. -/
-def Closure.withQueryPairs (c : Closure) (q : Graph) : Closure := Id.run do
+/-- The values a query blank node can take, from the query triples other than those of a
+transitive predicate: the nodes at its place in the closure facts each such triple can match
+(their ground parts equal), intersected. `none` when no such triple has it at its subject or
+object, or one has it where it cannot be read off a fact (a predicate, a triple term). -/
+private def blankValues (c : Closure) (trans : Array Nat) (q : List Triple) (b : Term) :
+    Option (Std.HashSet Nat) := Id.run do
+  let mut acc : Option (Std.HashSet Nat) := none
+  for t in q do
+    unless t.s == b || t.o == b do continue
+    let some p := c.intern.find? t.p | return some {}   -- no fact matches: no value
+    if trans.contains p then continue
+    -- an end that is ground must be that node; a blank end other than `b` is free
+    let endOk (x : Term) (n : Nat) : Bool :=
+      if x == b then true
+      else match x with
+        | .bnode _ => true
+        | _ => groundTerm x && c.intern.find? x == some n
+    unless (match t.s with | .bnode _ => true | x => groundTerm x) &&
+        (match t.o with | .bnode _ => true | x => groundTerm x) do
+      continue
+    let mut vals : Std.HashSet Nat := {}
+    for id in c.index.byP.getD p #[] do
+      let (s, _, o) := c.index.facts[id]!
+      if !(endOk t.s s && endOk t.o o) then continue
+      if t.s == b && t.o == b && s != o then continue
+      vals := vals.insert (if t.s == b then s else o)
+    acc := some (match acc with
+      | none => vals
+      | some a => a.filter vals.contains)
+  return acc
+
+/-- The pairs a query can match from its ground ends, when the closure left them implicit: for a
+query triple whose predicate is a transitive one, every pair from its subject when that is
+ground, otherwise every pair to its object when that is ground. Triples with both ends blank are
+left to `Closure.withBlankPairs`. Other closures are returned as they are. A Lean step past the
+closure's budget is an error. -/
+def Closure.withQueryPairs (c : Closure) (q : Graph) : Except String Closure := do
   if c.mode != .implicit then return c
   let mut c := c
+  let lim : Lim := { size := c.size + defaultMaxDerived, steps := c.totalFuel }
   for t in q.toList do
     let some p := c.intern.find? t.p | continue
     let some tp := c.transPreds.find? (·.pred == p) | continue
-    let num (x : Term) : Option Nat := if groundTerm x then c.intern.find? x else none
-    let lim : Lim := { size := c.size + defaultMaxDerived, steps := c.steps + defaultTotalFuel }
-    match num t.s, num t.o with
-    | some s, _ => c := (closeFrom c tp s {} lim c.round).toOption.getD c
-    | none, some o => c := (closeTo c tp o lim c.round).toOption.getD c
-    | none, none => pure ()
+    if groundTerm t.s then
+      if let some s := c.intern.find? t.s then c ← closeFrom c tp s {} lim c.round
+    else if groundTerm t.o then
+      if let some o := c.intern.find? t.o then c ← closeTo c tp o lim c.round
+  return c
+
+/-- Does the query have a triple of a transitive predicate whose pairs `withQueryPairs` leaves
+out (no ground end), on a closure that left them implicit? -/
+def Closure.needsBlankPairs (c : Closure) (q : Graph) : Bool :=
+  c.mode == .implicit && q.toList.any fun t =>
+    !groundTerm t.s && !groundTerm t.o &&
+      (c.intern.find? t.p).any fun p => c.transPreds.any (·.pred == p)
+
+/-- The pairs the query triples of a transitive predicate with no ground end can match: every
+pair from each value the subject can take by the other query triples, otherwise to each value the
+object can take, and when neither is bounded so, every pair (`Closure.materialize`). With
+`withQueryPairs` before it, every pair a query can match is in the closure. -/
+def Closure.withBlankPairs (c : Closure) (q : Graph) : Except String Closure := do
+  if !c.needsBlankPairs q then return c
+  let mut c := c
+  let qs := q.toList
+  let trans := c.transPreds.map (·.pred)
+  let lim : Lim := { size := c.size + defaultMaxDerived, steps := c.totalFuel }
+  for t in qs do
+    if groundTerm t.s || groundTerm t.o then continue
+    let some p := c.intern.find? t.p | continue
+    let some tp := c.transPreds.find? (·.pred == p) | continue
+    let blank (x : Term) := match x with | .bnode _ => true | _ => false
+    let vs := if blank t.s then blankValues c trans qs t.s else none
+    let vo := if blank t.o then blankValues c trans qs t.o else none
+    match vs, vo with
+    | some ss, _ => for s in ss.toArray.qsort (· < ·) do c ← closeFrom c tp s {} lim c.round
+    | none, some os => for o in os.toArray.qsort (· < ·) do c ← closeTo c tp o lim c.round
+    | none, none => return ← c.materialize
   return c
 
 /-- The transitive predicates of the rules on a closure: those of the transitive rules, and each
@@ -921,6 +985,7 @@ def saturateFrom (e : Engine) (c : Closure) (lo : Nat) (fuel : Nat := Elpi.defau
     (lean : Bool := true) : Except String Closure := do
   let mut c := c
   let mut lo := lo
+  c := { c with totalFuel }
   if e.clauses.isEmpty then return c
   let limit := c.size + maxDerived
   let lim : Lim := { size := limit, steps := totalFuel }
@@ -1007,6 +1072,6 @@ def Closure.extend (e : Engine) (c : Closure) (ts : List Triple) (fuel : Nat := 
   let mut c := c
   for t in ts do c := c.addTriple t "fact" b
   c := { c with round := b }
-  saturateFrom e c lo fuel
+  saturateFrom e c lo fuel c.totalFuel
 
 end LeanRDF.Bridge
