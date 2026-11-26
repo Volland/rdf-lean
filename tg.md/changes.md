@@ -252,3 +252,11 @@ Performance and robustness work on branch `perf/10x`, from four streams merged o
 See [[decisions#Lean-driven rounds over interned terms]], [[decisions#Fast trusted code proven equal to its specification]] and [[decisions#Bounded input and bounded echo]]. Branch `perf/fix-paths` then made constant-endpoint `p+` and `p*` searches: see [[decisions#Property paths searched from a constant endpoint]].
 
 - status:: applied
+
+## fix-closure
+
+Transitive rules out of Elpi's joins past a threshold, on branch `perf/fix-closure` from `perf/10x`: long `subClassOf` and `subPropertyOf` chains and cycles no longer exhaust the search budget. A query pair with both ends blank is derived from the values the other query triples allow, so its verdicts match c41e68d. Only untrusted search changed. Reproducers are `scripts/bench/gen.py scchain|sccycle|spchain|trpchain|sachain|elchain`.
+
+See [[decisions#Transitive rules in Lean past a threshold]].
+
+- status:: applied

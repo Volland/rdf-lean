@@ -5,7 +5,8 @@ import LeanRDFOwl
 /-!
 # The demo
 
-`lake exe leanrdf-demo DATA.nt QUERY.nt [--profile rdfs|owl] [--cert OUT.json] [--datalog OUT.json]`:
+`lake exe leanrdf-demo DATA.nt QUERY.nt [--profile rdfs|owl] [--cert OUT.json] [--datalog OUT.json]
+[--countermodel OUT.json] [--total-fuel STEPS]`:
 saturate the data in Elpi, look for a clash, certify the query, check the certificate with the
 verified checker and report. "Entailed" is printed only after the checker accepts; a failed
 search is reported as "not derived", never as "not entailed", because completeness is not
@@ -61,6 +62,8 @@ structure Args where
   certOut : Option System.FilePath := none
   datalogOut : Option System.FilePath := none
   countermodelOut : Option System.FilePath := none
+  /-- The Elpi step budget of the saturation. -/
+  totalFuel : Nat := defaultTotalFuel
 
 -- @tg: implements:: [[openspec:demo#Example ontology]]
 /-- The example ontology and its queries, in `elpi/examples/`. -/
@@ -69,7 +72,7 @@ def examples : List String :=
 
 /-- The usage line. -/
 def usage : String :=
-  "usage: leanrdf-demo DATA.nt QUERY.nt [--profile rdfs|owl] [--cert OUT.json] [--datalog OUT.json] [--countermodel OUT.json]"
+  "usage: leanrdf-demo DATA.nt QUERY.nt [--profile rdfs|owl] [--cert OUT.json] [--datalog OUT.json] [--countermodel OUT.json] [--total-fuel STEPS]"
 
 /-- Read the arguments. -/
 def parseArgs : List String → Option Args
@@ -83,6 +86,7 @@ where
     | "--countermodel" :: p :: rest => go { a with countermodelOut := some p } rest
     | "--profile" :: "rdfs" :: rest => go { a with profile := .rdfs } rest
     | "--profile" :: "owl" :: rest => go { a with profile := .owl } rest
+    | "--total-fuel" :: n :: rest => n.toNat?.bind fun k => go { a with totalFuel := k } rest
     | _ => none
 
 private def nodeLine (n : Node) : String :=
@@ -175,17 +179,22 @@ def run (a : Args) : IO (UInt32 × String) := do
     let engine ← match program rules with
       | .ok e => pure e
       | .error e => throw (2, out ++ s!"search failed: {e}")
-    let closure ← match saturateWith engine g with
+    let closure ← match saturateWith engine g (totalFuel := a.totalFuel) with
       | .ok c => pure c
       | .error e =>
         if isBudgetExhausted e then
           throw (1, out ++ s!"{e}.\nVerdict: NOT DERIVED (the search stopped at its budget). This is not a claim of non-entailment: completeness is not proven.")
         else throw (2, out ++ s!"search failed: {e}")
-    out := out ++ s!"Elpi closure under {rules.length} rules: {closure.size} triples\n"
+    let implicit := if closure.mode == .implicit then
+      " (the rdfs5 and rdfs11 pairs are left implicit and derived for the query)" else ""
+    out := out ++ s!"Elpi closure under {rules.length} rules: {closure.size} triples{implicit}\n"
     if let some (code, report) ← clashVerdict g a closure out then throw (code, report)
     let cert ← match certify closure q with
       | .ok c => pure c
-      | .error e => throw (← refuteOrNotDerived g q a engine closure out e)
+      | .error e =>
+        if isBudgetExhausted e then
+          throw (1, out ++ s!"{e}.\nVerdict: NOT DERIVED (the search stopped at its budget). This is not a claim of non-entailment: completeness is not proven.")
+        throw (← refuteOrNotDerived g q a engine closure out e)
     let (code, why) := verdict g q cert rules
     if code != 0 then throw (code, out ++ why)
     for (b, t) in cert.mapping do

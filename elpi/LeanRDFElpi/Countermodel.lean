@@ -34,6 +34,8 @@ must be the regime's rules: the closure continues with the representative triple
 def findCountermodelFrom (e : Engine) (c : Closure) (q : Graph) (fuel : Nat := Elpi.defaultFuel) :
     Except String Presentation := do
   let c ← c.extend e (Canonical.repTriples q) fuel
+  -- a model needs every pair of a transitive predicate, also those left implicit
+  let c ← c.materialize
   return Canonical.build (c.toList.map (·.conclusion))
 
 end LeanRDF.Bridge

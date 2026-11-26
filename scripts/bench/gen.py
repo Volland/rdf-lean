@@ -25,6 +25,17 @@ KIND is one of
           o-star (constant object), so-plus (both constant), v-plus, v-star (both variables: use a
           small N), and inv-plus, seq-plus, alt-star (an inverse, a sequence and an alternative
           under the closure, constant endpoint)
+  scchain data.nt, q.nt: an N-deep rdfs:subClassOf chain C0 ... CN with x typed C0; the query
+          asks x rdf:type CN and C0 rdfs:subClassOf CN (transitive closure; also with --profile owl)
+  sccycle data.nt, q.nt: a cycle of N rdfs:subClassOf triples C0 ... C(N-1) C0 with x typed C0;
+          the query asks x rdf:type C(N-1) and C1 rdfs:subClassOf C0
+  spchain data.nt, q.nt: an N-deep rdfs:subPropertyOf chain p0 ... pN with a p0 b; the query
+          asks a pN b and p0 rdfs:subPropertyOf pN
+  trpchain data.nt, q.nt: an N-deep chain of an owl:TransitiveProperty (for --profile owl); the
+          query asks a0 anc aN
+  sachain data.nt, q.nt: an N-deep owl:sameAs chain s0 ... sN with s0 p o (for --profile owl);
+          the query asks sN p o and sN owl:sameAs s0
+  elchain onto.ttl: an OWL 2 EL ontology that is an N-deep subClassOf chain (for leanrdf-classify)
   robust  malformed and adversarial inputs for `bench.py --tools robust`, with robust.tsv listing
           each case: the tool, its arguments, the exit code and output it must give and a time
           limit (N is ignored)
@@ -288,9 +299,48 @@ def gen_robust(_n, out):
         for name, tool, args, code, text, limit, tag in ROBUST))
 
 
+def gen_scchain(n, out):
+    L = [t(f"{E}C{i}", SC, f"{E}C{i + 1}") for i in range(n)] + [t(f"{E}x", TYPE, f"{E}C0")]
+    write(out, "data.nt", "\n".join(L) + "\n")
+    write(out, "q.nt", t(f"{E}x", TYPE, f"{E}C{n}") + "\n" + t(f"{E}C0", SC, f"{E}C{n}") + "\n")
+
+
+def gen_sccycle(n, out):
+    L = [t(f"{E}C{i}", SC, f"{E}C{(i + 1) % n}") for i in range(n)] + [t(f"{E}x", TYPE, f"{E}C0")]
+    write(out, "data.nt", "\n".join(L) + "\n")
+    write(out, "q.nt", t(f"{E}x", TYPE, f"{E}C{n - 1}") + "\n" + t(f"{E}C1", SC, f"{E}C0") + "\n")
+
+
+def gen_spchain(n, out):
+    L = [t(f"{E}p{i}", SP, f"{E}p{i + 1}") for i in range(n)] + [t(f"{E}a", f"{E}p0", f"{E}b")]
+    write(out, "data.nt", "\n".join(L) + "\n")
+    write(out, "q.nt", t(f"{E}a", f"{E}p{n}", f"{E}b") + "\n" + t(f"{E}p0", SP, f"{E}p{n}") + "\n")
+
+
+def gen_trpchain(n, out):
+    L = [t(f"{E}anc", TYPE, OWL + "TransitiveProperty")]
+    L += [t(f"{E}a{i}", f"{E}anc", f"{E}a{i + 1}") for i in range(n)]
+    write(out, "data.nt", "\n".join(L) + "\n")
+    write(out, "q.nt", t(f"{E}a0", f"{E}anc", f"{E}a{n}") + "\n")
+
+
+def gen_sachain(n, out):
+    L = [t(f"{E}s{i}", OWL + "sameAs", f"{E}s{i + 1}") for i in range(n)] + [t(f"{E}s0", f"{E}p", f"{E}o")]
+    write(out, "data.nt", "\n".join(L) + "\n")
+    write(out, "q.nt", t(f"{E}s{n}", f"{E}p", f"{E}o") + "\n" + t(f"{E}s{n}", OWL + "sameAs", f"{E}s0") + "\n")
+
+
+def gen_elchain(n, out):
+    L = ["@prefix : <http://ex.org/el#> .", "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ."]
+    L += [f":A{i} rdfs:subClassOf :A{i + 1} ." for i in range(n)]
+    write(out, "onto.ttl", "\n".join(L) + "\n")
+
+
 KINDS = {"rdfs": gen_rdfs, "owl": gen_owl, "el": gen_el, "sparql": gen_sparql, "shacl": gen_shacl,
          "nt": gen_nt, "ring": gen_ring, "sg": gen_sg, "robust": gen_robust,
-         "paths": gen_paths}
+         "paths": gen_paths,
+         "scchain": gen_scchain, "sccycle": gen_sccycle, "spchain": gen_spchain, "elchain": gen_elchain,
+         "trpchain": gen_trpchain, "sachain": gen_sachain}
 
 if __name__ == "__main__":
     if len(sys.argv) != 4 or sys.argv[1] not in KINDS:
