@@ -5,7 +5,9 @@ import LeanRDFElpi.Saturate
 
 The untrusted countermodel finder: add the representative triples of
 `LeanRDF.Model.Canonical.repTriples` to the data, saturate in Elpi under the regime's rules, and
-build the canonical presentation of the closure. `checkCountermodel` decides whether it is a
+build the canonical presentation of the closure. When the data is already saturated under the
+same rules (the demo has the closure at hand), the representatives are added to that closure as
+the delta of one more round instead of saturating again. `checkCountermodel` decides whether it is a
 countermodel; a rejected candidate is no verdict.
 -/
 
@@ -25,6 +27,15 @@ def findCountermodel (r : CRegime) (g q : Graph) (fuel : Nat := Elpi.defaultFuel
     Except String Presentation := do
   let g' := Graph.ofList (g.toList ++ Canonical.repTriples q)
   let c ← saturate r.rules g' fuel
+  return Canonical.build (c.toList.map (·.conclusion))
+
+/-- A candidate countermodel to `g ⊨ q` from `c`, the closure of `g` under `e`'s rules, which
+must be the regime's rules: the closure continues with the representative triples of `q`. -/
+def findCountermodelFrom (e : Engine) (c : Closure) (q : Graph) (fuel : Nat := Elpi.defaultFuel) :
+    Except String Presentation := do
+  let c ← c.extend e (Canonical.repTriples q) fuel
+  -- a model needs every pair of a transitive predicate, also those left implicit
+  let c ← c.materialize
   return Canonical.build (c.toList.map (·.conclusion))
 
 end LeanRDF.Bridge

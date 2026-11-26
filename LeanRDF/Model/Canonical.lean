@@ -41,9 +41,9 @@ def termIris : Term → List IRI
   | .triple s p o => termIris s ++ termIris p ++ termIris o
   | _ => []
 
-/-- The IRIs of a graph. -/
+/-- The IRIs of a graph, each once, in the order of `dedup` (`dedupX_eq`). -/
 def graphIris (g : Graph) : List IRI :=
-  dedup (g.toList.flatMap fun t => termIris t.s ++ termIris t.p ++ termIris t.o)
+  dedupX (g.toList.flatMap fun t => termIris t.s ++ termIris t.p ++ termIris t.o)
 
 -- @tg: implements:: [[openspec:countermodels#Countermodel finder]] {note: "the representatives"}
 /-- The triples added to the data before saturation: one per default sort, and one per IRI of

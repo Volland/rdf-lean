@@ -1,0 +1,170 @@
+{
+ "LeanRDF.Statements.decode_toRDF": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1737,
+   1744
+  ],
+  "only_in_base": [],
+  "only_in_head": [
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk._proof_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.ofList",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Statements.StatementGraph.toRDF",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk",
+    "kind": "def",
+    "differs_in": [
+     "kind ctor->def",
+     "value",
+     "metadata"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   5324,
+   5331
+  ],
+  "full_closure_differing_count": 3
+ },
+ "LeanRDF.Statements.toRDF_decode": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   1737,
+   1744
+  ],
+  "only_in_base": [],
+  "only_in_head": [
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk._proof_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.ofList",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Statements.StatementGraph.toRDF",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk",
+    "kind": "def",
+    "differs_in": [
+     "kind ctor->def",
+     "value",
+     "metadata"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   5324,
+   5331
+  ],
+  "full_closure_differing_count": 3
+ },
+ "LeanRDF.Statements.StatementGraph.criterion": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   342,
+   342
+  ],
+  "only_in_base": [],
+  "only_in_head": [],
+  "differing": [],
+  "full_closure_size": [
+   865,
+   865
+  ],
+  "full_closure_differing_count": 0
+ },
+ "LeanRDF.Statements.StatementGraph.kernel_greatest": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   320,
+   320
+  ],
+  "only_in_base": [],
+  "only_in_head": [],
+  "differing": [],
+  "full_closure_size": [
+   846,
+   846
+  ],
+  "full_closure_differing_count": 0
+ }
+}

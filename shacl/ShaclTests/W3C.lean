@@ -43,7 +43,7 @@ partial def tests (manifest : System.FilePath) : IO (List Test) := do
     | .iri i => some <$> tests (pathOfIri i)
     | _ => pure none
   let entries ← (objs g me (mf "entries")).flatMapM fun l =>
-    match readList g (g.size + 1) l with
+    match readList (GIdx.build g) (g.size + 1) l with
     | .ok es => pure es
     | .error e => throw (IO.userError s!"{manifest}: {e}")
   let own ← entries.filterMapM fun e => do

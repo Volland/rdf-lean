@@ -58,3 +58,8 @@ lean_exe «leanrdf-oxilite» where
 /-- The certified class hierarchy of an OWL 2 EL ontology: `lake exe leanrdf-classify ONTOLOGY`. -/
 lean_exe «leanrdf-classify» where
   root := `ClassifyMain
+
+/-- Stage timings of the demo pipeline, for `scripts/bench/bench.py --stages`:
+`lake exe leanrdf-bench-stages DATA.nt QUERY.nt [--profile owl] [--countermodel]`. -/
+lean_exe «leanrdf-bench-stages» where
+  root := `BenchMain

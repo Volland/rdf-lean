@@ -1,0 +1,60 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "lean4lean":
+   {"output": {"proc": {"stdout": "checked 6376 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 6379 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 6379 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 0.0s (index 0.0s), check 0.8s\ncon-leche: stats: check pool: 0.856s wall, 12 workers, 6380 records, busy 8.904s (86.6%); tail 0.129s after the last start, 11 busy then, 0.191s worker-time in it (12.3%)\ncon-leche: stats: slowest checks: 0.524s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_1 (#3955); 0.442s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#4384); 0.270s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_4 (#4387); 0.251s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_3 (#3963); 0.175s theorem _private.Init.Data.Array.Extract.0.Array.extract_extract._proof_1_1 (#4373)\ncon-leche: stats: peak RSS 0.14 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "export_solution":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "export_challenge":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "config":
+  {"theorem_names":
+   ["LeanRDF.Statements.Challenge.decode_toRDF",
+    "LeanRDF.Statements.Challenge.toRDF_decode",
+    "LeanRDF.Statements.StatementGraph.Challenge.criterion",
+    "LeanRDF.Statements.StatementGraph.Challenge.kernel_greatest"],
+   "solution_module": "Solution",
+   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+   "definition_names": null,
+   "challenge_module": "Challenge"},
+  "compare_statements":
+  {"output": {"str": {"string": ""}}, "judgement": "success"},
+  "check_axioms": {"output": {"str": {"string": ""}}, "judgement": "success"},
+  "build_solution":
+  {"output":
+   {"proc":
+    {"stdout":
+     "⚠ [114/124] Replayed LeanRDFStatements.Export\nwarning: LeanRDFStatements/Export.lean:60:46: This simp argument is unused:\n  or_assoc\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hl]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [116/124] Replayed LeanRDFStatements.Decode\nwarning: LeanRDFStatements/Decode.lean:386:4: This simp argument is unused:\n  nodeOf_nodeTerm hs\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Record.reifying, Record.base, Triple.toTerm, Option.bind_some, litNat?_intLit, nodeOf_nodeTerm ho]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:386:24: This simp argument is unused:\n  nodeOf_nodeTerm ho\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Record.reifying, Record.base, Triple.toTerm, Option.bind_some, litNat?_intLit, nodeOf_nodeTerm hs]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:411:10: This simp argument is unused:\n  reifying_p\n\nHint: Omit it from the simp argument list.\n  [apply] simp [isMeta, metaPreds, Record.reifying, Record.stmt, stmtEid?_stmtIRI]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:453:19: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [h, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [118/124] Replayed LeanRDFStatements.Kernel\nwarning: LeanRDFStatements/Kernel.lean:85:56: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Kernel.lean:88:35: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Kernel.lean:92:54: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n✔ [122/124] Built Solution (110ms)\nBuild completed successfully (124 jobs).\n",
+     "stderr": ""}},
+   "judgement": "success"},
+  "build_challenge":
+  {"output":
+   {"proc":
+    {"stdout":
+     "✔ [6/124] Built LeanRDF.Parse.Turtle.Iri (438ms)\n✔ [8/124] Built LeanRDF.Parse.NTriples.Chars (554ms)\n✔ [10/124] Built LeanRDF.Core.Index (526ms)\n✔ [12/124] Built LeanRDF.Core.Term (661ms)\n✔ [14/124] Built LeanRDF.Text.Hash (646ms)\n✔ [16/124] Built LeanRDF.Canon.Sha256 (640ms)\n✔ [18/124] Built LeanRDFStatements.Abstract.Kernel (625ms)\n✔ [20/124] Built LeanRDF.Core.Vocab (120ms)\n✔ [22/124] Built LeanRDF.Core.Triple (148ms)\n✔ [24/124] Built LeanRDF.Xsd.Lexical (858ms)\n✔ [26/124] Built LeanRDF.Text.Regex (834ms)\n✔ [28/124] Built LeanRDF.Semantics.Axioms (133ms)\n✔ [30/124] Built LeanRDFStatements.Abstract.Export (274ms)\n✔ [32/124] Built LeanRDF.Core.Literal (162ms)\n✔ [34/124] Built LeanRDF.Core.Graph (215ms)\n✔ [36/124] Built LeanRDF.Core.Iso (122ms)\n✔ [38/124] Built LeanRDF.Parse.NTriples.Serializer (162ms)\n✔ [40/124] Built LeanRDF.Xsd.DateTime (292ms)\n✔ [42/124] Built LeanRDF.Entailment.Rule (369ms)\n✔ [44/124] Built LeanRDF.Semantics.Interpretation (306ms)\n✔ [46/124] Built LeanRDF.Core.Dataset (325ms)\n✔ [48/124] Built LeanRDF.Entailment.Derivation (188ms)\n✔ [50/124] Built LeanRDF.Entailment.Rules (295ms)\n✔ [52/124] Built LeanRDF.Parse.NQuads.Serializer (232ms)\n✔ [54/124] Built LeanRDF.Xsd.Value (389ms)\n✔ [56/124] Built LeanRDF.Cert.Match (401ms)\n✔ [58/124] Built LeanRDF.Semantics.RDFS (313ms)\n✔ [60/124] Built LeanRDF.Xsd.Compare (256ms)\n✔ [62/124] Built LeanRDF.Canon.Hash (458ms)\n✔ [64/124] Built LeanRDF.Canon.Label (411ms)\n✔ [66/124] Built LeanRDF.Semantics.Entails (134ms)\n✔ [68/124] Built LeanRDF.Parse.NTriples.Parser (738ms)\n✔ [70/124] Built LeanRDF.Canon.Rdfc (251ms)\n✔ [72/124] Built LeanRDF.Parse.NQuads.Parser (111ms)\n✔ [74/124] Built LeanRDF.Canon.Digest (104ms)\n✔ [76/124] Built LeanRDF.Entailment.Soundness (381ms)\n✔ [78/124] Built LeanRDF.Entailment.Clash (167ms)\n✔ [80/124] Built LeanRDF.Model.Presentation (559ms)\n✔ [82/124] Built LeanRDF.Cert.Envelope (226ms)\n✔ [84/124] Built LeanRDF.Model.Interp (257ms)\n✔ [86/124] Built LeanRDF.Cert.Check (328ms)\n✔ [88/124] Built LeanRDF.Cert.Json (213ms)\n✔ [90/124] Built LeanRDF.Cert.Clash (163ms)\n✔ [92/124] Built LeanRDF.Model.Lift (344ms)\n✔ [94/124] Built LeanRDF.Parse.Turtle.Parser (997ms)\n✔ [96/124] Built LeanRDF.Cert.Datalog (163ms)\n✔ [98/124] Built LeanRDF.Parse.TriG.Parser (108ms)\n✔ [100/124] Built LeanRDF.Model.Index (680ms)\n✔ [102/124] Built LeanRDF.Model.Check (387ms)\n✔ [104/124] Built LeanRDF.Model.Json (321ms)\n✔ [106/124] Built LeanRDF.Model.Canonical (361ms)\n✔ [108/124] Built LeanRDF (95ms)\n✔ [110/124] Built LeanRDFStatements.Model (306ms)\n✔ [112/124] Built LeanRDFStatements.View (166ms)\n⚠ [114/124] Built LeanRDFStatements.Export (173ms)\nwarning: LeanRDFStatements/Export.lean:60:46: This simp argument is unused:\n  or_assoc\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hl]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [116/124] Built LeanRDFStatements.Kernel (398ms)\nwarning: LeanRDFStatements/Kernel.lean:85:56: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Kernel.lean:88:35: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Kernel.lean:92:54: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp_all\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n✔ [118/124] Built LeanRDFStatements.Criterion (144ms)\n⚠ [120/124] Built LeanRDFStatements.Decode (987ms)\nwarning: LeanRDFStatements/Decode.lean:386:4: This simp argument is unused:\n  nodeOf_nodeTerm hs\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Record.reifying, Record.base, Triple.toTerm, Option.bind_some, litNat?_intLit, nodeOf_nodeTerm ho]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:386:24: This simp argument is unused:\n  nodeOf_nodeTerm ho\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Record.reifying, Record.base, Triple.toTerm, Option.bind_some, litNat?_intLit, nodeOf_nodeTerm hs]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:411:10: This simp argument is unused:\n  reifying_p\n\nHint: Omit it from the simp argument list.\n  [apply] simp [isMeta, metaPreds, Record.reifying, Record.stmt, stmtEid?_stmtIRI]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFStatements/Decode.lean:453:19: This simp argument is unused:\n  List.filter_cons\n\nHint: Omit it from the simp argument list.\n  [apply] simp [h, ih]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n⚠ [122/124] Built Challenge (124ms)\nwarning: Challenge.lean:13:8: declaration uses `sorry`\nwarning: Challenge.lean:20:8: declaration uses `sorry`\nwarning: Challenge.lean:34:8: declaration uses `sorry`\nwarning: Challenge.lean:50:8: declaration uses `sorry`\nBuild completed successfully (124 jobs).\n",
+     "stderr": ""}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

@@ -1,0 +1,48 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output":
+    {"proc":
+     {"stdout": "Skipped exported but unpermitted axioms [\"sorryAx\"]\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "lean4lean":
+   {"output":
+    {"proc":
+     {"stdout":
+      "[anonymous]:thmDecl _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10: lean4lean took 1083\nchecked 89259 declarations\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 89262 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 89262 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 1.0s (index 0.0s), check 13.5s\ncon-leche: stats: check pool: 13.513s wall, 12 workers, 89262 records, busy 157.402s (97.0%); tail 0.436s after the last start, 12 busy then, 0.703s worker-time in it (13.4%)\ncon-leche: stats: slowest checks: 1.470s theorem _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10 (#81141); 0.702s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#34720); 0.578s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_1 (#34438); 0.541s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_append._proof_1 (#86553); 0.432s theorem _private.Std.Data.DTreeMap.Internal.Balancing.0.Std.DTreeMap.Internal.Impl.balanced_doubleL._proof_1_3 (#20547)\ncon-leche: stats: peak RSS 0.78 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "check_axioms":
+  {"output":
+   {"str": {"string": "Uses axioms: propext, Classical.choice, Quot.sound"}},
+   "judgement": "success"},
+  "build_report":
+  {"output":
+   {"proc":
+    {"stdout": "",
+     "stderr":
+     "✔ [105/125] Built LeanRDFOwl.Vocab (300ms)\n✔ [107/125] Built LeanRDFOwl.Lists (123ms)\n✔ [109/125] Built LeanRDFOwl.Semantics (172ms)\n✔ [111/125] Built LeanRDFOwl.Clash (169ms)\n✔ [113/125] Built LeanRDFOwl.Rules (215ms)\n✔ [115/125] Built LeanRDFOwl.EL (169ms)\n✔ [117/125] Built LeanRDFOwl.Soundness (2.3s)\n✔ [119/125] Built LeanRDFOwl.ELSoundness (1.4s)\n✔ [121/125] Built LeanRDFOwl.ClashSoundness (722ms)\n✔ [123/125] Built LeanRDFOwl (123ms)\n"}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

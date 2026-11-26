@@ -1,0 +1,36 @@
+tool,workload,size,size_unit,baseline_s,baseline_note,now_s,now_branch
+demo,RDFS entailment (leanrdf-demo),25,instances,2.91,,0.05,perf/10x
+demo,RDFS entailment (leanrdf-demo),50,instances,5.84,,0.05,perf/10x
+demo,RDFS entailment (leanrdf-demo),100,instances,12.71,,0.06,perf/10x
+demo,RDFS entailment (leanrdf-demo),200,instances,46.64,,0.09,perf/10x
+demo,RDFS entailment (leanrdf-demo),400,instances,182.8,,0.14,perf/10x
+owl,OWL 2 RL entailment (leanrdf-demo --profile owl),12,instances,6.32,,0.06,perf/10x
+owl,OWL 2 RL entailment (leanrdf-demo --profile owl),25,instances,11.42,,0.08,perf/10x
+owl,OWL 2 RL entailment (leanrdf-demo --profile owl),50,instances,31.52,,0.09,perf/10x
+owl,OWL 2 RL entailment (leanrdf-demo --profile owl),100,instances,114.34,,0.15,perf/10x
+owl,OWL 2 RL entailment (leanrdf-demo --profile owl),200,instances,,not run,0.29,perf/10x
+neg,"Countermodel, REFUTED answer (leanrdf-demo)",25,instances,3.25,,0.05,perf/10x
+neg,"Countermodel, REFUTED answer (leanrdf-demo)",50,instances,7.56,,0.05,perf/10x
+neg,"Countermodel, REFUTED answer (leanrdf-demo)",100,instances,23.45,,0.06,perf/10x
+neg,"Countermodel, REFUTED answer (leanrdf-demo)",200,instances,85.92,,0.09,perf/10x
+neg,"Countermodel, REFUTED answer (leanrdf-demo)",400,instances,,not run,0.14,perf/10x
+big,RDFS with N ground goals (leanrdf-demo),25,instances,1.67,,0.05,perf/10x
+big,RDFS with N ground goals (leanrdf-demo),50,instances,3.91,,0.05,perf/10x
+big,RDFS with N ground goals (leanrdf-demo),100,instances,10.79,,0.06,perf/10x
+big,RDFS with N ground goals (leanrdf-demo),200,instances,39.98,,0.09,perf/10x
+big,RDFS with N ground goals (leanrdf-demo),400,instances,,not run,0.15,perf/10x
+classify,OWL 2 EL classification (leanrdf-classify),12,classes,4.95,,0.08,perf/10x
+classify,OWL 2 EL classification (leanrdf-classify),25,classes,15.95,,0.13,perf/10x
+classify,OWL 2 EL classification (leanrdf-classify),50,classes,77.14,,0.21,perf/10x
+classify,OWL 2 EL classification (leanrdf-classify),100,classes,,timed out after 300 s,0.32,perf/10x
+classify,OWL 2 EL classification (leanrdf-classify),200,classes,,not run,0.57,perf/10x
+sparql,"SPARQL 1.1, two queries (leanrdf-sparql)",500,books,2.54,,0.08,perf/10x
+sparql,"SPARQL 1.1, two queries (leanrdf-sparql)",1000,books,10.34,,0.1,perf/10x
+sparql,"SPARQL 1.1, two queries (leanrdf-sparql)",2000,books,44.89,,0.15,perf/10x
+sparql,"SPARQL 1.1, two queries (leanrdf-sparql)",4000,books,194.78,,0.25,perf/10x
+sparql,"SPARQL 1.1, two queries (leanrdf-sparql)",8000,books,,not run,0.47,perf/10x
+shacl,SHACL Core validation (leanrdf-shacl),250,employees,50.45,,0.04,perf/10x
+shacl,SHACL Core validation (leanrdf-shacl),500,employees,,timed out after 300 s,0.04,perf/10x
+shacl,SHACL Core validation (leanrdf-shacl),1000,employees,,not run,0.06,perf/10x
+shacl,SHACL Core validation (leanrdf-shacl),2000,employees,,not run,0.08,perf/10x
+shacl,SHACL Core validation (leanrdf-shacl),4000,employees,,not run,0.14,perf/10x

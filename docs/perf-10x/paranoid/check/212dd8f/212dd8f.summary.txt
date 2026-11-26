@@ -1,0 +1,4 @@
+== 212dd8f/sparql start 2026-11-26T10:52:32+00:00 pre-existing .lake: none
+== 212dd8f/sparql rc=0 judgement=accepted wall=262s end 2026-11-26T10:56:54+00:00
+== 212dd8f/elpi start 2026-11-26T10:56:54+00:00 pre-existing .lake: none
+== 212dd8f/elpi rc=0 judgement=accepted wall=412s end 2026-11-26T11:03:46+00:00

@@ -1,0 +1,470 @@
+{
+ "LeanRDF.Shacl.validate_conforms": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   2277,
+   2341
+  ],
+  "only_in_base": [
+   "LeanRDF.Shacl.altNodes._f",
+   "LeanRDF.Shacl.altNodes.match_1",
+   "LeanRDF.Shacl.closure",
+   "LeanRDF.Shacl.closure._f",
+   "LeanRDF.Shacl.closure.match_1",
+   "LeanRDF.Shacl.seqNodes._f",
+   "LeanRDF.Shacl.seqNodes.match_1",
+   "LeanRDF.Shacl.valueNodes",
+   "LeanRDF.Shacl.vn",
+   "LeanRDF.Shacl.vn._f",
+   "LeanRDF.Shacl.vn.match_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+  ],
+  "only_in_head": [
+   "EmptyCollection",
+   "EmptyCollection.emptyCollection",
+   "EmptyCollection.mk",
+   "LeanRDF.Shacl.GIdx",
+   "LeanRDF.Shacl.GIdx.build",
+   "LeanRDF.Shacl.GIdx.build._proof_1",
+   "LeanRDF.Shacl.GIdx.build._proof_2",
+   "LeanRDF.Shacl.GIdx.build._proof_3",
+   "LeanRDF.Shacl.GIdx.build._proof_4",
+   "LeanRDF.Shacl.GIdx.build._proof_5",
+   "LeanRDF.Shacl.GIdx.byPred",
+   "LeanRDF.Shacl.GIdx.bySubj",
+   "LeanRDF.Shacl.GIdx.gtLen",
+   "LeanRDF.Shacl.GIdx.inv",
+   "LeanRDF.Shacl.GIdx.mk",
+   "LeanRDF.Shacl.GIdx.terms",
+   "LeanRDF.Shacl.Path.ctorIdx",
+   "LeanRDF.Shacl.Path.pred?",
+   "LeanRDF.Shacl.Path.pred?._sparseCasesOn_1",
+   "LeanRDF.Shacl.Path.pred?.match_1",
+   "LeanRDF.Shacl.addNewGo",
+   "LeanRDF.Shacl.addNewGo._f",
+   "LeanRDF.Shacl.addNewGo.match_1",
+   "LeanRDF.Shacl.addNewGo2",
+   "LeanRDF.Shacl.addNewGo2._f",
+   "LeanRDF.Shacl.altNodesX._f",
+   "LeanRDF.Shacl.altNodesX.match_1",
+   "LeanRDF.Shacl.closureF",
+   "LeanRDF.Shacl.closureGo",
+   "LeanRDF.Shacl.closureGo._f",
+   "LeanRDF.Shacl.closureGo.match_1",
+   "LeanRDF.Shacl.closureGo.match_3",
+   "LeanRDF.Shacl.groupBy",
+   "LeanRDF.Shacl.groupMap",
+   "LeanRDF.Shacl.invPairs",
+   "LeanRDF.Shacl.length_graphTerms",
+   "LeanRDF.Shacl.seqNodesX._f",
+   "LeanRDF.Shacl.seqNodesX.match_1",
+   "LeanRDF.Shacl.uniqF",
+   "LeanRDF.Shacl.valueNodesX",
+   "LeanRDF.Shacl.vnX",
+   "LeanRDF.Shacl.vnX._f",
+   "LeanRDF.Shacl.vnX.match_1",
+   "LeanRDF.Shacl.vnX.match_3",
+   "List.foldr",
+   "List.foldr._f",
+   "Std.DHashMap.Const.getD",
+   "Std.DHashMap.Internal.AssocList.getD",
+   "Std.DHashMap.Internal.AssocList.getD._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.getD",
+   "Std.DHashMap.Raw.emptyWithCapacity",
+   "Std.DHashMap.emptyWithCapacity",
+   "Std.DHashMap.insert",
+   "Std.DHashMap.insertIfNew",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.getD",
+   "Std.HashMap.insert",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashSet.emptyWithCapacity",
+   "Std.HashSet.insert",
+   "Std.HashSet.instEmptyCollection",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insert._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "instBEqProd",
+   "instDecidableEqProd.match_3",
+   "instHashableProd",
+   "instHashableProd.match_1"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.allOk._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.compResults._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.compsResults._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.focusNodes",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.graphTerms",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.instB",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.noneOk._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.oneOk._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.results",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.results._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.someOk._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.targetNodes",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.validate",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.vals",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   6614,
+   7747
+  ],
+  "full_closure_differing_count": 15
+ },
+ "LeanRDF.Shacl.validate_sound": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   2279,
+   2343
+  ],
+  "only_in_base": [
+   "LeanRDF.Shacl.altNodes._f",
+   "LeanRDF.Shacl.altNodes.match_1",
+   "LeanRDF.Shacl.closure",
+   "LeanRDF.Shacl.closure._f",
+   "LeanRDF.Shacl.closure.match_1",
+   "LeanRDF.Shacl.seqNodes._f",
+   "LeanRDF.Shacl.seqNodes.match_1",
+   "LeanRDF.Shacl.valueNodes",
+   "LeanRDF.Shacl.vn",
+   "LeanRDF.Shacl.vn._f",
+   "LeanRDF.Shacl.vn.match_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+  ],
+  "only_in_head": [
+   "EmptyCollection",
+   "EmptyCollection.emptyCollection",
+   "EmptyCollection.mk",
+   "LeanRDF.Shacl.GIdx",
+   "LeanRDF.Shacl.GIdx.build",
+   "LeanRDF.Shacl.GIdx.build._proof_1",
+   "LeanRDF.Shacl.GIdx.build._proof_2",
+   "LeanRDF.Shacl.GIdx.build._proof_3",
+   "LeanRDF.Shacl.GIdx.build._proof_4",
+   "LeanRDF.Shacl.GIdx.build._proof_5",
+   "LeanRDF.Shacl.GIdx.byPred",
+   "LeanRDF.Shacl.GIdx.bySubj",
+   "LeanRDF.Shacl.GIdx.gtLen",
+   "LeanRDF.Shacl.GIdx.inv",
+   "LeanRDF.Shacl.GIdx.mk",
+   "LeanRDF.Shacl.GIdx.terms",
+   "LeanRDF.Shacl.Path.ctorIdx",
+   "LeanRDF.Shacl.Path.pred?",
+   "LeanRDF.Shacl.Path.pred?._sparseCasesOn_1",
+   "LeanRDF.Shacl.Path.pred?.match_1",
+   "LeanRDF.Shacl.addNewGo",
+   "LeanRDF.Shacl.addNewGo._f",
+   "LeanRDF.Shacl.addNewGo.match_1",
+   "LeanRDF.Shacl.addNewGo2",
+   "LeanRDF.Shacl.addNewGo2._f",
+   "LeanRDF.Shacl.altNodesX._f",
+   "LeanRDF.Shacl.altNodesX.match_1",
+   "LeanRDF.Shacl.closureF",
+   "LeanRDF.Shacl.closureGo",
+   "LeanRDF.Shacl.closureGo._f",
+   "LeanRDF.Shacl.closureGo.match_1",
+   "LeanRDF.Shacl.closureGo.match_3",
+   "LeanRDF.Shacl.groupBy",
+   "LeanRDF.Shacl.groupMap",
+   "LeanRDF.Shacl.invPairs",
+   "LeanRDF.Shacl.length_graphTerms",
+   "LeanRDF.Shacl.seqNodesX._f",
+   "LeanRDF.Shacl.seqNodesX.match_1",
+   "LeanRDF.Shacl.uniqF",
+   "LeanRDF.Shacl.valueNodesX",
+   "LeanRDF.Shacl.vnX",
+   "LeanRDF.Shacl.vnX._f",
+   "LeanRDF.Shacl.vnX.match_1",
+   "LeanRDF.Shacl.vnX.match_3",
+   "List.foldr",
+   "List.foldr._f",
+   "Std.DHashMap.Const.getD",
+   "Std.DHashMap.Internal.AssocList.getD",
+   "Std.DHashMap.Internal.AssocList.getD._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.getD",
+   "Std.DHashMap.Raw.emptyWithCapacity",
+   "Std.DHashMap.emptyWithCapacity",
+   "Std.DHashMap.insert",
+   "Std.DHashMap.insertIfNew",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.getD",
+   "Std.HashMap.insert",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashSet.emptyWithCapacity",
+   "Std.HashSet.insert",
+   "Std.HashSet.instEmptyCollection",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insert._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "instBEqProd",
+   "instDecidableEqProd.match_3",
+   "instHashableProd",
+   "instHashableProd.match_1"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.allOk._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.compResults._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.compsResults._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.focusNodes",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.graphTerms",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.instB",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.noneOk._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.oneOk._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.results",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.results._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.someOk._f",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.targetNodes",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.validate",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Shacl.vals",
+    "kind": "def",
+    "differs_in": [
+     "type",
+     "value"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   6616,
+   7749
+  ],
+  "full_closure_differing_count": 15
+ }
+}

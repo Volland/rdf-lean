@@ -22,16 +22,27 @@ def objs (s : Term) (p : IRI) : List Term := valueNodes G (.pred p) s
 def subjs (p : IRI) (o : Term) : List Term :=
   uniq ((G.toList.filter fun t => t.p == .iri p && t.o == o).map (·.s))
 
+section
+
+variable {G : Graph} (X : GIdx G)
+
+/-- `objs` from the indexes of the graph. -/
+def objsX (s : Term) (p : IRI) : List Term := valueNodesX X (.pred p) s
+
+/-- `subjs` from the indexes of the graph. -/
+def subjsX (p : IRI) (o : Term) : List Term :=
+  uniqF (((X.byObj.get.getD o []).filter fun t => t.p == .iri p).map (·.s))
+
 /-- The members of an RDF list, at most `fuel` long. -/
 def readList : Nat → Term → Except String (List Term)
   | 0, t => .error s!"list too long at {t.toNTriples}"
   | n + 1, t =>
     if t == .iri rdf.nil then .ok [] else
-    match objs G t rdf.first, objs G t rdf.rest with
+    match objsX X t rdf.first, objsX X t rdf.rest with
     | [f], [r] => do return f :: (← readList n r)
     | _, _ => .error s!"ill-formed list at {t.toNTriples}"
 
-private def listOf (t : Term) : Except String (List Term) := readList G (G.size + 1) t
+private def listOf (t : Term) : Except String (List Term) := readList X (G.size + 1) t
 
 /-- A path from its RDF form (§2.3.1), at most `fuel` deep. -/
 def readPath : Nat → Term → Except String Path
@@ -42,15 +53,15 @@ def readPath : Nat → Term → Except String Path
     | .lit _ => .error "a literal is not a path"
     | .triple _ _ _ => .error "a triple term is not a path"
     | .bnode _ =>
-      if !(objs G t rdf.first).isEmpty then do
-        let ms ← listOf G t
+      if !(objsX X t rdf.first).isEmpty then do
+        let ms ← listOf X t
         return .seq (← ms.mapM (readPath n))
       else
-      let one (p : IRI) : Option Term := (objs G t p).head?
+      let one (p : IRI) : Option Term := (objsX X t p).head?
       match one sh.inversePath, one sh.alternativePath, one sh.zeroOrMorePath,
           one sh.oneOrMorePath, one sh.zeroOrOnePath with
       | some p, _, _, _, _ => return .inv (← readPath n p)
-      | _, some l, _, _, _ => do return .alt (← (← listOf G l).mapM (readPath n))
+      | _, some l, _, _, _ => do return .alt (← (← listOf X l).mapM (readPath n))
       | _, _, some p, _, _ => return .zeroOrMore (← readPath n p)
       | _, _, _, some p, _ => return .oneOrMore (← readPath n p)
       | _, _, _, _, some p => return .zeroOrOne (← readPath n p)
@@ -81,19 +92,19 @@ private def nodeKindOf (t : Term) : Except String NodeKind :=
   else .error s!"not a node kind: {t.toNTriples}"
 
 /-- `n` is a SHACL instance of `c` in the shapes graph. -/
-private def isA (n : Term) (c : IRI) : Bool := instB G n (.iri c)
+private def isA (n : Term) (c : IRI) : Bool := instB X n (.iri c)
 
 -- @tg: implements:: [[openspec:shacl-core#Shapes]]
 /-- Read the shape at node `n`; `stack` holds the shapes being read, to reject recursion. -/
 partial def readShape (stack : List Term) (n : Term) : Except String Shape := do
   if stack.contains n then throw s!"recursive shape: {n.toNTriples} refers to itself"
   let st := n :: stack
-  let o := objs G n
+  let o := objsX X n
   let path ← match o sh.path with
     | [] => pure none
-    | [p] => some <$> readPath G (G.size + 1) p
+    | [p] => some <$> readPath X (G.size + 1) p
     | _ => throw s!"{n.toNTriples} has several paths"
-  let implicit := if (isA G n sh.NodeShape || isA G n sh.PropertyShape) && isA G n rdfs.Class
+  let implicit := if (isA X n sh.NodeShape || isA X n sh.PropertyShape) && isA X n rdfs.Class
     then [Target.class_ n] else []
   let targets := (o sh.targetNode).map .node ++ (o sh.targetClass).map .class_ ++ implicit ++
     (← (o sh.targetSubjectsOf).mapM iriOf).map .subjectsOf ++
@@ -118,7 +129,7 @@ partial def readShape (stack : List Term) (n : Term) : Except String Shape := do
     | .lit l => comps := comps.push (.test (.pattern l.lexical flags))
     | _ => throw s!"sh:pattern of {n.toNTriples} is not a literal"
   for l in o sh.languageIn do
-    let tags := (← listOf G l).filterMap fun
+    let tags := (← listOf X l).filterMap fun
       | .lit lit => some lit.lexical
       | _ => none
     comps := comps.push (.test (.languageIn tags))
@@ -128,9 +139,9 @@ partial def readShape (stack : List Term) (n : Term) : Except String Shape := do
   for p in o sh.lessThan do comps := comps.push (.lessThan (← iriOf p))
   for p in o sh.lessThanOrEquals do comps := comps.push (.lessThanOrEquals (← iriOf p))
   for s in o sh.not do comps := comps.push (.not (← sub s))
-  for l in o sh.and do comps := comps.push (.and (← (← listOf G l).mapM sub))
-  for l in o sh.or do comps := comps.push (.or (← (← listOf G l).mapM sub))
-  for l in o sh.xone do comps := comps.push (.xone (← (← listOf G l).mapM sub))
+  for l in o sh.and do comps := comps.push (.and (← (← listOf X l).mapM sub))
+  for l in o sh.or do comps := comps.push (.or (← (← listOf X l).mapM sub))
+  for l in o sh.xone do comps := comps.push (.xone (← (← listOf X l).mapM sub))
   for s in o sh.node do comps := comps.push (.node (← sub s))
   for s in o sh.property do comps := comps.push (.property (← sub s))
   for q in o sh.qualifiedValueShape do
@@ -138,30 +149,33 @@ partial def readShape (stack : List Term) (n : Term) : Except String Shape := do
     -- sibling shapes (§4.7.3): the qualified value shapes of the other property shapes of the
     -- shapes that have this one as a property
     let sibs ← if (o sh.qualifiedValueShapesDisjoint).any isTrue then
-        let others := (subjs G sh.property n).flatMap fun parent =>
-          (objs G parent sh.property).flatMap fun ps => objs G ps sh.qualifiedValueShape
+        let others := (subjsX X sh.property n).flatMap fun parent =>
+          (objsX X parent sh.property).flatMap fun ps => objsX X ps sh.qualifiedValueShape
         ((uniq others).filter (· != q)).mapM sub
       else pure []
     for m in o sh.qualifiedMinCount do comps := comps.push (.qualifiedMin qs (← natOf m) sibs)
     for m in o sh.qualifiedMaxCount do comps := comps.push (.qualifiedMax qs (← natOf m) sibs)
   if (o sh.closed).any isTrue then
-    let fromPaths := (o sh.property).flatMap fun ps => (objs G ps sh.path).filterMap fun
+    let fromPaths := (o sh.property).flatMap fun ps => (objsX X ps sh.path).filterMap fun
       | .iri i => some i
       | _ => none
     let ignored ← (o sh.ignoredProperties).flatMapM fun l => do
-      (← listOf G l).mapM iriOf
+      (← listOf X l).mapM iriOf
     comps := comps.push (.closed (fromPaths ++ ignored))
   for v in o sh.hasValue do comps := comps.push (.hasValue v)
-  for l in o sh.in do comps := comps.push (.test (.in_ (← listOf G l)))
+  for l in o sh.in do comps := comps.push (.test (.in_ (← listOf X l)))
   let severity := (o sh.severity).head?.getD (.iri sh.Violation)
   return .mk n path targets comps.toList ((o sh.deactivated).any isTrue) severity (o sh.message)
 
+end
+
 /-- The shapes of a shapes graph that have targets. -/
 def readShapes : Except String (List Shape) := do
+  let X := GIdx.build G
   let withTargets := [sh.targetNode, sh.targetClass, sh.targetSubjectsOf, sh.targetObjectsOf].flatMap
-    fun p => (G.toList.filter (·.p == .iri p)).map (·.s)
-  let implicit := (G.toList.filter fun t => t.p == .iri rdf.type &&
-      (t.o == .iri sh.NodeShape || t.o == .iri sh.PropertyShape) && isA G t.s rdfs.Class).map (·.s)
-  (uniq (withTargets ++ implicit)).mapM (readShape G [])
+    fun p => (X.byPred.get.getD (.iri p) []).map (·.s)
+  let implicit := ((X.byPred.get.getD (.iri rdf.type) []).filter fun t =>
+      (t.o == .iri sh.NodeShape || t.o == .iri sh.PropertyShape) && isA X t.s rdfs.Class).map (·.s)
+  (uniqF (withTargets ++ implicit)).mapM (readShape X [])
 
 end LeanRDF.Shacl

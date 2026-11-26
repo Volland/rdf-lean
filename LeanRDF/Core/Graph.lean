@@ -8,6 +8,10 @@ An RDF graph is a finite set of triples (RDF 1.1 Concepts §3). `Graph` is opaqu
 proofs use membership and the `mem_*` theorems only, never the hash set behind it, so the
 representation can change in this file alone. `toList` is sorted, so output order does not
 depend on insertion order.
+
+The sorted list is cached: a graph carries a `Thunk` of it, with a proof that it is the sort of
+the hash set, so repeated `toList` calls on one graph sort once. Every operation that builds a
+graph starts a fresh, unevaluated thunk, and the thunk is forced only when `toList` is called.
 -/
 
 namespace LeanRDF
@@ -16,10 +20,17 @@ namespace LeanRDF
 /-- A finite set of generalized triples (RDF 1.1 Concepts §3, §7). The representation is
 private; use `∈` and the `mem_*` theorems. -/
 structure Graph where
-  private mk ::
+  private mk' ::
   private triples : Std.HashSet Triple
+  /-- The sorted triples, computed at most once. -/
+  private sorted : Thunk (List Triple)
+  private sorted_eq : sorted.get = triples.toList.mergeSort (fun a b => compare a b != .gt)
 
 namespace Graph
+
+/-- The graph of a hash set, with an unevaluated sorted list. -/
+private def mk (s : Std.HashSet Triple) : Graph :=
+  ⟨s, Thunk.mk fun _ => s.toList.mergeSort (fun a b => compare a b != .gt), rfl⟩
 
 instance : Membership Triple Graph := ⟨fun g t => t ∈ g.triples⟩
 
@@ -29,16 +40,16 @@ instance (t : Triple) (g : Graph) : Decidable (t ∈ g) :=
   decidable_of_iff (g.triples.contains t) (by rw [mem_def, Std.HashSet.mem_iff_contains])
 
 /-- The empty graph. -/
-def empty : Graph := ⟨∅⟩
+def empty : Graph := mk ∅
 
 instance : EmptyCollection Graph := ⟨empty⟩
 
 /-- Add one triple. -/
-def insert (t : Triple) (g : Graph) : Graph := ⟨g.triples.insert t⟩
+def insert (t : Triple) (g : Graph) : Graph := mk (g.triples.insert t)
 
 /-- Set union of two graphs. Blank nodes with the same label are the same node; this is union,
 not merge (RDF 1.1 Semantics §4). -/
-def union (g h : Graph) : Graph := ⟨g.triples ∪ h.triples⟩
+def union (g h : Graph) : Graph := mk (g.triples ∪ h.triples)
 
 instance : Union Graph := ⟨union⟩
 
@@ -46,11 +57,14 @@ instance : Union Graph := ⟨union⟩
 def singleton (t : Triple) : Graph := insert t empty
 
 /-- The graph of the triples in a list. -/
-def ofList (l : List Triple) : Graph := ⟨Std.HashSet.ofList l⟩
+def ofList (l : List Triple) : Graph := mk (Std.HashSet.ofList l)
 
-/-- The triples of a graph, each once, sorted by `Ord Triple`. -/
-def toList (g : Graph) : List Triple :=
-  g.triples.toList.mergeSort (fun a b => compare a b != .gt)
+/-- The triples of a graph, each once, sorted by `Ord Triple`. The sort runs on the first call
+and is cached in the graph. -/
+def toList (g : Graph) : List Triple := g.sorted.get
+
+private theorem toList_eq (g : Graph) :
+    g.toList = g.triples.toList.mergeSort (fun a b => compare a b != .gt) := g.sorted_eq
 
 /-- The number of triples. -/
 def size (g : Graph) : Nat := g.triples.size
@@ -80,11 +94,11 @@ def size (g : Graph) : Nat := g.triples.size
   rw [Std.HashSet.mem_ofList, List.contains_iff_mem]
 
 @[simp] theorem mem_toList {t : Triple} {g : Graph} : t ∈ g.toList ↔ t ∈ g := by
-  simp [toList, List.mem_mergeSort, Std.HashSet.mem_toList, mem_def]
+  simp [toList_eq, List.mem_mergeSort, Std.HashSet.mem_toList, mem_def]
 
 /-- `toList` lists each triple once. -/
 theorem nodup_toList (g : Graph) : g.toList.Nodup := by
-  unfold toList
+  rw [toList_eq]
   refine (List.mergeSort_perm _ _).nodup_iff.mpr ?_
   exact g.triples.distinct_toList.imp fun h e => by subst e; simp at h
 

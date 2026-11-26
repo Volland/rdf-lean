@@ -1,0 +1,15 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "LeanRDF.Statements.Challenge.decode_toRDF",
+    "LeanRDF.Statements.Challenge.toRDF_decode",
+    "LeanRDF.Statements.StatementGraph.Challenge.criterion",
+    "LeanRDF.Statements.StatementGraph.Challenge.kernel_greatest"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ]
+}

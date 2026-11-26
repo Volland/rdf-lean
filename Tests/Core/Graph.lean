@@ -26,4 +26,10 @@ example (g h : Graph) (t : Triple) : t ∈ g ∪ h ↔ t ∈ g ∨ t ∈ h := Gr
 #guard decide (t2 ∈ Graph.ofList [t1, t2]) && !decide (t3 ∈ Graph.ofList [t1, t2])
 #guard (Graph.ofList [t1, t2, t1]).toList.length == 2
 
+/- `toList` is cached in the graph: repeated calls give the same sorted list, and a graph built
+from it lists the same triples. -/
+#guard let g := Graph.ofList [t3, t2, t1]; g.toList == g.toList && g.toList == [t1, t2, t3].mergeSort
+  (fun a b => compare a b != .gt) && (Graph.ofList g.toList).toList == g.toList
+#guard ((Graph.ofList [t1]) ∪ (Graph.ofList [t3, t2])).toList == (Graph.ofList [t2, t1, t3]).toList
+
 end LeanRDF.Tests.Graph

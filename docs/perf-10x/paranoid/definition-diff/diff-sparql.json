@@ -1,0 +1,523 @@
+{
+ "LeanRDF.Sparql.evalN_perm": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   3061,
+   3140
+  ],
+  "only_in_base": [
+   "LeanRDF.Sparql.Eval.bgp",
+   "LeanRDF.Sparql.Eval.evalN._f",
+   "LeanRDF.Sparql.Eval.evalN.match_1",
+   "LeanRDF.Sparql.Eval.evalN.match_3",
+   "LeanRDF.Sparql.Eval.matchAll",
+   "LeanRDF.Sparql.Eval.matchAll._f",
+   "LeanRDF.Sparql.Spec.groupOp._sparseCasesOn_3",
+   "LeanRDF.Sparql.Spec.groupOp.match_3",
+   "LeanRDF.Sparql.Spec.groupOp.match_6",
+   "LeanRDF.Sparql.Spec.groupOp.match_8",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.quads"
+  ],
+  "only_in_head": [
+   "LeanRDF.Sparql.Eval.TIdx",
+   "LeanRDF.Sparql.Eval.TIdx.all",
+   "LeanRDF.Sparql.Eval.TIdx.build",
+   "LeanRDF.Sparql.Eval.TIdx.byObj",
+   "LeanRDF.Sparql.Eval.TIdx.byPred",
+   "LeanRDF.Sparql.Eval.TIdx.bySubj",
+   "LeanRDF.Sparql.Eval.TIdx.mk",
+   "LeanRDF.Sparql.Eval.bgpI",
+   "LeanRDF.Sparql.Eval.cands",
+   "LeanRDF.Sparql.Eval.candsJ",
+   "LeanRDF.Sparql.Eval.evalNI",
+   "LeanRDF.Sparql.Eval.evalNI._f",
+   "LeanRDF.Sparql.Eval.evalNI.match_1",
+   "LeanRDF.Sparql.Eval.evalNI.match_3",
+   "LeanRDF.Sparql.Eval.graphNodesF",
+   "LeanRDF.Sparql.Eval.groupOp",
+   "LeanRDF.Sparql.Eval.groupOp.match_1",
+   "LeanRDF.Sparql.Eval.join",
+   "LeanRDF.Sparql.Eval.join.match_1",
+   "LeanRDF.Sparql.Eval.joinVar?",
+   "LeanRDF.Sparql.Eval.joinVar?._sparseCasesOn_1",
+   "LeanRDF.Sparql.Eval.joinVar?.match_1",
+   "LeanRDF.Sparql.Eval.joinWith",
+   "LeanRDF.Sparql.Eval.leftJoin",
+   "LeanRDF.Sparql.Eval.matchAllI",
+   "LeanRDF.Sparql.Eval.matchAllI._f",
+   "LeanRDF.Sparql.Eval.minus",
+   "LeanRDF.Sparql.Eval.pathOp",
+   "LeanRDF.Sparql.Eval.pathOp._sparseCasesOn_1",
+   "LeanRDF.Sparql.Eval.pathOp.match_1",
+   "LeanRDF.Sparql.Eval.pathPairs",
+   "LeanRDF.Sparql.Eval.pathPairs._f",
+   "LeanRDF.Sparql.Eval.pathPairs.match_1",
+   "LeanRDF.Sparql.Eval.pathPairs.match_3",
+   "LeanRDF.Sparql.Eval.subqueryOp",
+   "LeanRDF.Sparql.Eval.subqueryOp.match_1",
+   "LeanRDF.Sparql.Eval.subqueryOp.match_3",
+   "LeanRDF.Sparql.Eval.subqueryOp.match_5",
+   "LeanRDF.Sparql.Mapping.instHashable",
+   "LeanRDF.Sparql.Spec.groupRow",
+   "LeanRDF.Sparql.Spec.groupRow._sparseCasesOn_1",
+   "LeanRDF.Sparql.Spec.groupRow.match_1",
+   "LeanRDF.Sparql.Spec.groupRow.match_4",
+   "LeanRDF.Sparql.Spec.groupRow.match_6",
+   "LeanRDF.Sparql.closeGo",
+   "LeanRDF.Sparql.closeGo._f",
+   "LeanRDF.Sparql.closeGo.match_1",
+   "LeanRDF.Sparql.closeGo.match_3",
+   "LeanRDF.Sparql.closurePairsF",
+   "LeanRDF.Sparql.composeIdx",
+   "LeanRDF.Sparql.dedupF",
+   "LeanRDF.Sparql.dedupGo",
+   "LeanRDF.Sparql.dedupGo._f",
+   "LeanRDF.Sparql.dedupGo.match_1",
+   "LeanRDF.Sparql.dedupGo2",
+   "LeanRDF.Sparql.dedupGo2._f",
+   "LeanRDF.Sparql.dedupGo2.match_1",
+   "LeanRDF.Sparql.groupBy",
+   "LeanRDF.Sparql.groupMap",
+   "LeanRDF.Sparql.insertAll",
+   "LeanRDF.Sparql.pairIndex",
+   "List.foldr",
+   "List.foldr._f",
+   "Std.DHashMap.Const.getD",
+   "Std.DHashMap.Internal.AssocList.getD",
+   "Std.DHashMap.Internal.AssocList.getD._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.getD",
+   "Std.DHashMap.insert",
+   "Std.DHashMap.insertIfNew",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.getD",
+   "Std.HashMap.insert",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashSet.emptyWithCapacity",
+   "Std.HashSet.insert",
+   "Std.HashSet.instEmptyCollection",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk'",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.sorted",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk._proof_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insert._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "instBEqProd"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Dataset",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.graphNames",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.namedGraph",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.ofList",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Eval.evalN",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.evalN",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.graphNodes",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.groupOp",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.pathOp",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.pathPairs",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.graphTerms",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk",
+    "kind": "def",
+    "differs_in": [
+     "kind ctor->def",
+     "value",
+     "metadata"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   7693,
+   7771
+  ],
+  "full_closure_differing_count": 7
+ },
+ "LeanRDF.Sparql.runQuery_answer": {
+  "present": [
+   true,
+   true
+  ],
+  "statement_type_identical": true,
+  "closure_size": [
+   3090,
+   3170
+  ],
+  "only_in_base": [
+   "LeanRDF.Sparql.Eval.bgp",
+   "LeanRDF.Sparql.Eval.evalN._f",
+   "LeanRDF.Sparql.Eval.evalN.match_1",
+   "LeanRDF.Sparql.Eval.evalN.match_3",
+   "LeanRDF.Sparql.Eval.matchAll",
+   "LeanRDF.Sparql.Eval.matchAll._f",
+   "LeanRDF.Sparql.Spec.groupOp._sparseCasesOn_3",
+   "LeanRDF.Sparql.Spec.groupOp.match_3",
+   "LeanRDF.Sparql.Spec.groupOp.match_6",
+   "LeanRDF.Sparql.Spec.groupOp.match_8",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.quads"
+  ],
+  "only_in_head": [
+   "LeanRDF.Sparql.Eval.TIdx",
+   "LeanRDF.Sparql.Eval.TIdx.all",
+   "LeanRDF.Sparql.Eval.TIdx.build",
+   "LeanRDF.Sparql.Eval.TIdx.byObj",
+   "LeanRDF.Sparql.Eval.TIdx.byPred",
+   "LeanRDF.Sparql.Eval.TIdx.bySubj",
+   "LeanRDF.Sparql.Eval.TIdx.mk",
+   "LeanRDF.Sparql.Eval.bgpI",
+   "LeanRDF.Sparql.Eval.cands",
+   "LeanRDF.Sparql.Eval.candsJ",
+   "LeanRDF.Sparql.Eval.evalNI",
+   "LeanRDF.Sparql.Eval.evalNI._f",
+   "LeanRDF.Sparql.Eval.evalNI.match_1",
+   "LeanRDF.Sparql.Eval.evalNI.match_3",
+   "LeanRDF.Sparql.Eval.graphNodesF",
+   "LeanRDF.Sparql.Eval.groupOp",
+   "LeanRDF.Sparql.Eval.groupOp.match_1",
+   "LeanRDF.Sparql.Eval.join",
+   "LeanRDF.Sparql.Eval.join.match_1",
+   "LeanRDF.Sparql.Eval.joinVar?",
+   "LeanRDF.Sparql.Eval.joinVar?._sparseCasesOn_1",
+   "LeanRDF.Sparql.Eval.joinVar?.match_1",
+   "LeanRDF.Sparql.Eval.joinWith",
+   "LeanRDF.Sparql.Eval.leftJoin",
+   "LeanRDF.Sparql.Eval.matchAllI",
+   "LeanRDF.Sparql.Eval.matchAllI._f",
+   "LeanRDF.Sparql.Eval.minus",
+   "LeanRDF.Sparql.Eval.pathOp",
+   "LeanRDF.Sparql.Eval.pathOp._sparseCasesOn_1",
+   "LeanRDF.Sparql.Eval.pathOp.match_1",
+   "LeanRDF.Sparql.Eval.pathPairs",
+   "LeanRDF.Sparql.Eval.pathPairs._f",
+   "LeanRDF.Sparql.Eval.pathPairs.match_1",
+   "LeanRDF.Sparql.Eval.pathPairs.match_3",
+   "LeanRDF.Sparql.Eval.subqueryOp",
+   "LeanRDF.Sparql.Eval.subqueryOp.match_1",
+   "LeanRDF.Sparql.Eval.subqueryOp.match_3",
+   "LeanRDF.Sparql.Eval.subqueryOp.match_5",
+   "LeanRDF.Sparql.Mapping.instHashable",
+   "LeanRDF.Sparql.Query.finishF",
+   "LeanRDF.Sparql.Spec.groupRow",
+   "LeanRDF.Sparql.Spec.groupRow._sparseCasesOn_1",
+   "LeanRDF.Sparql.Spec.groupRow.match_1",
+   "LeanRDF.Sparql.Spec.groupRow.match_4",
+   "LeanRDF.Sparql.Spec.groupRow.match_6",
+   "LeanRDF.Sparql.closeGo",
+   "LeanRDF.Sparql.closeGo._f",
+   "LeanRDF.Sparql.closeGo.match_1",
+   "LeanRDF.Sparql.closeGo.match_3",
+   "LeanRDF.Sparql.closurePairsF",
+   "LeanRDF.Sparql.composeIdx",
+   "LeanRDF.Sparql.dedupF",
+   "LeanRDF.Sparql.dedupGo",
+   "LeanRDF.Sparql.dedupGo._f",
+   "LeanRDF.Sparql.dedupGo.match_1",
+   "LeanRDF.Sparql.dedupGo2",
+   "LeanRDF.Sparql.dedupGo2._f",
+   "LeanRDF.Sparql.dedupGo2.match_1",
+   "LeanRDF.Sparql.groupBy",
+   "LeanRDF.Sparql.groupMap",
+   "LeanRDF.Sparql.insertAll",
+   "LeanRDF.Sparql.pairIndex",
+   "List.foldr",
+   "List.foldr._f",
+   "Std.DHashMap.Const.getD",
+   "Std.DHashMap.Internal.AssocList.getD",
+   "Std.DHashMap.Internal.AssocList.getD._f",
+   "Std.DHashMap.Internal.Raw\u2080.Const.getD",
+   "Std.DHashMap.insert",
+   "Std.DHashMap.insertIfNew",
+   "Std.HashMap.emptyWithCapacity",
+   "Std.HashMap.getD",
+   "Std.HashMap.insert",
+   "Std.HashMap.insertIfNew",
+   "Std.HashMap.instEmptyCollection",
+   "Std.HashSet.emptyWithCapacity",
+   "Std.HashSet.insert",
+   "Std.HashSet.instEmptyCollection",
+   "Thunk",
+   "Thunk.fn",
+   "Thunk.get",
+   "Thunk.mk",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.mk'",
+   "_private.LeanRDF.Core.Dataset.0.LeanRDF.Dataset.sorted",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk._proof_1",
+   "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.Const.get?._proof_1",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insert._proof_2",
+   "_private.Std.Data.DHashMap.Basic.0.Std.DHashMap.insertIfNew._proof_1",
+   "_private.Std.Data.DHashMap.Internal.Defs.0.Std.DHashMap.Internal.Raw\u2080.Const.get._proof_1",
+   "instBEqProd"
+  ],
+  "differing": [
+   {
+    "name": "LeanRDF.Dataset",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.defaultGraph",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.graphNames",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.namedGraph",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Dataset.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph",
+    "kind": "induct",
+    "differs_in": [
+     "metadata"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.ofList",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Graph.toList",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Eval.eval",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Eval.evalN",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Eval.runQuery",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Query.keys",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Query.le",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Query.oracle",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.Answer",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.eval",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.evalN",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.graphNodes",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.groupOp",
+    "kind": "def",
+    "differs_in": [
+     "value"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.pathOp",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.Spec.pathPairs",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "LeanRDF.Sparql.graphTerms",
+    "kind": "def",
+    "differs_in": [
+     "reducibility hints only"
+    ]
+   },
+   {
+    "name": "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk",
+    "kind": "def",
+    "differs_in": [
+     "kind ctor->def",
+     "value",
+     "metadata"
+    ]
+   }
+  ],
+  "full_closure_size": [
+   7722,
+   7801
+  ],
+  "full_closure_differing_count": 8
+ }
+}

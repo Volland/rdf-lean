@@ -1,0 +1,45 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output":
+    {"proc":
+     {"stdout": "Skipped exported but unpermitted axioms [\"sorryAx\"]\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "lean4lean":
+   {"output":
+    {"proc": {"stdout": "checked 90388 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 90391 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 90391 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 0.6s (index 0.0s), check 8.2s\ncon-leche: stats: check pool: 8.287s wall, 12 workers, 90391 records, busy 97.635s (98.1%); tail 0.169s after the last start, 12 busy then, 0.306s worker-time in it (15.0%)\ncon-leche: stats: slowest checks: 0.968s theorem _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10 (#82292); 0.381s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#34720); 0.370s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_append._proof_1 (#87682); 0.330s theorem _private.Init.Data.Array.Extract.0.Array.extract_add_left._proof_1_2 (#71160); 0.246s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_reverse._proof_1_1 (#87291)\ncon-leche: stats: peak RSS 0.82 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "check_axioms":
+  {"output":
+   {"str": {"string": "Uses axioms: propext, Classical.choice, Quot.sound"}},
+   "judgement": "success"},
+  "build_report":
+  {"output":
+   {"proc":
+    {"stdout": "",
+     "stderr":
+     "✔ [99/131] Built LeanRDFSparql.Hash (81ms)\n✔ [101/131] Built LeanRDFSparql.Mapping (483ms)\n✔ [103/131] Built LeanRDFSparql.Algebra (991ms)\n✔ [105/131] Built LeanRDFSparql.Expr (497ms)\n✔ [107/131] Built LeanRDFSparql.Order (200ms)\n✔ [109/131] Built LeanRDFSparql.Ops (221ms)\n✔ [111/131] Built LeanRDFSparql.Eval (129ms)\n✔ [113/131] Built LeanRDFSparql.Semantics (120ms)\n⚠ [115/131] Built LeanRDFSparql.BgpCorrect (248ms)\nwarning: LeanRDFSparql/BgpCorrect.lean:55:10: This simp argument is unused:\n  hs\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hp, ho, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:55:14: This simp argument is unused:\n  hp\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hs, ho, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:55:18: This simp argument is unused:\n  ho\n\nHint: Omit it from the simp argument list.\n  [apply] simp [hs, hp, Option.bind]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\nwarning: LeanRDFSparql/BgpCorrect.lean:267:25: This simp argument is unused:\n  μ\n\nHint: Omit it from the simp argument list.\n  [apply] simp only [Mapping.find?_restrict]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n✔ [117/131] Built LeanRDFSparql.Correct (259ms)\n⚠ [119/131] Built LeanRDFSparql.Query (118ms)\nwarning: LeanRDFSparql/Query.lean:67:9: Variable name `a` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _a\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: LeanRDFSparql/Query.lean:67:11: Variable name `b` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _b\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n✔ [121/131] Built LeanRDFSparql.Syntax (365ms)\n✔ [123/131] Built LeanRDFSparql.Parser (1.4s)\n✔ [125/131] Built LeanRDFSparql.Results (428ms)\n✔ [127/131] Built LeanRDFSparql.Run (155ms)\n✔ [129/131] Built LeanRDFSparql (89ms)\n"}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

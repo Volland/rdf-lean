@@ -1,0 +1,45 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output":
+    {"proc":
+     {"stdout": "Skipped exported but unpermitted axioms [\"sorryAx\"]\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "lean4lean":
+   {"output":
+    {"proc": {"stdout": "checked 88930 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 88933 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 88933 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 0.9s (index 0.0s), check 11.0s\ncon-leche: stats: check pool: 11.064s wall, 12 workers, 88933 records, busy 129.749s (97.7%); tail 0.305s after the last start, 12 busy then, 0.741s worker-time in it (20.2%)\ncon-leche: stats: slowest checks: 1.418s theorem _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10 (#80812); 0.655s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_4 (#34723); 0.619s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_append._proof_1 (#86224); 0.496s theorem _private.Init.Data.Array.Extract.0.Array.extract_reverse._proof_1_2 (#70163); 0.489s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#34720)\ncon-leche: stats: peak RSS 0.81 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "check_axioms":
+  {"output":
+   {"str": {"string": "Uses axioms: propext, Classical.choice, Quot.sound"}},
+   "judgement": "success"},
+  "build_report":
+  {"output":
+   {"proc":
+    {"stdout": "",
+     "stderr":
+     "✔ [3/103] Built LeanRDF.Parse.Turtle.Iri (223ms)\n✔ [4/103] Built LeanRDF.Parse.NTriples.Chars (313ms)\n✔ [5/103] Built LeanRDF.Core.Term (465ms)\n✔ [9/103] Built LeanRDF.Canon.Sha256 (398ms)\n✔ [11/103] Built LeanRDF.Core.Vocab (163ms)\n✔ [13/103] Built LeanRDF.Core.Triple (209ms)\n✔ [15/103] Built LeanRDF.Xsd.Lexical (657ms)\n✔ [17/103] Built LeanRDF.Core.Index (293ms)\n✔ [19/103] Built LeanRDF.Text.Hash (517ms)\n✔ [21/103] Built LeanRDF.Semantics.Axioms (134ms)\n✔ [23/103] Built LeanRDF.Core.Literal (172ms)\n✔ [25/103] Built LeanRDF.Text.Regex (820ms)\n✔ [27/103] Built LeanRDF.Core.Graph (202ms)\n✔ [29/103] Built LeanRDF.Xsd.DateTime (300ms)\n✔ [31/103] Built LeanRDF.Core.Iso (128ms)\n✔ [32/103] Built LeanRDF.Entailment.Rule (349ms)\n✔ [34/103] Built LeanRDF.Parse.NTriples.Serializer (189ms)\n✔ [36/103] Built LeanRDF.Core.Dataset (365ms)\n✔ [39/103] Built LeanRDF.Xsd.Value (350ms)\n✔ [41/103] Built LeanRDF.Semantics.Interpretation (358ms)\n✔ [43/103] Built LeanRDF.Entailment.Derivation (264ms)\n✔ [44/103] Built LeanRDF.Entailment.Rules (297ms)\n✔ [47/103] Built LeanRDF.Cert.Match (403ms)\n✔ [49/103] Built LeanRDF.Parse.NQuads.Serializer (202ms)\n✔ [51/103] Built LeanRDF.Semantics.RDFS (248ms)\n✔ [53/103] Built LeanRDF.Canon.Label (373ms)\n✔ [55/103] Built LeanRDF.Semantics.Entails (144ms)\n✔ [57/103] Built LeanRDF.Xsd.Compare (270ms)\n✔ [59/103] Built LeanRDF.Canon.Hash (425ms)\n✔ [61/103] Built LeanRDF.Canon.Rdfc (261ms)\n✔ [63/103] Built LeanRDF.Entailment.Soundness (339ms)\n✔ [65/103] Built LeanRDF.Parse.NTriples.Parser (710ms)\n✔ [67/103] Built LeanRDF.Canon.Digest (110ms)\n✔ [69/103] Built LeanRDF.Entailment.Clash (162ms)\n✔ [71/103] Built LeanRDF.Parse.NQuads.Parser (106ms)\n✔ [73/103] Built LeanRDF.Model.Presentation (532ms)\n✔ [75/103] Built LeanRDF.Cert.Envelope (204ms)\n✔ [77/103] Built LeanRDF.Model.Interp (252ms)\n✔ [79/103] Built LeanRDF.Cert.Check (327ms)\n✔ [81/103] Built LeanRDF.Cert.Clash (166ms)\n✔ [83/103] Built LeanRDF.Model.Lift (322ms)\n✔ [85/103] Built LeanRDF.Cert.Json (191ms)\n✔ [87/103] Built LeanRDF.Cert.Datalog (149ms)\n✔ [89/103] Built LeanRDF.Parse.Turtle.Parser (1.0s)\n✔ [91/103] Built LeanRDF.Parse.TriG.Parser (98ms)\n✔ [93/103] Built LeanRDF.Model.Index (676ms)\n✔ [95/103] Built LeanRDF.Model.Check (300ms)\n✔ [97/103] Built LeanRDF.Model.Json (205ms)\n✔ [99/103] Built LeanRDF.Model.Canonical (267ms)\n✔ [101/103] Built LeanRDF (101ms)\n"}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

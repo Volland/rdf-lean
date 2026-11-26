@@ -1,3 +1,4 @@
+import Std.Data.HashMap
 import LeanRDFStatements.Export
 
 /-!
@@ -429,5 +430,72 @@ theorem decode_toRDF (hw : sg.WellFormed) : decode v (sg.toRDF v) = .ok sg := by
   rfl
 
 end
+
+/-! ## The decoder, compiled
+
+`decode` looks up each statement's triples by a linear search of the graph, once per eid and
+predicate. Compiled code runs `decodeFast` instead, which groups the triples by subject once;
+`decode_eq_decodeFast` proves the two equal, so the theorems above are about `decode`. -/
+
+/-- The triples of `ts` grouped by subject, each group in the order of `ts`. -/
+def bySubject (ts : List Triple) : Std.HashMap Term (List Triple) :=
+  ts.foldr (fun t m => m.insert t.s (t :: m.getD t.s [])) {}
+
+theorem bySubject_getD (ts : List Triple) (k : Term) :
+    (bySubject ts).getD k [] = ts.filter (fun t => t.s == k) := by
+  induction ts with
+  | nil => simp [bySubject]
+  | cons t ts ih =>
+    simp only [bySubject, List.foldr_cons] at ih ⊢
+    rw [Std.HashMap.getD_insert]
+    by_cases h : t.s = k
+    · subst h; simp [ih]
+    · simp [h, ih, List.filter_cons]
+
+/-- `findMeta` on the grouped triples. -/
+def findMetaIdx (idx : Std.HashMap Term (List Triple)) (e : Nat) (P : IRI) : Option Triple :=
+  (idx.getD (.iri (stmtIRI e)) []).find? fun t => t.p == .iri P
+
+theorem findMetaIdx_eq (ts : List Triple) (e : Nat) (P : IRI) :
+    findMetaIdx (bySubject ts) e P = findMeta ts e P := by
+  simp only [findMetaIdx, findMeta, bySubject_getD, List.find?_filter]
+  congr 1
+
+/-- `recordAt` on the grouped triples. -/
+def recordAtIdx (idx : Std.HashMap Term (List Triple)) (e : Nat) : Option Record := do
+  let rt ← findMetaIdx idx e rdf.reifies
+  let (s', p', o') ← match rt.o with | .triple s p o => some (s, p, o) | _ => none
+  let p ← match p' with | .iri i => some i | _ => none
+  let tx ← (findMetaIdx idx e tm.txAdded).bind (litNat? ·.o)
+  some { eid := e, s := nodeOf s', p, o := nodeOf o', txAdded := tx
+         txRetracted := (findMetaIdx idx e tm.txRetracted).bind (litNat? ·.o)
+         validFrom := (findMetaIdx idx e tm.validFromMs).bind (litInt? ·.o)
+         validTo := (findMetaIdx idx e tm.validToMs).bind (litInt? ·.o) }
+
+theorem recordAtIdx_eq (ts : List Triple) (e : Nat) :
+    recordAtIdx (bySubject ts) e = recordAt ts e := by
+  simp only [recordAtIdx, recordAt, findMetaIdx_eq]
+
+/-- `decode`, with the triples grouped by subject once. -/
+def decodeFast (v : View) (g : Graph) : Except String StatementGraph := do
+  let ts := g.toList
+  let idx := bySubject ts
+  let rs ← (eidsOf ts).mapM fun e =>
+    match recordAtIdx idx e with
+    | some r => .ok r
+    | none => .error s!"statement {e}: no complete rdf:reifies and tm:txAdded triples"
+  if h : rs.Pairwise (·.eid < ·.eid) then
+    let sg : StatementGraph := ⟨rs, h⟩
+    if sg.WellFormed then
+      if (sg.toRDF v).toList == ts then return sg
+      else throw (mismatch v sg g)
+    else
+      throw s!"statement {((sg.check.head?).map (·.1)).getD 0} breaks {((sg.check.head?).map (·.2.name)).getD ""}"
+  else throw "statements are not in increasing eid order"
+
+/-- Compiled code runs `decodeFast` for `decode`. -/
+@[csimp] theorem decode_eq_decodeFast : @decode = @decodeFast := by
+  funext v g
+  simp only [decode, decodeFast, recordAtIdx_eq]
 
 end LeanRDF.Statements

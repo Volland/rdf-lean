@@ -1,0 +1,109 @@
+same	rdfs-5/data.nt rdfs-5/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-5/data.nt rdfs-5/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-5/data.nt rdfs-5/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-5/data.nt rdfs-5/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-5/data.nt rdfs-5/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-5/data.nt rdfs-5/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-5/data.nt owl-5/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-5/data.nt owl-5/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-5/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-10/data.nt rdfs-10/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-10/data.nt rdfs-10/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-10/data.nt rdfs-10/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-10/data.nt rdfs-10/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-10/data.nt rdfs-10/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-10/data.nt rdfs-10/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-10/data.nt owl-10/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-10/data.nt owl-10/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-10/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-25/data.nt rdfs-25/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-25/data.nt rdfs-25/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-25/data.nt rdfs-25/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-25/data.nt rdfs-25/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-25/data.nt rdfs-25/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-25/data.nt rdfs-25/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-25/data.nt owl-25/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-25/data.nt owl-25/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-25/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-50/data.nt rdfs-50/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-50/data.nt rdfs-50/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-50/data.nt rdfs-50/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-50/data.nt rdfs-50/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-50/data.nt rdfs-50/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-50/data.nt rdfs-50/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-50/data.nt owl-50/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-50/data.nt owl-50/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-50/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-75/data.nt rdfs-75/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-75/data.nt rdfs-75/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-75/data.nt rdfs-75/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-75/data.nt rdfs-75/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-75/data.nt rdfs-75/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-75/data.nt rdfs-75/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-75/data.nt owl-75/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-75/data.nt owl-75/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-75/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-100/data.nt rdfs-100/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-100/data.nt rdfs-100/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-100/data.nt rdfs-100/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-100/data.nt rdfs-100/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-100/data.nt rdfs-100/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-100/data.nt rdfs-100/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-100/data.nt owl-100/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-100/data.nt owl-100/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-100/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-150/data.nt rdfs-150/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-150/data.nt rdfs-150/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-150/data.nt rdfs-150/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-150/data.nt rdfs-150/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-150/data.nt rdfs-150/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-150/data.nt rdfs-150/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-150/data.nt owl-150/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-150/data.nt owl-150/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-150/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-200/data.nt rdfs-200/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-200/data.nt rdfs-200/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-200/data.nt rdfs-200/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-200/data.nt rdfs-200/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-200/data.nt rdfs-200/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-200/data.nt rdfs-200/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-200/data.nt owl-200/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-200/data.nt owl-200/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-200/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-300/data.nt rdfs-300/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-300/data.nt rdfs-300/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-300/data.nt rdfs-300/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-300/data.nt rdfs-300/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-300/data.nt rdfs-300/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-300/data.nt rdfs-300/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-300/data.nt owl-300/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-300/data.nt owl-300/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-300/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-400/data.nt rdfs-400/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-400/data.nt rdfs-400/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-400/data.nt rdfs-400/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-400/data.nt rdfs-400/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-400/data.nt rdfs-400/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-400/data.nt rdfs-400/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-400/data.nt owl-400/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	owl-400/data.nt owl-400/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-400/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-600/data.nt rdfs-600/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-600/data.nt rdfs-600/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-600/data.nt rdfs-600/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-600/data.nt rdfs-600/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-600/data.nt rdfs-600/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-600/data.nt rdfs-600/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-600/data.nt owl-600/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+DIFF	owl-600/data.nt owl-600/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-600/onto.ttl	exit 0  1	|	exit 0  1
+same	rdfs-800/data.nt rdfs-800/q.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-800/data.nt rdfs-800/q-neg.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+same	rdfs-800/data.nt rdfs-800/q-all.nt --profile rdfs	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-800/data.nt rdfs-800/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	rdfs-800/data.nt rdfs-800/q-neg.nt --profile owl	exit 1 Verdict: NOT DERIVED  0	|	exit 1 Verdict: NOT DERIVED  0
+same	rdfs-800/data.nt rdfs-800/q-all.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	owl-800/data.nt owl-800/q.nt --profile rdfs	exit 5 Verdict: REFUTED 0	|	exit 5 Verdict: REFUTED 0
+DIFF	owl-800/data.nt owl-800/q.nt --profile owl	exit 0 Verdict: ENTAILED 0	|	exit 0 Verdict: ENTAILED 0
+same	el-800/onto.ttl	exit 0  1	|	exit 0  1
+verdict-identical: 108 / 108 ; byte-identical: 106 / 108

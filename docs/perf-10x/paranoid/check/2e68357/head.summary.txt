@@ -1,0 +1,14 @@
+== head/root start 2026-11-25T12:26:51+00:00 pre-existing .lake: none
+== head/root rc=0 judgement=accepted wall=289s end 2026-11-25T12:31:40+00:00
+== head/owl start 2026-11-25T12:31:40+00:00 pre-existing .lake: none
+== head/owl rc=0 judgement=accepted wall=346s end 2026-11-25T12:37:26+00:00
+== head/sparql start 2026-11-25T12:37:26+00:00 pre-existing .lake: none
+== head/sparql rc=0 judgement=accepted wall=271s end 2026-11-25T12:41:57+00:00
+== head/shacl start 2026-11-25T12:41:57+00:00 pre-existing .lake: none
+== head/shacl rc=0 judgement=accepted wall=256s end 2026-11-25T12:46:13+00:00
+== head/statements start 2026-11-25T12:46:13+00:00 pre-existing .lake: none
+== head/statements rc=0 judgement=accepted wall=275s end 2026-11-25T12:50:48+00:00
+== head/check start 2026-11-25T12:50:48+00:00 pre-existing .lake: none
+== head/check rc=1 judgement=failure wall=9s end 2026-11-25T12:50:57+00:00
+== head/elpi start 2026-11-25T12:50:57+00:00 pre-existing .lake: none
+== head/elpi rc=0 judgement=accepted wall=425s end 2026-11-25T12:58:02+00:00
