@@ -267,19 +267,6 @@ def pathPairs (G : Graph) : Path → List (Term × Term)
     dedupF (nodes.map (fun n => (n, n)) ++ closurePairsF (pathPairs G p) (nodes.length + 1))
   | .negated fwd inv => Spec.pathPairs G (.negated fwd inv)
 
-/-- `Spec.pathOp` on the pairs of `pathPairs`. -/
-def pathOp (G : Graph) (s : TermPat) (p : Path) (o : TermPat) : List Mapping :=
-  let pairs := pathPairs G p
-  let extra : List (Term × Term) :=
-    if p.zeroLength then
-      match s, o with
-      | .term x, _ => [(x, x)]
-      | _, .term y => [(y, y)]
-      | _, _ => []
-    else []
-  let pairs := if p.zeroLength then dedupF (pairs ++ extra) else pairs
-  pairs.filterMap fun (x, y) => do Spec.bindEnd (← Spec.bindEnd Mapping.empty s x) o y
-
 end Eval
 
 theorem graphNodesF_eq (G : Graph) : Eval.graphNodesF G = Spec.graphNodes G := by
@@ -298,13 +285,5 @@ theorem pathPairs_eq (G : Graph) : ∀ p : Path, Eval.pathPairs G p = Spec.pathP
     simp only [Eval.pathPairs, Spec.pathPairs]
     rw [pathPairs_eq G p, graphNodesF_eq, closurePairsF_eq, dedupF_eq]
   | .negated fwd inv => by rw [Eval.pathPairs]
-
-theorem pathOp_eq (G : Graph) (s : TermPat) (p : Path) (o : TermPat) :
-    Eval.pathOp G s p o = Spec.pathOp G s p o := by
-  unfold Eval.pathOp Spec.pathOp
-  simp only [pathPairs_eq]
-  split
-  · rw [dedupF_eq]; congr
-  · rfl
 
 end LeanRDF.Sparql

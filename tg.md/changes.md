@@ -249,6 +249,6 @@ Capabilities `policy-decisions` and `release`. Depends on [[changes#add-proof-ca
 
 Performance and robustness work on branch `perf/10x`, from four streams merged on 2026-11-25: Elpi search, trusted core, proven engines, robust I/O. Only Lean and Elpi code. Every main theorem keeps its statement and pinned axioms, and every golden is unchanged. Done without an OpenSpec change. The bench is `scripts/bench/bench.py`.
 
-See [[decisions#Lean-driven rounds over interned terms]], [[decisions#Fast trusted code proven equal to its specification]] and [[decisions#Bounded input and bounded echo]].
+See [[decisions#Lean-driven rounds over interned terms]], [[decisions#Fast trusted code proven equal to its specification]] and [[decisions#Bounded input and bounded echo]]. Branch `perf/fix-paths` then made constant-endpoint `p+` and `p*` searches: see [[decisions#Property paths searched from a constant endpoint]].
 
 - status:: applied

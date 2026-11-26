@@ -19,6 +19,12 @@ KIND is one of
           limit); bnodes.nt: N blank nodes told apart by their literals (first-degree hashing only)
   sg      records.jsonl: N statement records, every third one about the record before it, some
           retracted, some with a validity interval (for leanrdf-sg)
+  paths   arbitrary-length property paths (p+ and p*): chain.nt, a chain n0 -> n1 -> ... of N
+          nodes; tangle.nt, N nodes with about 3N pseudo-random edges of two predicates (branches,
+          cycles, repeated edges); and the queries s-plus, s-star (constant subject), o-plus,
+          o-star (constant object), so-plus (both constant), v-plus, v-star (both variables: use a
+          small N), and inv-plus, seq-plus, alt-star (an inverse, a sequence and an alternative
+          under the closure, constant endpoint)
   robust  malformed and adversarial inputs for `bench.py --tools robust`, with robust.tsv listing
           each case: the tool, its arguments, the exit code and output it must give and a time
           limit (N is ignored)
@@ -163,6 +169,34 @@ def gen_sg(n, out):
     write(out, "records.jsonl", "\n".join(L) + "\n")
 
 
+def gen_paths(n, out):
+    n = max(2, n)
+    write(out, "chain.nt", "".join(f"<{E}n{i}> <{E}p> <{E}n{i + 1}> .\n" for i in range(n - 1)))
+    L, x = [], 12345
+    for i in range(n):
+        for _ in range(3):
+            x = (x * 1103515245 + 12345) % (1 << 31)
+            pred = "p" if x % 5 else "q"
+            L.append(f"<{E}n{i}> <{E}{pred}> <{E}n{(x >> 8) % n}> .\n")
+        if i % 7 == 0:
+            L.append(L[-1])
+    write(out, "tangle.nt", "".join(L))
+    first, last = f"<{E}n0>", f"<{E}n{n - 1}>"
+    pre = f"PREFIX : <{E}>\n"
+    Q = {"s-plus": f"SELECT ?y WHERE {{ {first} :p+ ?y }}",
+         "s-star": f"SELECT ?y WHERE {{ {first} :p* ?y }}",
+         "o-plus": f"SELECT ?x WHERE {{ ?x :p+ {last} }}",
+         "o-star": f"SELECT ?x WHERE {{ ?x :p* {last} }}",
+         "so-plus": f"SELECT * WHERE {{ {first} :p+ {last} }}",
+         "v-plus": "SELECT ?x ?y WHERE { ?x :p+ ?y }",
+         "v-star": "SELECT ?x ?y WHERE { ?x :p* ?y }",
+         "inv-plus": f"SELECT ?x WHERE {{ ?x ^:p+ {first} }}",
+         "seq-plus": f"SELECT ?y WHERE {{ {first} (:p/:p)+ ?y }}",
+         "alt-star": f"SELECT ?x WHERE {{ ?x (:p|:q)* {last} }}"}
+    for name, q in Q.items():
+        write(out, name + ".rq", pre + q + "\n")
+
+
 def nested_triple_term(depth):
     o = f"<{E}o>"
     for _ in range(depth):
@@ -255,7 +289,8 @@ def gen_robust(_n, out):
 
 
 KINDS = {"rdfs": gen_rdfs, "owl": gen_owl, "el": gen_el, "sparql": gen_sparql, "shacl": gen_shacl,
-         "nt": gen_nt, "ring": gen_ring, "sg": gen_sg, "robust": gen_robust}
+         "nt": gen_nt, "ring": gen_ring, "sg": gen_sg, "robust": gen_robust,
+         "paths": gen_paths}
 
 if __name__ == "__main__":
     if len(sys.argv) != 4 or sys.argv[1] not in KINDS:
