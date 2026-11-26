@@ -1469,3 +1469,20 @@ Rejected:
 - motivated_by:: [[decisions#Elpi finds, Lean checks]] {weight: primary}
 - amends:: [[decisions#Lean-driven rounds over interned terms]] {note: "transitive rules leave Elpi past a threshold"}
 - introduced_by:: [[changes#fix-closure]] {date: 2026-11-26}
+
+## The two audited fixes merged unchanged
+
+`perf/fix-paths` and `perf/fix-closure` were merged into `perf/10x` as audited, each by its own `--no-ff` merge, paths first. The merge changes no Lean or Elpi code of either branch.
+
+**Context.** Both branches start from c41e68d. `perf/fix-paths` changes only the SPARQL package (`PathBound.lean`, `Eval`, `PathEval`); `perf/fix-closure` changes only untrusted Elpi search (`Saturate`, `Certify`, `Demo`, `Classify`, `Countermodel`). Neither touches a trusted checker or a main theorem statement.
+
+**Decision.**
+- Two merge commits instead of one octopus merge or a squash, so each fix stays a separate, revertible unit with its audit trail.
+- The only conflict is `scripts/bench/gen.py`, where both branches add reproducer kinds. Both sets are kept: `paths`, and `scchain`, `sccycle`, `spchain`, `trpchain`, `sachain`, `elchain`. Both added sections of this file and of [[changes]] merged without conflict.
+- The merged result is judged against c41e68d, not against each branch alone: verdicts on the 108 generated example combinations, every golden, every test, and both reproducer sets rerun on the merged binaries.
+
+**Consequences.** Every package builds and every `lake test` passes; `scripts/examples.sh` matches every golden. The 108 combinations of `rdfs`, `owl` and `el` inputs from N=5 to N=800 give the same verdicts and exit codes as c41e68d; 106 are byte-identical, and the two others are the OWL inputs at N=600 and N=800, whose certificates differ but have the same size, as [[decisions#Transitive rules in Lean past a threshold]] expects. The benchmark (`bench.py`, all tools, sizes 25 to 800, best of two runs) is within noise of c41e68d for every Elpi tool, and every robust case passes. Property-path outputs are byte-identical to c41e68d at 3,000 and 300 nodes and to the reference f9c67cf at 60 nodes, and the 50,000-node constant-endpoint cases take 0.2 to 0.8 s at most 127 MB. The transitive-closure reproducers give the same verdicts, times and memory as the audited branch.
+
+- motivated_by:: [[decisions#Property paths searched from a constant endpoint]] {weight: primary}
+- motivated_by:: [[decisions#Transitive rules in Lean past a threshold]] {weight: primary}
+- introduced_by:: [[changes#perf-10x]] {date: 2026-11-26}

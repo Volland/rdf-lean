@@ -251,6 +251,8 @@ Performance and robustness work on branch `perf/10x`, from four streams merged o
 
 See [[decisions#Lean-driven rounds over interned terms]], [[decisions#Fast trusted code proven equal to its specification]] and [[decisions#Bounded input and bounded echo]]. Branch `perf/fix-paths` then made constant-endpoint `p+` and `p*` searches: see [[decisions#Property paths searched from a constant endpoint]].
 
+On 2026-11-26 `perf/fix-paths` and then `perf/fix-closure` were merged into `perf/10x` with `--no-ff`: see [[decisions#The two audited fixes merged unchanged]].
+
 - status:: applied
 
 ## fix-closure
