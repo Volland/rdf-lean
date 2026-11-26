@@ -1,4 +1,4 @@
-import LeanRDFSparql.PathEval
+import LeanRDFSparql.PathBound
 
 /-!
 # The reference evaluator

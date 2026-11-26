@@ -1411,6 +1411,24 @@ Rejected: `implemented_by` and unchecked `@[extern]` fast paths, because they mo
 - motivated_by:: [[decisions#Exhaustive sort search for the query]] {note: "assignments are enumerated lazily, same order"}
 - introduced_by:: [[changes#perf-10x]] {date: 2026-11-25}
 
+## Property paths searched from a constant endpoint
+
+`p+` and `p*` with a constant endpoint are evaluated by a search from that endpoint, not by filtering the whole transitive closure. `pathOp_eq` still proves the result equal, as a list in the same order, to `Spec.pathOp`.
+
+**Context.** The semi-naive closure of [[decisions#Fast trusted code proven equal to its specification]] built every pair of the closure and then kept those with the constant endpoint. On a 50,000-node chain, `<n0> :p+ ?y` peaked at 7.8 GB, where the answer has 50,000 rows.
+
+**Decision.**
+- `Eval.pathEnd` computes `Spec.pathPairs` filtered to a constant first or second node (`pathEnd_eq`). It goes through `^`, `|` and `/`, and evaluates `+` and `*` as searches. Other paths, and paths with two variable ends, are filtered as before.
+- Constant subject: the closure filtered by its first node is the closure of the steps out of that node (`filter_It_fst`). The same semi-naive rounds (`closeGo`) run from those steps, so this is a breadth-first search.
+- Constant object: a backward search over an index of the steps by their second node (`Eval.closeToGo`). The closure lists round `k` sorted by `I k`, the position of the first step of the pair's least path (`Closure.round_sorted`). Each search round therefore sorts the nodes it finds by that position, and `closureToF_eq` proves the output order equal to the closure's.
+- The specification, `evalN_perm` and `runQuery_answer` are unchanged. No `sorry`, `admit` or axiom was added.
+
+**Consequences.** On the 50,000-node chain, constant-subject and constant-object `p+` and `p*` take about 0.3 s and at most 80 MB. `perf/10x` was stopped at 300 s with 8.5 GB (subject) and 12.5 GB (object) resident, and the reference at 120 s. A 50,000-node graph with about 150,000 edges takes 0.8 s and 123 MB. Outputs are byte-identical to `perf/10x` at 3,000 nodes and to the reference at 60 nodes. With both ends variable the closure is still built, because the answer itself is quadratic. `scripts/bench/gen.py paths` and `scripts/bench/paths.sh` reproduce the cases.
+
+- motivated_by:: [[decisions#Fast trusted code proven equal to its specification]] {weight: primary}
+- motivated_by:: [[decisions#A proven reference evaluator for SPARQL]]
+- introduced_by:: [[changes#perf-10x]] {date: 2026-11-26}
+
 ## Bounded input and bounded echo
 
 Valid but adversarial input ends with a clean message: parsers limit triple-term nesting, and tools clip the untrusted text they echo.
