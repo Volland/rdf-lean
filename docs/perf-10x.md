@@ -8,13 +8,16 @@ The raw results are in [perf-10x/](perf-10x/).
 
 ## Summary
 
-- **Speed:** at the largest size run on both builds, every tool is about 370× to 1,300× faster than the base.
+- **Speed:** at the largest size run on both builds, the seven entailment, classification, SPARQL and SHACL workloads are about 370× to 1,300× faster than the base.
   - Where the base timed out after 300 s (EL classification at 100 classes, SHACL at 500 employees), the new build answers in under 0.4 s.
-  - Peak memory on the benchmark is 40 to 65 MB.
+  - The statement kernel, quoting and decoding are about 90× to 600× faster.
+  - Four tools gained less than 10×: the trusted checker (about 2×, already under 0.2 s), statement `check` (8×), statement `export` (1.1×) and SPARQL on a large N-Triples file (1.7×). See [Tools outside the main table](#tools-outside-the-main-table).
+  - Peak memory is 40 to 65 MB on those seven workloads, and up to 422 MB on the large-file cases (400,000 blank nodes).
 - **Verdicts:** unchanged.
   - Every golden in `scripts/examples.sh` matches.
-  - All 108 benchmark combinations give the same verdict and exit code as the previous step `c41e68d`; 106 of them are byte-identical.
-  - Property-path outputs are byte-identical to the base.
+  - All 108 benchmark combinations give the same verdict and exit code as the previous step `c41e68d`; 106 of them are byte-identical. This comparison is against `c41e68d`, not the base.
+  - Against the base, 22 spot-checked runs are byte-identical; one more, `leanrdf-check` on a large certificate, gives the same verdict in shorter output, because echoed values are now bounded.
+  - Property-path outputs are byte-identical to the base at 60 nodes.
 - **Proofs:** all 17 main theorems keep their exact base statements.
   - `lake comparator --paranoid` accepts all 17.
   - `lake check --paranoid` accepts every package.
@@ -27,11 +30,11 @@ The raw results are in [perf-10x/](perf-10x/).
 
 The commands are `scripts/bench/gen.py` (deterministic inputs) and `scripts/bench/bench.py` (runner).
 
-**Before:** the base `f9c67cf`, run on an idle machine.
+**Before:** the base `f9c67cf`, run on an idle machine. The base has no `bench.py`; its binaries were run on the same generated inputs. The raw output of that run was not kept. A second, independent run of the base on 2026-11-26 agrees with it to within 12% and is in [bench/baseline-recheck.csv](perf-10x/bench/baseline-recheck.csv).
 
 **After:** `212dd8f`, run twice; each value is the faster of the two runs.
 
-All times are wall-clock seconds, on an Apple-silicon Mac.
+All times are wall-clock seconds, on an Apple M2 Pro. A process that does nothing takes about 0.03 s, so an "after" value under 0.1 s is mostly start-up time, and its speedup is a lower bound rather than a measure of scaling.
 
 | Workload | Size | Before (s) | After (s) | Peak MB | Faster |
 |---|---|---:|---:|---:|---:|
@@ -52,8 +55,30 @@ All times are wall-clock seconds, on an Apple-silicon Mac.
 
 Before the rewrite, Elpi saturation took over 99% of the run time, and its cost grew roughly with the square of the input.
 
+### Tools outside the main table
+
+These tools were measured against the base on 2026-11-26, the faster of two runs each. Outputs are byte-identical unless noted.
+
+| Tool | Size | Before (s) | After (s) | Faster |
+|---|---|---:|---:|---:|
+| Statement kernel (`leanrdf-sg kernel`) | 2,000 records | 12.82 | 0.06 | 214× |
+| Statement quoting (`leanrdf-sg quote`) | 4,000 records | 84.42 | 0.14 | 603× |
+| Statement decoding (`leanrdf-sg decode`) | 4,000 records | 23.21 | 0.25 | 93× |
+| | 16,000 records | >150 (timed out) | 3.09 | >48× |
+| Statement record check (`leanrdf-sg check`) | 32,000 records | 49.64 | 6.26 | 8× |
+| Statement export (`leanrdf-sg export`) | 32,000 records | 6.71 | 6.38 | 1.1× |
+| Trusted check, large certificate (`leanrdf-check`) | 800 instances | 0.11 | 0.05 | 2× |
+| SPARQL, one pattern on a large file | 800,000 triples | 9.81 | 5.87 | 1.7× |
+
+`leanrdf-check` prints 1,055 bytes where the base prints 5,240, with the same verdict.
+
+Three tools have no baseline:
+- `parse`, `digest` and `bnodes` run `leanrdf-io-bench`, which the base does not have.
+- The `digest` rows time only a refusal: every ring from 125 to 4,000 blank nodes stops at the RDFC work limit with exit 3. No row times a successful N-degree canonicalization.
+
 Data files:
 - every row, all sizes: [bench/before-after.csv](perf-10x/bench/before-after.csv)
+- the second run of the base: [bench/baseline-recheck.csv](perf-10x/bench/baseline-recheck.csv)
 - the full `bench.py` output of `212dd8f`, all 15 tools including parse, digest, blank nodes, statements and the robustness cases: [bench/bench-212dd8f.csv](perf-10x/bench/bench-212dd8f.csv)
 
 ### Robustness cases fixed in 212dd8f
@@ -62,12 +87,14 @@ The final robustness audit of `c41e68d` found two major problems. Both are fixed
 
 | Case | Base f9c67cf | c41e68d | 212dd8f |
 |---|---|---|---|
-| SPARQL `<n0> :p+ ?y`, 50,000-node chain | timed out at 120 s | stopped at 300 s, 8.5 GB | 0.27 s, 74 MB |
+| SPARQL `<n0> :p+ ?y`, 50,000-node chain | timed out at 120 s | stopped at 300 s, 8.5 GB | 0.28 s, 74 MB* |
 | SPARQL `?x :p+ <n49999>`, 50,000-node chain | timed out at 120 s | stopped at 300 s, 12.5 GB | 0.27 s, 78 MB |
 | RDFS, 600-deep `subClassOf` chain | timed out | NOT DERIVED, budget, 25.6 s | ENTAILED, 0.12 s |
 | RDFS, 301-triple `subClassOf` cycle | timed out | NOT DERIVED, budget, 24.1 s | ENTAILED, 0.08 s |
 | RDFS, 5,000-deep `subPropertyOf` chain | timed out | NOT DERIVED, budget, 24.1 s | ENTAILED, 0.49 s |
 | RDFS, 2,000-deep chain / 1,000-triple cycle | timed out | NOT DERIVED, budget | ENTAILED, 0.26 / 0.15 s |
+
+\* The first recorded run of this case took 2.03 s, because it was the first run of the binary. The rerun after a warm-up is in the same file.
 
 Reproduce:
 - paths: `scripts/bench/gen.py paths N DIR`, then `scripts/bench/paths.sh`
@@ -102,7 +129,7 @@ All checks ran in Linux containers (`linux/arm64`) in the `bwrap` sandbox.
 | `f9c67cf` (base, for comparison) | root, owl, sparql, shacl, statements, check, elpi | all accepted |
 | `2e68357` (four streams merged) | root, owl, sparql, shacl, statements, elpi | accepted |
 | `2e68357` | check | accepted on rerun* |
-| `c41e68d` (bounded Elpi search) | root, owl, elpi (the only packages that changed) | accepted |
+| `c41e68d` (bounded Elpi search) | elpi (the only package that changed) and root, owl (its dependencies) | accepted |
 | `212dd8f` (both fixes) | sparql, elpi (the only packages that changed) | accepted |
 
 \* `check`'s first run failed in 9 s with a read-only filesystem error. That was a sandbox setup issue, not a kernel judgement. The rerun with the symlink fix was accepted, and the base was checked the same way.
@@ -178,7 +205,8 @@ These are minor; none is a wrong answer or a proof gap.
 7. **Error messages:**
    - Non-UTF-8 input gets a message without a position in every tool except `leanrdf-check`.
    - An unwritable `--cert` path gives an uncaught exception with exit 1. The base does the same.
-8. **RDFC work limit:** a valid 100,000-node blank-node path hits the work limit and exits 3, the input-error code, after about 25 s.
+8. **Statement records scale quadratically:** every `leanrdf-sg` subcommand takes about four times longer when the input doubles: `kernel` takes 1.56 s at 16,000 records and 6.01 s at 32,000. `check` and `export` are the least improved (8× and 1.1×).
+9. **RDFC work limit:** a valid 100,000-node blank-node path hits the work limit and exits 3, the input-error code, after about 25 s.
 
 ## How this was done
 

@@ -34,3 +34,22 @@ shacl,SHACL Core validation (leanrdf-shacl),500,employees,,timed out after 300 s
 shacl,SHACL Core validation (leanrdf-shacl),1000,employees,,not run,0.06,perf/10x
 shacl,SHACL Core validation (leanrdf-shacl),2000,employees,,not run,0.08,perf/10x
 shacl,SHACL Core validation (leanrdf-shacl),4000,employees,,not run,0.14,perf/10x
+checkbig,Trusted check of a large certificate (leanrdf-check),800,instances,0.11,,0.05,perf/10x
+check,Trusted check of a small certificate (leanrdf-check),800,instances,0.06,,0.03,perf/10x
+sparqlnt,"SPARQL, one pattern on a large N-Triples file (leanrdf-sparql)",200000,triples,1.82,,0.99,perf/10x
+sparqlnt,"SPARQL, one pattern on a large N-Triples file (leanrdf-sparql)",800000,triples,9.81,,5.87,perf/10x
+sg-kernel,Statement kernel (leanrdf-sg kernel),1000,records,1.22,,0.03,perf/10x
+sg-kernel,Statement kernel (leanrdf-sg kernel),2000,records,12.82,,0.06,perf/10x
+sg-kernel,Statement kernel (leanrdf-sg kernel),4000,records,83.32,one run,0.30,perf/10x
+sg-kernel,Statement kernel (leanrdf-sg kernel),16000,records,,not run,1.56,perf/10x
+sg-kernel,Statement kernel (leanrdf-sg kernel),32000,records,,not run,6.01,perf/10x
+sg-quote,Statement quoting (leanrdf-sg quote),4000,records,84.42,,0.14,perf/10x
+sg-quote,Statement quoting (leanrdf-sg quote),16000,records,,timed out after 150 s,1.52,perf/10x
+sg-quote,Statement quoting (leanrdf-sg quote),32000,records,,timed out after 150 s,6.05,perf/10x
+sg-decode,Statement decoding (leanrdf-sg decode --history),4000,records,23.21,,0.25,perf/10x
+sg-decode,Statement decoding (leanrdf-sg decode --history),16000,records,,timed out after 150 s,3.09,perf/10x
+sg-decode,Statement decoding (leanrdf-sg decode --history),32000,records,,timed out after 150 s,10.68,perf/10x
+sg-check,Statement record check (leanrdf-sg check),16000,records,12.14,,1.58,perf/10x
+sg-check,Statement record check (leanrdf-sg check),32000,records,49.64,,6.26,perf/10x
+sg-export,Statement export (leanrdf-sg export --history),16000,records,1.88,,1.65,perf/10x
+sg-export,Statement export (leanrdf-sg export --history),32000,records,6.71,,6.38,perf/10x
