@@ -66,15 +66,15 @@ theorem g_entails_q : g.RDFSEntails q := checkQueryB_sound (c := cert) (by nativ
 
 | Command | Package | Purpose |
 |---|---|---|
-| `leanrdf-demo DATA.nt QUERY.nt [--profile owl] [--cert OUT.json]` | `elpi/` | RDFS or OWL entailment of a query graph, with a checked certificate; REFUTED (exit 5) with a checked countermodel; INCONSISTENT (exit 4) when the data has a checked clash |
+| `leanrdf-demo DATA.nt QUERY.nt [--profile owl] [--cert OUT.json] [--total-fuel STEPS]` | `elpi/` | RDFS or OWL entailment of a query graph, with a checked certificate; REFUTED (exit 5) with a checked countermodel; INCONSISTENT (exit 4) when the data has a checked clash |
 | `leanrdf-oxilite DATA PATTERN [--profile owl]` | `elpi/` | certify oxilite's answers; `--materialized` audits its OWL closure |
-| `leanrdf-classify ONTOLOGY` | `elpi/` | certified class hierarchy of an OWL 2 EL ontology |
+| `leanrdf-classify ONTOLOGY [--total-fuel STEPS]` | `elpi/` | certified class hierarchy of an OWL 2 EL ontology |
 | `leanrdf-sparql query --location FILE --query Q` | `sparql/` | run a SPARQL 1.1 query with the proven evaluator |
 | `leanrdf-shacl validate --data DATA --shapes SHAPES` | `shacl/` | SHACL Core validation, report in Turtle |
 | `leanrdf-sg check\|export\|decode\|kernel\|quote FILE` | `statements/` | statement records to RDF 1.2 and back, the export kernel, the quoting view |
 | `leanrdf-check --data D --query Q (--cert C \| --countermodel M) [--rules R] [--json]` | `check/` | check a certificate someone else wrote, with no search: simple, RDF, RDFS, OWL 2 RL or EL; verifies the data, query and rules digests of a version-2 certificate |
 
-Exit codes are the same for every tool: `0` proven or ran, `1` not derived or does not conform, `2` a certificate was rejected (a bug on the untrusted side), `3` input error. "Not derived" is never a claim that something is false, because the rules are proven sound, not complete. A search that stops at its step budget also reports not derived, with exit `1`: a resource limit is never a verdict.
+Exit codes are the same for every tool: `0` proven or ran, `1` not derived or does not conform, `2` a certificate was rejected (a bug on the untrusted side), `3` input error. "Not derived" is never a claim that something is false, because the rules are proven sound, not complete. A search that stops at its step budget also reports not derived, with exit `1`: a resource limit is never a verdict. The budget is 30 M steps by default; `--total-fuel` raises or lowers it in `leanrdf-demo` and `leanrdf-classify`.
 
 ## Examples
 

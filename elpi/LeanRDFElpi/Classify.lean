@@ -82,8 +82,9 @@ def render (es : List Edge) : String := Id.run do
     | .certified => pure ()
   return out
 
-/-- Run on an ontology file (N-Triples or Turtle). -/
-def run (path : System.FilePath) : IO (UInt32 × String) := do
+/-- Run on an ontology file (N-Triples or Turtle), with a saturation budget of `totalFuel` Elpi
+steps. -/
+def run (path : System.FilePath) (totalFuel : Nat := Bridge.defaultTotalFuel) : IO (UInt32 × String) := do
   let src ← match ← (IO.FS.readFile path).toBaseIO with
     | .ok s => pure s
     | .error e => return (3, s!"error: cannot read {path}: {e}")
@@ -92,7 +93,7 @@ def run (path : System.FilePath) : IO (UInt32 × String) := do
     | .ok g => pure g
     | .error e => return (3, s!"error: {path}:{e}")
   let rules := Owl.owlELRules
-  let c ← match saturate rules g with
+  let c ← match program rules >>= (saturateWith · g (totalFuel := totalFuel)) with
     | .ok c => pure c
     | .error e =>
       return (3, if isBudgetExhausted e then s!"error: {e}" else s!"error: search failed: {e}")

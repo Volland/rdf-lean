@@ -115,6 +115,8 @@ def prune (c : Closure) (goals : List Triple) : Except String (List Node × Std.
 -- @tg: implements:: [[openspec:certificates#Certificates from Elpi]]
 /-- A certificate for `q` from a closure: the needed entries, renumbered, and the mapping. -/
 def certify (c : Closure) (q : Graph) : Except String Certificate := do
+  -- the transitive pairs the query can match, when the saturation left them implicit
+  let c := c.withQueryPairs q
   let qs := q.toList
   let some μ := findMu c qs []
     | throw "no instance of the query is derived"

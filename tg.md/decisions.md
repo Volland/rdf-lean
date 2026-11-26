@@ -1424,3 +1424,29 @@ Valid but adversarial input ends with a clean message: parsers limit triple-term
 - motivated_by:: [[constraints#RDF 1.2 N-Triples grammar]] {weight: secondary}
 - motivated_by:: [[decisions#The envelope is untrusted metadata]]
 - introduced_by:: [[changes#perf-10x]] {date: 2026-11-25}
+
+## Transitive rules in Lean past a threshold
+
+Past `transThreshold` pairs of a transitive predicate, the saturation stops running the transitive rules as Elpi joins. Under the RDFS rules it leaves their pairs implicit. Under any other rule set it closes them in Lean.
+
+**Context.** Semi-naive joins of `(x P y) (y P z) ⇒ (x P z)` find each pair once for every node between its ends, about n³/6 solutions for a chain of n facts. A 600-deep `subClassOf` chain, a 301-triple `subClassOf` cycle and a 5000-deep `subPropertyOf` chain each used the whole 30 M-step budget in about 25 s and ended NOT DERIVED. f9c67cf ran them past 120 s. Under the RDFS rules a 5000-deep chain has 12.5 M `subPropertyOf` pairs, more than the 2²² triples a saturation may add, so materializing the pairs faster is not enough.
+
+**Decision.**
+- Rules of the shape `(x P y) (y P z) ⇒ (x P z)` (rdfs5, rdfs11, `eq-trans`) are recognized by their shape, and `prp-trp` per property declared `owl:TransitiveProperty`.
+- Before each round, if the round's new facts have such a predicate and its paths join more than `transThreshold = 8192` pairs, the closure switches mode. From then on Elpi runs a second program without those rules' clauses.
+- `implicit` mode applies when every rule is one of `RDFS.rdfsRules` and rdfs5, rdfs7, rdfs9 and rdfs11 are among them. It also needs that `subClassOf` and `subPropertyOf` have no superproperty but themselves. No pair is added. Instead, rdfs9 and rdfs7 follow `subClassOf` and `subPropertyOf` facts node by node, each new type or triple once, from each new fact and each new edge. The other RDFS rules read a pair only through its subject, object or predicate, which a fact on the path has too, so only the pairs are missing.
+- `certify` first derives the pairs a query can match, by breadth-first search from a ground subject or to a ground object. `findCountermodelFrom` materializes all pairs before building a model.
+- If a superproperty of `subClassOf` or `subPropertyOf` appears, the closure switches to `lean` mode.
+- `lean` mode, for any other rule set and for that fallback: `closeAll` adds every missing pair once. Each pair is derived from a shorter pair and a fact, breadth-first from each node, and taken whole from nodes already closed. `closeNew` then keeps the closure closed under each later fact `(u, v)` by adding `pred(u) × succ(v)`.
+- Every derivation is an instance of the rule it names, with its premises earlier, so certificates go to the unchanged checker. Each Lean step counts against the saturation's step budget, and the size bound applies to Lean steps too.
+- `--total-fuel STEPS` sets the budget in `leanrdf-demo` and `leanrdf-classify`.
+
+Rejected:
+- Materializing the RDFS pairs. It does not fit the size bound for the 5000-deep chain and costs about 1 GB for a 2000-deep one.
+- Switching at a smaller threshold. Below 8192 pairs the Elpi joins take under 0.3 s, and the examples and the benchmark keep their closures and certificates.
+
+**Consequences.** Under RDFS, the 600-deep, 2000-deep and 301- and 1000-cycle `subClassOf` inputs and the 5000-deep `subPropertyOf` chain give ENTAILED in 0.06 to 0.42 s, at 44 to 71 MB peak. `leanrdf-check` accepts their certificates. Under OWL 2 RL the pairs are materialized, as the OWL rules read them. A 600-deep `subClassOf` chain takes 5.7 s and a 600-deep `owl:TransitiveProperty` chain 3.8 s. A 5000-deep `subPropertyOf` chain still stops at the size bound, because its 12.5 M pairs are part of the OWL closure. A 2000-deep chain and a 1000-cycle still stop at the step budget, in 22 s and 35 s against 24 s and 26 s before, because each of their 2 M or 1 M pairs runs through the other OWL rules in Elpi. EL classification of a 600-deep chain completes in 41 s, most of it certifying the 180 300 subsumptions one by one. Long `owl:sameAs` chains are still slow, because `eq-rep-*` re-derive every equality pair through every equal node in Elpi; a 300-deep chain stops at the budget. In implicit mode a closure lacks the pairs, so `Closure.find?` does not see them, and a query triple whose subject and object are both blank matches only facts. The benchmark's OWL input from N=600 on passes the threshold through its transitive property: same verdicts, different certificates of the same size, 1.4 to 1.9 times faster. Every other benchmark output, every example golden and every bridge test is unchanged.
+
+- motivated_by:: [[decisions#Elpi finds, Lean checks]] {weight: primary}
+- amends:: [[decisions#Lean-driven rounds over interned terms]] {note: "transitive rules leave Elpi past a threshold"}
+- introduced_by:: [[changes#fix-closure]] {date: 2026-11-26}

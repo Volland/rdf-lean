@@ -12,3 +12,4 @@ import BridgeTests.Rdf12Semantics
 import BridgeTests.Clash
 import BridgeTests.OwlInconsistency
 import BridgeTests.Countermodel
+import BridgeTests.Transitive
