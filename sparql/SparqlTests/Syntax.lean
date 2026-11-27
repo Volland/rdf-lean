@@ -76,6 +76,23 @@ private def sample12 : Answer :=
   ((Answer.ofXml sample12.toXml).toOption.map (sameRows sample12)).getD false &&
   ((Answer.ofTsv sample12.toTsv).toOption.map (sameRows sample12)).getD false
 
+-- RDF 1.2 directional literals parse in SPARQL queries and work in GROUP_CONCAT.
+private def rtlDs : Dataset := Dataset.ofGraph (Graph.ofList
+  [⟨ex "d1", ex "label", .lit (.dirLang "مرحبا" "ar" .rtl)⟩,
+   ⟨ex "d1", ex "label", .lit (.dirLang "أهلا" "ar" .rtl)⟩])
+
+#guard parses "SELECT * WHERE { ?s <http://example.org/label> \"مرحبا\"@ar--rtl }" &&
+  !parses "SELECT * WHERE { ?s <http://example.org/label> \"مرحبا\"@ar--up }" &&
+  !parses "SELECT * WHERE { ?s <http://example.org/label> \"مرحبا\"@abcdefghi }" &&
+  (match (parseQuery "SELECT ?s (STRLEN(?l) AS ?n) WHERE { ?s <http://example.org/label> ?l . FILTER(?l = \"مرحبا\"@ar--rtl) }" "").toOption.bind
+      fun sq => (execute rtlDs sq).toOption with
+    | some (.solutions _ [μ]) => μ.find? "s" == some (ex "d1") && μ.find? "n" == some (intTerm 5)
+    | _ => false) &&
+  (match (parseQuery "SELECT (GROUP_CONCAT(?l; separator=\"|\") AS ?g) WHERE { <http://example.org/d1> <http://example.org/label> ?l }" "").toOption.bind
+      fun sq => (execute rtlDs sq).toOption with
+    | some (.solutions _ [μ]) => (μ.find? "g").isSome
+    | _ => false)
+
 private def reified : Dataset := Dataset.ofGraph (Graph.ofList
   [⟨ex "r", .iri Vocab.rdf.reifies, .triple (ex "a") (ex "p") (ex "b")⟩])
 

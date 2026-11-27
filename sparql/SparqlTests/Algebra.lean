@@ -102,6 +102,24 @@ private def evalE (e : Expr) (μ : Mapping := Mapping.empty) : Option Term := (e
   evalE (.inList (.term (intTerm 2)) [.term (intTerm 1), .term (typed "2.0" "decimal")] false) == some (boolTerm true) &&
   evalE (.call (Xsd.ns ++ "integer") [.term (strTerm " 42 ")]) == some (intTerm 42)
 
+-- RDF 1.2 directional language-tagged strings (`rdf:dirLangString`) in SPARQL string functions.
+#guard
+  let arRtl : Term := .lit (.dirLang "مرحبا بالعالم" "ar" .rtl)
+  let arSub : Term := .lit (.dirLang "مرحبا" "ar" .rtl)
+  let arPlain : Term := .lit (.lang "مرحبا" "ar")
+  let arLtr : Term := .lit (.dirLang "مرحبا" "ar" .ltr)
+  evalE (.call "STRLEN" [.term arRtl]) == some (intTerm 13) &&
+  evalE (.call "SUBSTR" [.term arRtl, .term (intTerm 1), .term (intTerm 5)]) == some arSub &&
+  evalE (.call "CONTAINS" [.term arRtl, .term (strTerm "مرحبا")]) == some (boolTerm true) &&
+  evalE (.call "CONTAINS" [.term arRtl, .term arSub]) == some (boolTerm true) &&
+  (evalE (.call "CONTAINS" [.term arRtl, .term arPlain])).isNone &&
+  (evalE (.call "CONTAINS" [.term arRtl, .term arLtr])).isNone &&
+  evalE (.call "REPLACE" [.term arRtl, .term (strTerm "مرحبا"), .term (strTerm "أهلا")]) ==
+    some (.lit (.dirLang "أهلا بالعالم" "ar" .rtl)) &&
+  evalE (.call "CONCAT" [.term arSub, .term (.lit (.dirLang " بك" "ar" .rtl))]) ==
+    some (.lit (.dirLang "مرحبا بك" "ar" .rtl)) &&
+  evalE (.call "CONCAT" [.term arSub, .term (strTerm "!")]) == some (strTerm "مرحبا!")
+
 -- ORDER BY and the modifiers.
 #guard
   let q : Query := { pattern := .bgp [tp (v "x") (c (ex "knows")) (v "y")],

@@ -194,19 +194,20 @@ private def blankNodeLabel : P Term := do
   | none => fail "invalid blank node label"
 
 /-- `LANG_DIR` after `@` (production [42]): a language tag and, after `--`, an optional base
-direction, which must be `ltr` or `rtl` (RDF 1.2 Concepts §3.4). -/
+direction, which must be `ltr` or `rtl` (RDF 1.2 Concepts §3.4). Subtags are at most eight
+characters, as BCP 47 §2.2.9 requires. -/
 private partial def langDir : P (String × Option Direction) := do
   let rec take (p : Char → Bool) (acc : String) : P String := do
     match ← peek? with
     | some c => if p c then bump; take p (acc.push c) else return acc
     | none => return acc
   let first ← take Char.isAlpha ""
-  if first.isEmpty then fail "invalid language tag"
+  if first.isEmpty || first.length > 8 then fail "invalid language tag"
   let rec subtags (acc : String) : P String := do
     if (← peek?) == some '-' && (← peekAt? 1) != some '-' then
       bump
       let t ← take Char.isAlphanum ""
-      if t.isEmpty then fail "invalid language tag"
+      if t.isEmpty || t.length > 8 then fail "invalid language tag"
       subtags (acc ++ "-" ++ t)
     else return acc
   let tag ← subtags first
