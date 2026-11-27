@@ -1,0 +1,235 @@
+{
+ "LeanRDF.Shacl.validate_conforms": {
+  "Bool": "unchanged",
+  "Bool.true": "unchanged",
+  "Eq": "unchanged",
+  "Iff": "unchanged",
+  "LeanRDF.Graph": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Shacl.DataConforms": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Shacl.Report.conforms": "unchanged",
+  "LeanRDF.Shacl.Shape": "unchanged",
+  "LeanRDF.Shacl.validate": {
+   "differ": [
+    "LeanRDF.Graph",
+    "LeanRDF.Graph.toList",
+    "LeanRDF.Shacl.allOk._f",
+    "LeanRDF.Shacl.compResults._f",
+    "LeanRDF.Shacl.compsResults._f",
+    "LeanRDF.Shacl.focusNodes",
+    "LeanRDF.Shacl.instB",
+    "LeanRDF.Shacl.noneOk._f",
+    "LeanRDF.Shacl.oneOk._f",
+    "LeanRDF.Shacl.results",
+    "LeanRDF.Shacl.results._f",
+    "LeanRDF.Shacl.someOk._f",
+    "LeanRDF.Shacl.targetNodes",
+    "LeanRDF.Shacl.validate",
+    "LeanRDF.Shacl.vals"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.Shacl.GIdx",
+    "LeanRDF.Shacl.GIdx.build",
+    "LeanRDF.Shacl.GIdx.build._proof_1",
+    "LeanRDF.Shacl.GIdx.build._proof_2",
+    "LeanRDF.Shacl.GIdx.build._proof_3",
+    "LeanRDF.Shacl.GIdx.build._proof_4",
+    "LeanRDF.Shacl.GIdx.build._proof_5",
+    "LeanRDF.Shacl.GIdx.byPred",
+    "LeanRDF.Shacl.GIdx.bySubj",
+    "LeanRDF.Shacl.GIdx.gtLen",
+    "LeanRDF.Shacl.GIdx.inv",
+    "LeanRDF.Shacl.GIdx.mk",
+    "LeanRDF.Shacl.GIdx.terms",
+    "LeanRDF.Shacl.Path.ctorIdx",
+    "LeanRDF.Shacl.Path.pred?",
+    "LeanRDF.Shacl.Path.pred?._sparseCasesOn_1",
+    "LeanRDF.Shacl.Path.pred?.match_1",
+    "LeanRDF.Shacl.addNewGo",
+    "LeanRDF.Shacl.addNewGo._f",
+    "LeanRDF.Shacl.addNewGo.match_1",
+    "LeanRDF.Shacl.addNewGo2",
+    "LeanRDF.Shacl.addNewGo2._f",
+    "LeanRDF.Shacl.altNodesX._f",
+    "LeanRDF.Shacl.altNodesX.match_1",
+    "LeanRDF.Shacl.closureF",
+    "LeanRDF.Shacl.closureGo",
+    "LeanRDF.Shacl.closureGo._f",
+    "LeanRDF.Shacl.closureGo.match_1",
+    "LeanRDF.Shacl.closureGo.match_3",
+    "LeanRDF.Shacl.groupBy",
+    "LeanRDF.Shacl.groupMap",
+    "LeanRDF.Shacl.invPairs",
+    "LeanRDF.Shacl.length_graphTerms",
+    "LeanRDF.Shacl.seqNodesX._f",
+    "LeanRDF.Shacl.seqNodesX.match_1",
+    "LeanRDF.Shacl.uniqF",
+    "LeanRDF.Shacl.valueNodesX",
+    "LeanRDF.Shacl.vnX",
+    "LeanRDF.Shacl.vnX._f",
+    "LeanRDF.Shacl.vnX.match_1",
+    "LeanRDF.Shacl.vnX.match_3",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted"
+   ],
+   "base_only_LeanRDF": [
+    "LeanRDF.Shacl.altNodes._f",
+    "LeanRDF.Shacl.altNodes.match_1",
+    "LeanRDF.Shacl.closure",
+    "LeanRDF.Shacl.closure._f",
+    "LeanRDF.Shacl.closure.match_1",
+    "LeanRDF.Shacl.seqNodes._f",
+    "LeanRDF.Shacl.seqNodes.match_1",
+    "LeanRDF.Shacl.valueNodes",
+    "LeanRDF.Shacl.vn",
+    "LeanRDF.Shacl.vn._f",
+    "LeanRDF.Shacl.vn.match_1",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "List": "unchanged"
+ },
+ "LeanRDF.Shacl.validate_sound": {
+  "LeanRDF.Graph": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Shacl.Report.results": "unchanged",
+  "LeanRDF.Shacl.Result": "unchanged",
+  "LeanRDF.Shacl.Shape": "unchanged",
+  "LeanRDF.Shacl.Violation": {
+   "differ": [
+    "LeanRDF.Graph"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.instOrdTerm",
+    "LeanRDF.instOrdTerm.ord",
+    "LeanRDF.instOrdTriple",
+    "LeanRDF.instOrdTriple.ord",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'"
+   ],
+   "base_only_LeanRDF": [
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "LeanRDF.Shacl.validate": {
+   "differ": [
+    "LeanRDF.Graph",
+    "LeanRDF.Graph.toList",
+    "LeanRDF.Shacl.allOk._f",
+    "LeanRDF.Shacl.compResults._f",
+    "LeanRDF.Shacl.compsResults._f",
+    "LeanRDF.Shacl.focusNodes",
+    "LeanRDF.Shacl.instB",
+    "LeanRDF.Shacl.noneOk._f",
+    "LeanRDF.Shacl.oneOk._f",
+    "LeanRDF.Shacl.results",
+    "LeanRDF.Shacl.results._f",
+    "LeanRDF.Shacl.someOk._f",
+    "LeanRDF.Shacl.targetNodes",
+    "LeanRDF.Shacl.validate",
+    "LeanRDF.Shacl.vals"
+   ],
+   "head_only_LeanRDF": [
+    "LeanRDF.Shacl.GIdx",
+    "LeanRDF.Shacl.GIdx.build",
+    "LeanRDF.Shacl.GIdx.build._proof_1",
+    "LeanRDF.Shacl.GIdx.build._proof_2",
+    "LeanRDF.Shacl.GIdx.build._proof_3",
+    "LeanRDF.Shacl.GIdx.build._proof_4",
+    "LeanRDF.Shacl.GIdx.build._proof_5",
+    "LeanRDF.Shacl.GIdx.byPred",
+    "LeanRDF.Shacl.GIdx.bySubj",
+    "LeanRDF.Shacl.GIdx.gtLen",
+    "LeanRDF.Shacl.GIdx.inv",
+    "LeanRDF.Shacl.GIdx.mk",
+    "LeanRDF.Shacl.GIdx.terms",
+    "LeanRDF.Shacl.Path.ctorIdx",
+    "LeanRDF.Shacl.Path.pred?",
+    "LeanRDF.Shacl.Path.pred?._sparseCasesOn_1",
+    "LeanRDF.Shacl.Path.pred?.match_1",
+    "LeanRDF.Shacl.addNewGo",
+    "LeanRDF.Shacl.addNewGo._f",
+    "LeanRDF.Shacl.addNewGo.match_1",
+    "LeanRDF.Shacl.addNewGo2",
+    "LeanRDF.Shacl.addNewGo2._f",
+    "LeanRDF.Shacl.altNodesX._f",
+    "LeanRDF.Shacl.altNodesX.match_1",
+    "LeanRDF.Shacl.closureF",
+    "LeanRDF.Shacl.closureGo",
+    "LeanRDF.Shacl.closureGo._f",
+    "LeanRDF.Shacl.closureGo.match_1",
+    "LeanRDF.Shacl.closureGo.match_3",
+    "LeanRDF.Shacl.groupBy",
+    "LeanRDF.Shacl.groupMap",
+    "LeanRDF.Shacl.invPairs",
+    "LeanRDF.Shacl.length_graphTerms",
+    "LeanRDF.Shacl.seqNodesX._f",
+    "LeanRDF.Shacl.seqNodesX.match_1",
+    "LeanRDF.Shacl.uniqF",
+    "LeanRDF.Shacl.valueNodesX",
+    "LeanRDF.Shacl.vnX",
+    "LeanRDF.Shacl.vnX._f",
+    "LeanRDF.Shacl.vnX.match_1",
+    "LeanRDF.Shacl.vnX.match_3",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk'",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.sorted"
+   ],
+   "base_only_LeanRDF": [
+    "LeanRDF.Shacl.altNodes._f",
+    "LeanRDF.Shacl.altNodes.match_1",
+    "LeanRDF.Shacl.closure",
+    "LeanRDF.Shacl.closure._f",
+    "LeanRDF.Shacl.closure.match_1",
+    "LeanRDF.Shacl.seqNodes._f",
+    "LeanRDF.Shacl.seqNodes.match_1",
+    "LeanRDF.Shacl.valueNodes",
+    "LeanRDF.Shacl.vn",
+    "LeanRDF.Shacl.vn._f",
+    "LeanRDF.Shacl.vn.match_1",
+    "_private.LeanRDF.Core.Graph.0.LeanRDF.Graph.mk"
+   ]
+  },
+  "List": "unchanged",
+  "List.instMembership": "unchanged",
+  "Membership.mem": "unchanged"
+ }
+}

@@ -1,0 +1,16 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "LeanRDF.Cert.Challenge.checkQuery_sound",
+    "LeanRDF.Cert.Challenge.checkQuery_sound_rdf",
+    "LeanRDF.Cert.Challenge.checkQuery_sound_simple",
+    "LeanRDF.Canon.Challenge.canonical_iso",
+    "LeanRDF.Model.Challenge.checkCountermodel_sound_rdfs"
+  ],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ]
+}

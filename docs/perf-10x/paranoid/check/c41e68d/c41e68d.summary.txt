@@ -1,0 +1,6 @@
+== c41e68d/root start 2026-11-25T17:24:34+00:00 pre-existing .lake: none
+== c41e68d/root rc=0 judgement=accepted wall=250s end 2026-11-25T17:28:44+00:00
+== c41e68d/owl start 2026-11-25T17:28:44+00:00 pre-existing .lake: none
+== c41e68d/owl rc=0 judgement=accepted wall=286s end 2026-11-25T17:33:30+00:00
+== c41e68d/elpi start 2026-11-25T17:33:30+00:00 pre-existing .lake: none
+== c41e68d/elpi rc=0 judgement=accepted wall=445s end 2026-11-25T17:40:55+00:00

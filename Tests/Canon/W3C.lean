@@ -14,7 +14,7 @@ open Canon
 
 private def hashOf : String → HashFn
   | "sha384" => LeanRDF.Hash.sha384
-  | _ => LeanRDF.Hash.sha256
+  | _ => LeanRDF.Canon.sha256
 
 -- @tg: implements:: [[openspec:rdf-canonicalization#RDFC-1.0 conformance]]
 /-- Failures of the suite, and how many tests of each kind ran. -/

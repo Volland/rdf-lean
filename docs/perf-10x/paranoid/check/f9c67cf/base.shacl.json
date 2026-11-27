@@ -1,0 +1,45 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output":
+    {"proc":
+     {"stdout": "Skipped exported but unpermitted axioms [\"sorryAx\"]\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "lean4lean":
+   {"output":
+    {"proc": {"stdout": "checked 89669 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 89672 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 89672 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 0.6s (index 0.0s), check 8.3s\ncon-leche: stats: check pool: 8.351s wall, 12 workers, 89672 records, busy 98.180s (97.9%); tail 0.192s after the last start, 12 busy then, 0.390s worker-time in it (16.9%)\ncon-leche: stats: slowest checks: 0.993s theorem _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10 (#81551); 0.386s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_append._proof_1 (#86963); 0.316s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#34720); 0.230s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_1 (#34438); 0.209s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_3 (#34722)\ncon-leche: stats: peak RSS 0.81 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "check_axioms":
+  {"output":
+   {"str": {"string": "Uses axioms: propext, Classical.choice, Quot.sound"}},
+   "judgement": "success"},
+  "build_report":
+  {"output":
+   {"proc":
+    {"stdout": "",
+     "stderr":
+     "✔ [99/119] Built LeanRDFShacl.Vocab (161ms)\n✔ [101/119] Built LeanRDFShacl.Path (378ms)\n✔ [103/119] Built LeanRDFShacl.Shapes (270ms)\n✔ [105/119] Built LeanRDFShacl.Semantics (128ms)\n✔ [107/119] Built LeanRDFShacl.Validate (195ms)\n✔ [109/119] Built LeanRDFShacl.Read (269ms)\n✔ [111/119] Built LeanRDFShacl.Report (144ms)\n✔ [113/119] Built LeanRDFShacl.Run (142ms)\n⚠ [115/119] Built LeanRDFShacl.Correct (734ms)\nwarning: LeanRDFShacl/Correct.lean:51:54: Variable name `m` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _m\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\nwarning: LeanRDFShacl/Correct.lean:57:9: Variable name `m` is not explicitly referenced.\n\nHint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:\n  [apply] _m\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`\n✔ [117/119] Built LeanRDFShacl (89ms)\n"}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

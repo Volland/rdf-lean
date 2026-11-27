@@ -44,9 +44,10 @@ The Elpi side computes the closure by semi-naive forward chaining, recording eac
 
 **Decision.** A fixed driver `saturate.elpi` applies all rules until no new triple appears, keyed by triple, with value = rule name plus premise triples. The API is `saturate : Graph → Closure` plus a goal lookup, replacing the handoff's "first derivation of the goal". Rejected: visited-set backward search (no sharing, re-searches per query) and iterative deepening (exponential in chain length, complete only up to the bound).
 
-**Consequences.** Termination holds by construction: the rules invent no terms, so the closure has at most |terms|³ triples. The readout is already a proof DAG with sharing. As built, known triples are hypothetical `rdf.known` clauses, the seen set is a `std.set` of printed triples, and rounds are semi-naive.
+**Consequences.** Termination holds by construction: the rules invent no terms, so the closure has at most |terms|³ triples. The readout is already a proof DAG with sharing. As first built, known triples were hypothetical `rdf.known` clauses and the seen set was a `std.set` of printed triples. Since [[changes#perf-10x]], Lean drives the semi-naive rounds over interned terms; see [[decisions#Lean-driven rounds over interned terms]].
 
 - motivated_by:: [[constraints#lean-elpi has no tabling]] {weight: primary}
+- changed_by:: [[changes#perf-10x]] {date: 2026-11-25, note: "Lean drives the rounds; Elpi runs one clause step per predicate"}
 
 ## Own certificate format with a Datalog export
 
@@ -1367,3 +1368,121 @@ A REFUTED verdict names the regime and D = {xsd:string, rdf:langString, rdf:dirL
 - amends:: [[decisions#Demo never claims non-entailment]] {note: "non-entailment only from a checked countermodel"}
 - introduced_by:: [[changes#add-countermodels]]
 
+## Lean-driven rounds over interned terms
+
+The semi-naive rounds of [[decisions#Forward-chaining saturation in Elpi]] are driven from Lean. Elpi runs only the generated rule clauses, one small `rdf.step K R` query per predicate of the last round.
+
+**Context.** The single `rdf.saturate` query keyed its seen set by `term_to_string` in a `std.set` and re-ran every rule step each round. Saturation was quadratic: 39 s for the 200-instance RDFS bench and 89 s for a 1000-deep triple term.
+
+**Decision.** Every term is interned as an Elpi int, and triple terms are keyed by the ids of their parts. Facts, the triple-term table and the guard tables are Lean builtins over hash indexes by P, S, O, PS, PO and SPO. Codegen puts the delta premise first, then the premise with the most bound positions. The `Closure` is a structure with O(1) `find?` and `idOf?`. Each round's solutions are merge-sorted into the old enumeration order, so closures, rule names, premises and certificate numbering are unchanged; 245 inputs were compared entry by entry against the old driver. Each clause first tests, with an `rdf.has P` builtin, that some fact has each constant predicate of its known premises, so a clause that cannot match fails before its joins (the EL rules on a 100-deep chain took 43 M steps and 22 s without it, 0.5 M and 0.35 s with it). Every round has a step budget, and every solution Elpi yields costs a step too, since a builtin's alternatives cost none. The whole saturation has a budget of 30 M steps, about 25 s at the slowest rate measured (a 50 000-deep `subClassOf` chain, 0.8 µs a step), and may add at most 2²² triples, about 2.5 GB of closure. Each round keeps only the first solution in enumeration order for each plain head, which is the one `addRound` would add. Running out of either is reported as "search budget exhausted", a resource limit and not a verdict: NOT DERIVED with exit 1 in the demo, exit 3 in `leanrdf-classify`. Before, the cap was 10⁹ steps that did not count solutions, so a deep chain ran for hours. Rejected: dedup inside Elpi (no hash tables) and one query spanning all predicates (a choice point across a round was 1.7x slower).
+
+**Consequences.** Saturation is linear, about 20 µs per closure entry. The demo takes 0.10 s at N=200, against 39 s before. Nothing in the trusted base changed: a wrong closure still shows up only as a rejected certificate. The countermodel finder continues the demo's closure with the representative triples as a new round, so atom numbering in `--countermodel` JSON differs from before while sorts, IEXT and the verdict are the same.
+
+- motivated_by:: [[decisions#Elpi finds, Lean checks]] {weight: primary}
+- motivated_by:: [[constraints#lean-elpi has no tabling]]
+- motivated_by:: [[decisions#Canonical presentation from the closure]] {weight: secondary, note: "the finder continues the closure"}
+- introduced_by:: [[changes#perf-10x]] {date: 2026-11-25}
+
+## Fast trusted code proven equal to its specification
+
+Trusted deciders and proven evaluators get indexed implementations only when a theorem proves them equal, as lists in the same order, to the definition they replace. The main theorems keep their statements and their pinned axioms.
+
+**Context.** The trusted checkers scanned lists: `checkQuery` searched the closure linearly per goal, the countermodel checker joined IEXT with nested scans, and the SPARQL, SHACL, statement-graph and RDFC code recomputed sorts, buckets and closures. Changing what the theorems say to gain speed would weaken the guarantee.
+
+**Decision.**
+- `Graph` and `Dataset` cache their sorted list in a `Thunk`, with a stored proof that it equals the mergeSort of the hash set.
+- `checkQuery` reads conclusions from a hash set and the mapping through `muFast` (`muFast_eq`).
+- The countermodel checker decides each condition through `Presentation.index`. `countermodelFailure_eq_spec` proves the indexed checker equal to the old one, which is kept as `countermodelFailureSpec`.
+- SPARQL matches BGPs through lazy subject, predicate and object indexes, hashes joins on a variable every right mapping binds, and closes paths semi-naively. Each step is proven equal to the reference (`bgp_eq`, `evalJoin_eq`, `pathOp_eq`, `finishF_eq`).
+- SHACL reads value nodes from a `GIdx` built once per validation (`valueNodesX_eq`).
+- The statement-graph kernel, deciders and decoder are compiled through `@[csimp]` theorems.
+- RDFC uses a SwapMap proven to represent the swap list (`Labeling.renameFast_eq`).
+
+Rejected: `implemented_by` and unchecked `@[extern]` fast paths, because they move trust onto unproven code. No `sorry`, `admit` or axiom was added.
+
+**Consequences.** `leanrdf-check --countermodel` at r1000 takes 0.08 s, against 43.5 s before. SPARQL over 2000 books takes 0.2 s, against 45 s. SHACL over 250 employees takes 0.03 s, against 55 s. Every golden output is byte-identical. The specification definitions stay in the code as the statements' reference.
+
+- motivated_by:: [[decisions#Elpi finds, Lean checks]] {weight: primary}
+- motivated_by:: [[decisions#Opaque hash-set graph]]
+- motivated_by:: [[decisions#A proven reference evaluator for SPARQL]]
+- motivated_by:: [[decisions#SHACL Core with a validator proven against its semantics]]
+- motivated_by:: [[decisions#Executable kernel proven against K]]
+- motivated_by:: [[decisions#RDFC-1.0 written in the core, with an isomorphism theorem]]
+- motivated_by:: [[decisions#Exhaustive sort search for the query]] {note: "assignments are enumerated lazily, same order"}
+- introduced_by:: [[changes#perf-10x]] {date: 2026-11-25}
+
+## Property paths searched from a constant endpoint
+
+`p+` and `p*` with a constant endpoint are evaluated by a search from that endpoint, not by filtering the whole transitive closure. `pathOp_eq` still proves the result equal, as a list in the same order, to `Spec.pathOp`.
+
+**Context.** The semi-naive closure of [[decisions#Fast trusted code proven equal to its specification]] built every pair of the closure and then kept those with the constant endpoint. On a 50,000-node chain, `<n0> :p+ ?y` peaked at 7.8 GB, where the answer has 50,000 rows.
+
+**Decision.**
+- `Eval.pathEnd` computes `Spec.pathPairs` filtered to a constant first or second node (`pathEnd_eq`). It goes through `^`, `|` and `/`, and evaluates `+` and `*` as searches. Other paths, and paths with two variable ends, are filtered as before.
+- Constant subject: the closure filtered by its first node is the closure of the steps out of that node (`filter_It_fst`). The same semi-naive rounds (`closeGo`) run from those steps, so this is a breadth-first search.
+- Constant object: a backward search over an index of the steps by their second node (`Eval.closeToGo`). The closure lists round `k` sorted by `I k`, the position of the first step of the pair's least path (`Closure.round_sorted`). Each search round therefore sorts the nodes it finds by that position, and `closureToF_eq` proves the output order equal to the closure's.
+- The specification, `evalN_perm` and `runQuery_answer` are unchanged. No `sorry`, `admit` or axiom was added.
+
+**Consequences.** On the 50,000-node chain, constant-subject and constant-object `p+` and `p*` take about 0.3 s and at most 80 MB. `perf/10x` was stopped at 300 s with 8.5 GB (subject) and 12.5 GB (object) resident, and the reference at 120 s. A 50,000-node graph with about 150,000 edges takes 0.8 s and 123 MB. Outputs are byte-identical to `perf/10x` at 3,000 nodes and to the reference at 60 nodes. With both ends variable the closure is still built, because the answer itself is quadratic. `scripts/bench/gen.py paths` and `scripts/bench/paths.sh` reproduce the cases.
+
+- motivated_by:: [[decisions#Fast trusted code proven equal to its specification]] {weight: primary}
+- motivated_by:: [[decisions#A proven reference evaluator for SPARQL]]
+- introduced_by:: [[changes#perf-10x]] {date: 2026-11-26}
+
+## Bounded input and bounded echo
+
+Valid but adversarial input ends with a clean message: parsers limit triple-term nesting, and tools clip the untrusted text they echo.
+
+**Context.** A 10000-deep triple term ran the demo for more than two minutes, and a 100k-digit number in a certificate took seconds to print because `Nat.repr` is quadratic.
+
+**Decision.** Every parse entry point takes `maxDepth`, by default `NTriples.defaultMaxTermDepth = 1024`, and reports "triple term nested deeper than N" at its position, exit 3. Input that is not UTF-8 gets a positioned message, exit 3. `leanrdf-check` clips echoed words to 200 characters, lists at most 100 goals, and gives numbers of 200 or more digits by their size in bits. The countermodel checker's messages elide data terms nested more than 64 deep and print huge counts as `k^m`, in both the spec and the fast definition. RDFC keeps its work limit, because changing it would change verdicts.
+
+**Consequences.** Messages on normal inputs are byte-identical. Deep-term rendering in `Term.toNTriples` and the RDFC work limit on long symmetric chains are known remaining costs.
+
+- motivated_by:: [[constraints#RDF 1.2 N-Triples grammar]] {weight: secondary}
+- motivated_by:: [[decisions#The envelope is untrusted metadata]]
+- introduced_by:: [[changes#perf-10x]] {date: 2026-11-25}
+
+## Transitive rules in Lean past a threshold
+
+Past `transThreshold` pairs of a transitive predicate, the saturation stops running the transitive rules as Elpi joins. Under the RDFS rules it leaves their pairs implicit. Under any other rule set it closes them in Lean.
+
+**Context.** Semi-naive joins of `(x P y) (y P z) ⇒ (x P z)` find each pair once for every node between its ends, about n³/6 solutions for a chain of n facts. A 600-deep `subClassOf` chain, a 301-triple `subClassOf` cycle and a 5000-deep `subPropertyOf` chain each used the whole 30 M-step budget in about 25 s and ended NOT DERIVED. f9c67cf ran them past 120 s. Under the RDFS rules a 5000-deep chain has 12.5 M `subPropertyOf` pairs, more than the 2²² triples a saturation may add, so materializing the pairs faster is not enough.
+
+**Decision.**
+- Rules of the shape `(x P y) (y P z) ⇒ (x P z)` (rdfs5, rdfs11, `eq-trans`) are recognized by their shape, and `prp-trp` per property declared `owl:TransitiveProperty`.
+- Before each round, if the round's new facts have such a predicate and its paths join more than `transThreshold = 8192` pairs, the closure switches mode. From then on Elpi runs a second program without those rules' clauses.
+- `implicit` mode applies when every rule is one of `RDFS.rdfsRules` and rdfs5, rdfs7, rdfs9 and rdfs11 are among them. It also needs that `subClassOf` and `subPropertyOf` have no superproperty but themselves. No pair is added. Instead, rdfs9 and rdfs7 follow `subClassOf` and `subPropertyOf` facts node by node, each new type or triple once, from each new fact and each new edge. The other RDFS rules read a pair only through its subject, object or predicate, which a fact on the path has too, so only the pairs are missing.
+- `certify` first derives the pairs a query can match, by breadth-first search from a ground subject or to a ground object, and looks for an instance. If there is none and a query triple of a transitive predicate has no ground end, it then derives the pairs that triple can match: from each value its subject can take by the other query triples (their matches among the facts, intersected), else to each value its object can take, else every pair. Then it looks again. Every pair a query can match is then present, so a query has an instance exactly when it had one with all pairs materialized. `findCountermodelFrom` materializes all pairs before building a model.
+- The Lean steps after the saturation (the pairs of a query, of a countermodel) count against the saturation's own step budget, `Closure.totalFuel`, so `--total-fuel` bounds them too, and running out there is a budget message, not "no instance".
+- If a superproperty of `subClassOf` or `subPropertyOf` appears, the closure switches to `lean` mode.
+- `lean` mode, for any other rule set and for that fallback: `closeAll` adds every missing pair once. Each pair is derived from a shorter pair and a fact, breadth-first from each node, and taken whole from nodes already closed. `closeNew` then keeps the closure closed under each later fact `(u, v)` by adding `pred(u) × succ(v)`.
+- Every derivation is an instance of the rule it names, with its premises earlier, so certificates go to the unchanged checker. Each Lean step counts against the saturation's step budget, and the size bound applies to Lean steps too.
+- `--total-fuel STEPS` sets the budget in `leanrdf-demo` and `leanrdf-classify`.
+
+Rejected:
+- Materializing the RDFS pairs. It does not fit the size bound for the 5000-deep chain and costs about 1 GB for a 2000-deep one.
+- Switching at a smaller threshold. Below 8192 pairs the Elpi joins take under 0.3 s, and the examples and the benchmark keep their closures and certificates.
+
+**Consequences.** Under RDFS, the 600-deep, 2000-deep and 301- and 1000-cycle `subClassOf` inputs and the 5000-deep `subPropertyOf` chain give ENTAILED in 0.06 to 0.42 s, at 44 to 71 MB peak. `leanrdf-check` accepts their certificates. Under OWL 2 RL the pairs are materialized, as the OWL rules read them. A 600-deep `subClassOf` chain takes 5.7 s and a 600-deep `owl:TransitiveProperty` chain 3.8 s. A 5000-deep `subPropertyOf` chain still stops at the size bound, because its 12.5 M pairs are part of the OWL closure. A 2000-deep chain and a 1000-cycle still stop at the step budget, in 22 s and 35 s against 24 s and 26 s before, because each of their 2 M or 1 M pairs runs through the other OWL rules in Elpi. EL classification of a 600-deep chain completes in 41 s, most of it certifying the 180 300 subsumptions one by one. Long `owl:sameAs` chains are still slow, because `eq-rep-*` re-derive every equality pair through every equal node in Elpi; a 300-deep chain stops at the budget. In implicit mode a closure lacks the pairs, so `Closure.find?` does not see them. A query triple of a transitive predicate with both ends blank is answered as before: a join of such a pair with a ground-object triple at each end on a 127- to 2000-deep chain gives ENTAILED in 0.05 to 0.2 s (c41e68d: 0.5 to 1.7 s up to 200, budget exhausted at 2000), a join on a 300- or 1000-cycle in 0.06 to 0.12 s. With neither end bounded by another query triple and no instance among the facts, every pair is materialized, which for a 5000-deep `subPropertyOf` chain stops at the size bound. The benchmark's OWL input from N=600 on passes the threshold through its transitive property: same verdicts, different certificates of the same size, 1.4 to 1.9 times faster. Every other benchmark output, every example golden and every bridge test is unchanged.
+
+- motivated_by:: [[decisions#Elpi finds, Lean checks]] {weight: primary}
+- amends:: [[decisions#Lean-driven rounds over interned terms]] {note: "transitive rules leave Elpi past a threshold"}
+- introduced_by:: [[changes#fix-closure]] {date: 2026-11-26}
+
+## The two audited fixes merged unchanged
+
+`perf/fix-paths` and `perf/fix-closure` were merged into `perf/10x` as audited, each by its own `--no-ff` merge, paths first. The merge changes no Lean or Elpi code of either branch.
+
+**Context.** Both branches start from c41e68d. `perf/fix-paths` changes only the SPARQL package (`PathBound.lean`, `Eval`, `PathEval`); `perf/fix-closure` changes only untrusted Elpi search (`Saturate`, `Certify`, `Demo`, `Classify`, `Countermodel`). Neither touches a trusted checker or a main theorem statement.
+
+**Decision.**
+- Two merge commits instead of one octopus merge or a squash, so each fix stays a separate, revertible unit with its audit trail.
+- The only conflict is `scripts/bench/gen.py`, where both branches add reproducer kinds. Both sets are kept: `paths`, and `scchain`, `sccycle`, `spchain`, `trpchain`, `sachain`, `elchain`. Both added sections of this file and of [[changes]] merged without conflict.
+- The merged result is judged against c41e68d, not against each branch alone: verdicts on the 108 generated example combinations, every golden, every test, and both reproducer sets rerun on the merged binaries.
+
+**Consequences.** Every package builds and every `lake test` passes; `scripts/examples.sh` matches every golden. The 108 combinations of `rdfs`, `owl` and `el` inputs from N=5 to N=800 give the same verdicts and exit codes as c41e68d; 106 are byte-identical, and the two others are the OWL inputs at N=600 and N=800, whose certificates differ but have the same size, as [[decisions#Transitive rules in Lean past a threshold]] expects. The benchmark (`bench.py`, all tools, sizes 25 to 800, best of two runs) is within noise of c41e68d for every Elpi tool, and every robust case passes. Property-path outputs are byte-identical to c41e68d at 3,000 and 300 nodes and to the reference f9c67cf at 60 nodes, and the 50,000-node constant-endpoint cases take 0.2 to 0.8 s at most 127 MB. The transitive-closure reproducers give the same verdicts, times and memory as the audited branch.
+
+- motivated_by:: [[decisions#Property paths searched from a constant endpoint]] {weight: primary}
+- motivated_by:: [[decisions#Transitive rules in Lean past a threshold]] {weight: primary}
+- introduced_by:: [[changes#perf-10x]] {date: 2026-11-26}

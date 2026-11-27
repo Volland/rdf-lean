@@ -54,10 +54,51 @@ where
     | "--emit-envelope" :: p :: rest => go { a with emitEnvelope := some p } rest
     | arg :: _ => .error s!"unexpected argument {arg}"
 
+/-- The byte offset of the first byte that does not continue well-formed UTF-8 (RFC 3629 §3:
+no overlong forms, no surrogates, nothing past U+10FFFF), if any. -/
+def firstBadUTF8 (b : ByteArray) : Option Nat := Id.run do
+  let mut i := 0
+  while i < b.size do
+    let c := b[i]!.toNat
+    let (n, lo, hi) :=
+      if c < 0x80 then (0, 0, 0)
+      else if 0xC2 ≤ c && c ≤ 0xDF then (1, 0x80, 0xBF)
+      else if c == 0xE0 then (2, 0xA0, 0xBF)
+      else if c == 0xED then (2, 0x80, 0x9F)
+      else if 0xE1 ≤ c && c ≤ 0xEF then (2, 0x80, 0xBF)
+      else if c == 0xF0 then (3, 0x90, 0xBF)
+      else if 0xF1 ≤ c && c ≤ 0xF3 then (3, 0x80, 0xBF)
+      else if c == 0xF4 then (3, 0x80, 0x8F)
+      else (4, 0, 0)
+    if n == 4 then return some i
+    for k in [1:n+1] do
+      let d := b[i + k]?.map (·.toNat)
+      let (l, h) := if k == 1 then (lo, hi) else (0x80, 0xBF)
+      unless d.any (fun d => l ≤ d && d ≤ h) do return some (i + k)
+    i := i + n + 1
+  return none
+
+/-- Line and column (in characters) of a byte offset of UTF-8 text. -/
+private def lineCol (b : ByteArray) (off : Nat) : Nat × Nat := Id.run do
+  let mut line := 1
+  let mut col := 1
+  for i in [0:off] do
+    let c := b[i]!
+    if c == 10 then line := line + 1; col := 1
+    else if c &&& 0xC0 != 0x80 then col := col + 1
+  return (line, col)
+
 private def readText (what : String) (path : System.FilePath) : ExceptT String IO String := do
-  match ← (IO.FS.readFile path).toBaseIO with
-  | .ok s => return s
+  match ← (IO.FS.readBinFile path).toBaseIO with
   | .error e => throw s!"cannot read {what} {path}: {e}"
+  | .ok b =>
+    match String.fromUTF8? b with
+    | some s => return s
+    | none =>
+      let off := (firstBadUTF8 b).getD 0
+      let (line, col) := lineCol b off
+      let byte := (b[off]?.map fun x => s!"byte 0x{String.ofList (Nat.toDigits 16 x.toNat)}").getD "end of file"
+      throw s!"{what} {path}:{line}:{col}: not UTF-8: {byte} at byte offset {off}"
 
 /-- Read a graph: Turtle for `.ttl`, N-Triples otherwise. -/
 def readGraph (what : String) (path : System.FilePath) : ExceptT String IO Graph := do
@@ -65,7 +106,7 @@ def readGraph (what : String) (path : System.FilePath) : ExceptT String IO Graph
   if path.extension == some "ttl" then
     match Turtle.parse src with
     | .ok g => return g
-    | .error e => throw s!"{what} {path}: {e}"
+    | .error e => throw s!"{what} {path}:{e}"
   else
     match NTriples.parse src with
     | .ok g => return g
@@ -74,6 +115,24 @@ def readGraph (what : String) (path : System.FilePath) : ExceptT String IO Graph
 private def need {α : Type} (what : String) : Option α → ExceptT String IO α
   | some x => pure x
   | none => throw s!"missing --{what}\n{usage}"
+
+/-- A node id or premise too large to name a node of the certificate, as the reason of a
+rejection. The checker rejects every such certificate (a node's id must be its position, and a
+premise an earlier node), but its reason would write the number in decimal, which takes time
+quadratic in its length; the reason given here names only its size. Goals are not looked at: a
+query certificate's checker does not read them. -/
+def oversizedRef? (c : Certificate) : Option String :=
+  let bound := 10 ^ maxWord
+  let big (n : Nat) : Bool := n ≥ bound
+  match c.nodes.find? (fun n => big n.id || n.premises.any big) with
+  | some n =>
+    some s!"node {numberText n.id}: an id or a premise of {maxWord} digits or more names no node"
+  | none =>
+    match c.clash with
+    | some k =>
+      if k.premises.any big then some s!"clash: a premise of {maxWord} digits or more names no node"
+      else none
+    | none => none
 
 /-- The checker that writes envelopes. -/
 def checkerName : String := "leanrdf-check " ++ release
@@ -88,7 +147,7 @@ def check (a : Args) : IO Report := do
     let certPath ← need "cert" a.cert
     let c ← match Certificate.parse (← readText "certificate" certPath) with
       | .ok c => pure c
-      | .error e => throw s!"certificate {certPath}: {e}"
+      | .error e => throw s!"certificate {certPath}: {clip e}"
     -- a clash certificate has no query; a query certificate needs one
     let q ← match c.clash, a.query with
       | some _, some _ => throw "a clash certificate is checked without --query"
@@ -117,11 +176,13 @@ def check (a : Args) : IO Report := do
       | none => pure base
       | some e =>
         match e.verify g q a.regime.rules a.regime.name with
-        | .error why => return { base with verdict := .rejected, reason := some why }
+        | .error why => return { base with verdict := .rejected, reason := some (clip why) }
         | .ok () => pure { base with bound := some true }
-    let checked := if isClash then checkRegimeClash a.regime g c else checkRegime a.regime g q c
+    let checked : Except String Unit := match oversizedRef? c with
+      | some why => .error why
+      | none => if isClash then checkRegimeClash a.regime g c else checkRegime a.regime g q c
     match checked with
-    | .error e => return { base with verdict := .rejected, reason := some e }
+    | .error e => return { base with verdict := .rejected, reason := some (clip e) }
     | .ok () =>
       let accepted := if isClash then { base with verdict := .inconsistent }
         else { base with mapping := c.mapping }
@@ -145,7 +206,7 @@ def checkCountermodelFile (a : Args) (path : System.FilePath) : IO Report := do
     let q ← readGraph "query" (← need "query" a.query)
     let m ← match Model.Countermodel.parse (← readText "countermodel" path) with
       | .ok m => pure m
-      | .error e => throw s!"countermodel {path}: {e}"
+      | .error e => throw s!"countermodel {path}: {clip e}"
     unless m.regime == cr do
       throw s!"the countermodel is for {m.regime.name}, not {cr.name}"
     let gd ← match g.digest with | .ok d => pure d | .error e => throw s!"data: {e}"
@@ -162,11 +223,11 @@ def checkCountermodelFile (a : Args) (path : System.FilePath) : IO Report := do
       | none => pure base
       | some e =>
         match e.verify g q a.regime.rules a.regime.name with
-        | .error why => return { base with verdict := .rejected, reason := some why }
+        | .error why => return { base with verdict := .rejected, reason := some (clip why) }
         | .ok () => pure { base with bound := some true }
     match Model.checkCountermodel cr g q m.model with
     | .ok () => return base
-    | .error e => return { base with verdict := .rejected, reason := some e }
+    | .error e => return { base with verdict := .rejected, reason := some (clip e) }
 
 /-- Run the command: the exit code and the output. -/
 def run (args : List String) : IO (UInt32 × String) := do

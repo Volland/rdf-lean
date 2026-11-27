@@ -1,3 +1,4 @@
+import Std.Data.HashMap
 /-!
 # N-Triples character classes
 
@@ -37,18 +38,21 @@ def hexVal (c : Char) : Nat :=
 
 /-- Characters that `IRIREF` (RDF 1.1 N-Triples §7, production [8]) does not allow raw:
 `#x00`–`#x20`, `<`, `>`, `"`, `{`, `}`, `|`, `^`, `` ` `` and `\`. -/
-def iriForbidden (c : Char) : Bool := c.toNat ≤ 0x20 || "<>\"{}|^`\\".contains c
+def iriForbidden (c : Char) : Bool :=
+  c.toNat ≤ 0x20 || c == '<' || c == '>' || c == '"' || c == '{' || c == '}' || c == '|' ||
+    c == '^' || c == '`' || c == '\\'
 
 /-- An absolute IRI starts with a scheme, `ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )`,
 followed by `:` (RFC 3987 §2.2; N-Triples allows absolute IRIs only, §2.2). -/
-def isAbsoluteIRI (s : String) : Bool :=
-  match s.toList with
-  | c :: rest =>
-    c.isAlpha &&
-      match rest.dropWhile (fun d => d.isAlphanum || d == '+' || d == '-' || d == '.') with
-      | ':' :: _ => true
-      | _ => false
-  | [] => false
+def isAbsoluteIRI (s : String) : Bool := Id.run do
+  if s.isEmpty || !(String.Pos.Raw.get s 0).isAlpha then return false
+  let mut p := String.Pos.Raw.next s 0
+  while p < s.rawEndPos do
+    let d := String.Pos.Raw.get s p
+    if d == ':' then return true
+    if !(d.isAlphanum || d == '+' || d == '-' || d == '.') then return false
+    p := String.Pos.Raw.next s p
+  return false
 
 /-- An IRI the canonical serializer can write: absolute, with no character `IRIREF` forbids. -/
 def isWritableIRI (s : String) : Bool := isAbsoluteIRI s && !s.any iriForbidden
@@ -70,5 +74,64 @@ def isLangTag (s : String) : Bool :=
   | first :: subtags =>
     !first.isEmpty && first.all Char.isAlpha &&
       subtags.all (fun t => !t.isEmpty && t.all Char.isAlphanum)
+
+/-! ## Parser input -/
+
+/-- The input of a parser, indexed by character. An ASCII document is read in place, byte by
+byte, so parsing a large file allocates nothing per character; any other document is decoded
+once into an array of characters. Either way `get? i` is the `i`-th character. -/
+structure Src where
+  str : String
+  ascii : Bool
+  chars : Array Char
+
+namespace Src
+
+/-- The input `s`: in place when it is ASCII (one byte per character), decoded otherwise. -/
+def ofString (s : String) : Src :=
+  if s.utf8ByteSize == s.length then ⟨s, true, #[]⟩
+  else ⟨s, false, s.foldl (fun a c => a.push c) (Array.mkEmpty s.length)⟩
+
+/-- The `i`-th character, if there is one. -/
+@[inline] def get? (s : Src) (i : Nat) : Option Char :=
+  if s.ascii then
+    if h : (⟨i⟩ : String.Pos.Raw) < s.str.rawEndPos then some (Char.ofUInt8 (s.str.getUTF8Byte ⟨i⟩ h))
+    else none
+  else s.chars[i]?
+
+/-- The characters from `b` up to `e`, as a string. -/
+def extract (s : Src) (b e : Nat) : String :=
+  if s.ascii then String.Pos.Raw.extract s.str ⟨b⟩ ⟨e⟩
+  else String.ofList (s.chars.extract b e).toList
+
+/-- The 1-based line and column of the character at `pos`. -/
+def position (s : Src) (pos : Nat) : Nat × Nat := Id.run do
+  let mut line := 1
+  let mut col := 1
+  for i in [0:pos] do
+    match s.get? i with
+    | some '\n' => line := line + 1; col := 1
+    | some _ => col := col + 1
+    | none => break
+  return (line, col)
+
+end Src
+
+/-! ## Interning -/
+
+/-- Strings seen so far, so that a parser can give every occurrence of an IRI the same `String`
+object: a document that names an IRI a thousand times then holds one copy of it. -/
+abbrev Interner := Std.HashMap String String
+
+/-- The interned copy of `s`, and the table with `s` added when it is new. -/
+@[inline] def Interner.intern (t : Interner) (s : String) : String × Interner :=
+  match t.getThenInsertIfNew? s s with
+  | (some s', t) => (s', t)
+  | (none, t) => (s, t)
+
+/-- The default limit on the nesting of triple terms in a document. RDF 1.2 sets none; the W3C
+suites nest a few levels, and a limit keeps adversarial input from exhausting the tools that
+recurse on terms. -/
+def defaultMaxTermDepth : Nat := 1024
 
 end LeanRDF.NTriples

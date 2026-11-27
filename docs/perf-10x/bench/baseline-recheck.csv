@@ -1,0 +1,28 @@
+case,tool,size,base_s,now_s,output
+demo100,leanrdf-demo (RDFS),100 instances,11.24,0.22,byte-identical
+owl25,leanrdf-demo --profile owl,25 instances,11.24,0.18,byte-identical
+neg50,leanrdf-demo (countermodel),50 instances,7.12,0.08,byte-identical
+big50,leanrdf-demo (N ground goals),50 instances,3.77,0.07,byte-identical
+classify25,leanrdf-classify,25 classes,15.52,0.28,byte-identical
+sparql1000-q1,leanrdf-sparql,1000 books,7.94,0.21,byte-identical
+sparql1000-q2,leanrdf-sparql,1000 books,2.04,0.07,byte-identical
+shacl250,leanrdf-shacl,250 employees,48.05,0.20,byte-identical
+check800,leanrdf-check,800 instances,0.06,0.03,byte-identical
+checkbig800,leanrdf-check,800 instances,0.11,0.05,"same verdict; 1,055 bytes against 5,240 (echoed values are bounded)"
+sparqlnt200k,leanrdf-sparql,200000 triples,1.82,0.99,byte-identical
+sparqlnt800k,leanrdf-sparql,800000 triples,9.81,5.87,byte-identical
+sg-kernel1000,leanrdf-sg kernel,1000 records,1.22,0.03,byte-identical
+sg-kernel2000,leanrdf-sg kernel,2000 records,12.82,0.06,byte-identical
+sg-kernel4000,leanrdf-sg kernel,4000 records,83.32,0.30,byte-identical
+sg-quote4000,leanrdf-sg quote,4000 records,84.42,0.14,byte-identical
+sg-quote16000,leanrdf-sg quote,16000 records,>150 (timed out),1.52,not compared
+sg-quote32000,leanrdf-sg quote,32000 records,>150 (timed out),6.05,not compared
+sg-decode4000,leanrdf-sg decode --history,4000 records,23.21,0.25,byte-identical
+sg-decode16000,leanrdf-sg decode --history,16000 records,>150 (timed out),3.09,not compared
+sg-decode32000,leanrdf-sg decode --history,32000 records,>150 (timed out),10.68,not compared
+sg-check4000,leanrdf-sg check,4000 records,1.03,0.33,byte-identical
+sg-check16000,leanrdf-sg check,16000 records,12.14,1.58,byte-identical
+sg-check32000,leanrdf-sg check,32000 records,49.64,6.26,byte-identical
+sg-export4000,leanrdf-sg export --history,4000 records,0.25,0.18,byte-identical
+sg-export16000,leanrdf-sg export --history,16000 records,1.88,1.65,byte-identical
+sg-export32000,leanrdf-sg export --history,32000 records,6.71,6.38,byte-identical

@@ -244,3 +244,21 @@ F9: a minimal policy vocabulary and certified PERMIT, DENY and NOT DECIDED decis
 Capabilities `policy-decisions` and `release`. Depends on [[changes#add-proof-carrying-memory]].
 
 - status:: proposed
+
+## perf-10x
+
+Performance and robustness work on branch `perf/10x`, from four streams merged on 2026-11-25: Elpi search, trusted core, proven engines, robust I/O. Only Lean and Elpi code. Every main theorem keeps its statement and pinned axioms, and every golden is unchanged. Done without an OpenSpec change. The bench is `scripts/bench/bench.py`.
+
+See [[decisions#Lean-driven rounds over interned terms]], [[decisions#Fast trusted code proven equal to its specification]] and [[decisions#Bounded input and bounded echo]]. Branch `perf/fix-paths` then made constant-endpoint `p+` and `p*` searches: see [[decisions#Property paths searched from a constant endpoint]].
+
+On 2026-11-26 `perf/fix-paths` and then `perf/fix-closure` were merged into `perf/10x` with `--no-ff`: see [[decisions#The two audited fixes merged unchanged]].
+
+- status:: applied
+
+## fix-closure
+
+Transitive rules out of Elpi's joins past a threshold, on branch `perf/fix-closure` from `perf/10x`: long `subClassOf` and `subPropertyOf` chains and cycles no longer exhaust the search budget. A query pair with both ends blank is derived from the values the other query triples allow, so its verdicts match c41e68d. Only untrusted search changed. Reproducers are `scripts/bench/gen.py scchain|sccycle|spchain|trpchain|sachain|elchain`.
+
+See [[decisions#Transitive rules in Lean past a threshold]].
+
+- status:: applied

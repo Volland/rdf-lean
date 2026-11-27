@@ -1,0 +1,8 @@
+== CoreBridge
+'LeanRDF.Cert.checkQuery_eq_old' depends on axioms: [propext, Classical.choice, Quot.sound]
+'LeanRDF.Canon.canonicalize_eq_old' depends on axioms: [propext, Classical.choice, Quot.sound]
+'LeanRDF.Model.checkCountermodel_ok_iff_old' depends on axioms: [propext, Classical.choice, Quot.sound]
+== SparqlBridge
+'LeanRDF.Sparql.evalN_eq_old' depends on axioms: [propext, Classical.choice, Quot.sound]
+'LeanRDF.Sparql.Spec.groupOp_eq_old' depends on axioms: [propext, Classical.choice, Quot.sound]
+'LeanRDF.Sparql.runQuery_eq_old' depends on axioms: [propext, Classical.choice, Quot.sound]

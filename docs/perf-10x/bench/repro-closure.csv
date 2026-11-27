@@ -1,0 +1,59 @@
+label,case,seconds,peakMB,exit,verdict
+merged,scchain-600:rdfs,0.21,45,0,Verdict: ENTAILED
+merged,sccycle-301:rdfs,0.06,43,0,Verdict: ENTAILED
+merged,spchain-5000:rdfs,0.40,71,0,Verdict: ENTAILED
+merged,scchain-2000:rdfs,0.21,55,0,Verdict: ENTAILED
+merged,sccycle-1000:rdfs,0.12,48,0,Verdict: ENTAILED
+merged,scchain-600:owl,5.21,126,0,Verdict: ENTAILED
+merged,sccycle-301:owl,5.31,128,0,Verdict: ENTAILED
+merged,spchain-5000:owl,4.71,1916,1,search budget exhausted
+merged,scchain-2000:owl,19.04,931,1,search budget exhausted
+merged,sccycle-1000:owl,30.52,583,1,search budget exhausted
+merged,trpchain-600:owl,3.56,130,0,Verdict: ENTAILED
+merged,sachain-100:owl,3.49,47,0,Verdict: ENTAILED
+merged,sachain-300:owl,23.76,87,1,search budget exhausted
+merged,elchain-600:el,36.97,140,0,certified subsumptions: 180300
+merged,adv:dag-20x30.neg,1.51,132,5,Verdict: REFUTED
+merged,adv:dag-20x30.pos,0.29,51,0,Verdict: ENTAILED
+merged,adv:dag-20x30.type,0.29,50,0,Verdict: ENTAILED
+merged,adv:inds-300x300.pos,1.64,85,0,Verdict: ENTAILED
+merged,adv:scchain-127.bbjoin,0.05,42,0,Verdict: ENTAILED
+merged,adv:scchain-127.bbrev,0.07,47,5,Verdict: REFUTED
+merged,adv:scchain-127.mid,0.05,42,0,Verdict: ENTAILED
+merged,adv:scchain-127.neg,0.07,47,5,Verdict: REFUTED
+merged,adv:scchain-127.pos,0.05,42,0,Verdict: ENTAILED
+merged,adv:scchain-127.type,0.05,42,0,Verdict: ENTAILED
+merged,adv:scchain-200.bbjoin,0.05,43,0,Verdict: ENTAILED
+merged,adv:scchain-200.bbrev,0.11,53,5,Verdict: REFUTED
+merged,adv:scchain-200.mid,0.05,43,0,Verdict: ENTAILED
+merged,adv:scchain-200.neg,0.11,53,5,Verdict: REFUTED
+merged,adv:scchain-200.pos,0.05,43,0,Verdict: ENTAILED
+merged,adv:scchain-200.type,0.05,42,0,Verdict: ENTAILED
+merged,adv:scchain-2000.bbjoin,0.21,54,0,Verdict: ENTAILED
+merged,adv:scchain-2000.bbrev,46.96,1066,1,Verdict: NOT DERIVED
+merged,adv:scchain-2000.mid,0.21,53,0,Verdict: ENTAILED
+merged,adv:scchain-2000.neg,46.68,1066,5,Verdict: REFUTED
+merged,adv:scchain-2000.pos,0.21,54,0,Verdict: ENTAILED
+merged,adv:scchain-2000.type,0.21,51,0,Verdict: ENTAILED
+merged,adv:scchain-600.bbjoin,0.09,45,0,Verdict: ENTAILED
+merged,adv:scchain-600.bbrev,1.48,137,5,Verdict: REFUTED
+merged,adv:scchain-600.mid,0.08,45,0,Verdict: ENTAILED
+merged,adv:scchain-600.neg,1.40,137,5,Verdict: REFUTED
+merged,adv:scchain-600.pos,0.08,45,0,Verdict: ENTAILED
+merged,adv:scchain-600.type,0.08,44,0,Verdict: ENTAILED
+merged,adv:sccycle-1000.neg,32.83,543,5,Verdict: REFUTED
+merged,adv:sccycle-1000.pos,0.12,47,0,Verdict: ENTAILED
+merged,adv:sccycle-1000.type,0.12,46,0,Verdict: ENTAILED
+merged,adv:sccycle-301.neg,0.94,91,5,Verdict: REFUTED
+merged,adv:sccycle-301.pos,0.06,43,0,Verdict: ENTAILED
+merged,adv:sccycle-301.type,0.06,43,0,Verdict: ENTAILED
+merged,adv:screl-600.pos,5.04,210,0,Verdict: ENTAILED
+merged,adv:screl-600.sc,5.08,210,0,Verdict: ENTAILED
+merged,adv:sp2sc-600.pos,2.78,227,0,Verdict: ENTAILED
+merged,adv:sp2sc-600.type,2.92,221,0,Verdict: ENTAILED
+merged,adv:spchain-5000.neg,5.91,1929,1,Verdict: NOT DERIVED
+merged,adv:spchain-5000.pair,0.40,69,0,Verdict: ENTAILED
+merged,adv:spchain-5000.pos,0.40,64,0,Verdict: ENTAILED
+merged,adv:tree-12.neg,0.80,114,5,Verdict: REFUTED
+merged,adv:tree-12.pos,0.63,71,0,Verdict: ENTAILED
+merged,adv:tree-12.type,0.62,69,0,Verdict: ENTAILED

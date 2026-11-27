@@ -65,6 +65,10 @@ def execute (D : Dataset) (sq : SQuery) (load : IRI → Except String Graph := f
 
 /-! ## The command line -/
 
+/-- The dataset whose default graph holds the triples: `Dataset.ofGraph (Graph.ofList ts)`
+without building and listing the graph first. -/
+def ofTriples (ts : Array Triple) : Dataset := Dataset.ofList (ts.toList.map (Quad.ofTriple · none))
+
 /-- Read an RDF file as a dataset, by extension: N-Triples, N-Quads, Turtle or TriG. -/
 def loadDataset (path : System.FilePath) : IO (Except String Dataset) := do
   let src ← match ← (IO.FS.readFile path).toBaseIO with
@@ -72,10 +76,10 @@ def loadDataset (path : System.FilePath) : IO (Except String Dataset) := do
     | .error e => return .error s!"cannot read {path}: {e}"
   let base := "file://" ++ path.toString
   return match path.extension with
-    | some "nt" => (NTriples.parse src).map Dataset.ofGraph |>.mapError toString
+    | some "nt" => (NTriples.parseTriples src).map ofTriples |>.mapError toString
     | some "nq" => (NQuads.parse src).mapError toString
     | some "trig" => (TriG.parse src base).mapError toString
-    | _ => (Turtle.parse src base).map Dataset.ofGraph |>.mapError toString
+    | _ => (Turtle.parseTriples src base).map ofTriples |>.mapError toString
 
 -- @tg: implements:: [[openspec:sparql-syntax#SPARQL command line]]
 /-- `leanrdf-sparql query --location FILE --query Q [--results-format F]`: the exit code and

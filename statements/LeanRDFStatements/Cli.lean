@@ -37,21 +37,40 @@ private def load (path : String) : IO (Except String StatementGraph) := do
     return readRecords src >>= StatementGraph.ofList?
   catch e => return .error (toString e)
 
+/-- The graph's eids and each record's references, looked up once. -/
+private structure Index where
+  eids : Std.HashSet Nat
+  refs : Std.HashMap Nat (List Nat)
+  /-- The eids that no reference cycle reaches: the peel of the references inside the graph. -/
+  acyclic : Std.HashSet Nat
+
+private def Index.of (g : StatementGraph) : Index :=
+  let eids := Std.HashSet.ofList g.eids
+  let inner (r : Record) := r.refs.filter eids.contains
+  { eids, refs := g.records.foldl (fun m r => m.insert r.eid r.refs) {}
+    acyclic := Std.HashSet.ofList (peelUntil (g.fastStep inner) (g.eids.length + 1) []) }
+
 /-- Dangling references: a record and an eid it references that is not in the graph. -/
-private def dangling (g : StatementGraph) : List (Nat × Nat) :=
-  g.records.flatMap fun r => (r.refs.filter (· ∉ g.eids)).map (r.eid, ·)
+private def dangling (g : StatementGraph) (ix : Index) : List (Nat × Nat) :=
+  g.records.flatMap fun r => (r.refs.filter (!ix.eids.contains ·)).map (r.eid, ·)
 
-/-- The eids reachable from `e` by one or more references inside the graph. -/
-private def reach (g : StatementGraph) (e : Nat) : List Nat := Id.run do
-  let mut seen : List Nat := []
-  let mut frontier := (g.refsOf e).filter (· ∈ g.eids)
-  for _ in [0:g.eids.length] do
-    seen := seen ++ frontier.filter (· ∉ seen)
-    frontier := ((frontier.flatMap g.refsOf).filter (· ∈ g.eids)).filter (· ∉ seen)
-  return seen
-
-/-- Whether `e` lies on a reference cycle; a self-reference counts. -/
-private def onCycle (g : StatementGraph) (e : Nat) : Bool := e ∈ reach g e
+/-- Whether `e` reaches itself by one or more references inside the graph; a self-reference
+counts. An eid of the acyclic peel reaches no cycle, so only the others are searched. -/
+private def onCycle (ix : Index) (e : Nat) : Bool := Id.run do
+  if ix.acyclic.contains e then return false
+  let inner (x : Nat) := (ix.refs.getD x []).filter ix.eids.contains
+  let mut seen : Std.HashSet Nat := {}
+  let mut stack := inner e
+  while true do
+    match stack with
+    | [] => break
+    | x :: rest =>
+      stack := rest
+      if x == e then return true
+      if !seen.contains x then
+        seen := seen.insert x
+        stack := inner x ++ stack
+  return false
 
 -- @tg: implements:: [[openspec:statement-graphs#Statement graph command line]]
 def run : List String → IO (UInt32 × String)
@@ -60,9 +79,10 @@ def run : List String → IO (UInt32 × String)
     | .error e => return (3, e)
     | .ok g =>
       let vs := g.check.map fun (e, v) => s!"eid {e}: {v.name}"
-      let ds := (dangling g).map fun (e, x) => s!"warning: eid {e}: dangling reference to eid {x}"
+      let ix := Index.of g
+      let ds := (dangling g ix).map fun (e, x) => s!"warning: eid {e}: dangling reference to eid {x}"
       -- a self-reference is reported as a violation already
-      let cycle := g.eids.filter fun e => onCycle g e && !(g.refsOf e).contains e
+      let cycle := g.eids.filter fun e => onCycle ix e && !((ix.refs.getD e []).contains e)
       let cyc := if cycle.isEmpty then [] else [s!"warning: reference cycle among eids {cycle}"]
       let report := "\n".intercalate (vs ++ ds ++ cyc)
       return (if vs.isEmpty then 0 else 1, if report.isEmpty then "well formed" else report)
@@ -90,12 +110,17 @@ def run : List String → IO (UInt32 × String)
     | .error e => return (3, e)
     | .ok g =>
       let k := g.kernel
-      let removed := (g.eids.filter (· ∉ k)).map fun e =>
-        match (dangling g).find? (·.1 == e) with
-        | some (_, x) => s!"removed eid {e}: dangling reference to eid {x}"
+      let ks : Std.HashSet Nat := Std.HashSet.ofList k
+      let ix := Index.of g
+      let dang := dangling g ix
+      let firstDangling : Std.HashMap Nat Nat :=
+        dang.foldr (fun (e, x) m => m.insert e x) {}
+      let removed := (g.eids.filter (!ks.contains ·)).map fun e =>
+        match firstDangling.get? e with
+        | some x => s!"removed eid {e}: dangling reference to eid {x}"
         | none =>
-          if onCycle g e then s!"removed eid {e}: on a reference cycle" else
-          match (g.refsOf e).find? (· ∉ k) with
+          if onCycle ix e then s!"removed eid {e}: on a reference cycle" else
+          match (ix.refs.getD e []).find? (!ks.contains ·) with
           | some x => s!"removed eid {e}: depends on removed eid {x}"
           | none => s!"removed eid {e}"
       return (0, "\n".intercalate (s!"kernel: {k}" :: removed))
@@ -103,8 +128,10 @@ def run : List String → IO (UInt32 × String)
     match ← load path with
     | .error e => return (3, e)
     | .ok g =>
-      return (0, "\n".intercalate (g.kernel.map fun e =>
-        match g.quote e with
+      -- `quoteAll` is `quote` on each eid (`quoteAll_eq`), with one table of the records
+      let k := g.kernel
+      return (0, "\n".intercalate ((k.zip (g.quoteAll k)).map fun (e, q) =>
+        match q with
         | .ok t => s!"{e}\t{t.toNTriples}"
         | .error err => s!"{e}\t{err}"))
   | _ => return (3, usage)

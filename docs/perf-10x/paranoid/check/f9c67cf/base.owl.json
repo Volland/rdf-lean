@@ -1,0 +1,45 @@
+{"version": "0.1.0",
+ "sandboxed": true,
+ "report":
+ {"resolve_dependencies":
+  {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+  "kernel_reports":
+  {"nanoda":
+   {"output":
+    {"proc":
+     {"stdout": "Skipped exported but unpermitted axioms [\"sorryAx\"]\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "lean4lean":
+   {"output":
+    {"proc": {"stdout": "checked 88990 declarations\n", "stderr": ""}},
+    "judgement": "success"},
+   "con-ron":
+   {"output":
+    {"proc":
+     {"stdout": "con-ron: accepted 88993 declarations (--verified)\n",
+      "stderr": ""}},
+    "judgement": "success"},
+   "con-leche":
+   {"output":
+    {"proc":
+     {"stdout": "con-leche: accepted 88993 declarations (--verified)\n",
+      "stderr":
+      "con-leche: stats: phases: parse 1.0s (index 0.0s), check 8.5s\ncon-leche: stats: check pool: 8.542s wall, 12 workers, 88993 records, busy 101.337s (98.8%); tail 0.124s after the last start, 12 busy then, 0.409s worker-time in it (27.4%)\ncon-leche: stats: slowest checks: 0.924s theorem _private.Init.Data.String.Lemmas.Lossy.0.String.fromUTF8Lossy_surrogate_append._proof_1_10 (#80872); 0.491s theorem _private.Init.Data.Vector.Extract.0.Vector.extract_append._proof_1 (#86284); 0.371s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_1 (#34720); 0.297s theorem _private.Init.Data.Array.Extract.0.Array.extract_append_extract._proof_1_1 (#34438); 0.276s theorem _private.Init.Data.Array.Extract.0.Array.extract_append._proof_1_3 (#34722)\ncon-leche: stats: peak RSS 0.80 GiB\n"}},
+    "judgement": "success"},
+   "Lean paranoid":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"},
+   "Lean default":
+   {"output": {"proc": {"stdout": "", "stderr": ""}}, "judgement": "success"}},
+  "check_axioms":
+  {"output":
+   {"str": {"string": "Uses axioms: propext, Classical.choice, Quot.sound"}},
+   "judgement": "success"},
+  "build_report":
+  {"output":
+   {"proc":
+    {"stdout": "",
+     "stderr":
+     "✔ [99/119] Built LeanRDFOwl.Vocab (167ms)\n✔ [101/119] Built LeanRDFOwl.Lists (114ms)\n✔ [103/119] Built LeanRDFOwl.Semantics (155ms)\n✔ [105/119] Built LeanRDFOwl.Clash (130ms)\n✔ [107/119] Built LeanRDFOwl.Rules (185ms)\n✔ [109/119] Built LeanRDFOwl.EL (129ms)\n✔ [111/119] Built LeanRDFOwl.Soundness (2.1s)\n✔ [113/119] Built LeanRDFOwl.ELSoundness (1.2s)\n✔ [115/119] Built LeanRDFOwl.ClashSoundness (577ms)\n✔ [117/119] Built LeanRDFOwl (85ms)\n"}},
+   "judgement": "success"}},
+ "judgement": "accepted"}

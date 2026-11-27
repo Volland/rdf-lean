@@ -1,5 +1,6 @@
 import LeanRDF.Cert.Match
 import LeanRDF.Cert.Envelope
+import LeanRDF.Core.Index
 import LeanRDF.Entailment.Soundness
 
 /-!
@@ -47,6 +48,29 @@ structure Certificate where
 /-- The instance mapping of a certificate. -/
 def Certificate.mu (c : Certificate) (b : BlankNode) : Term :=
   ((c.mapping.find? (·.1 == b)).map (·.2)).getD (.bnode b)
+
+theorem find?_map_eq_lookup {β : Type} (l : List (BlankNode × β)) (b : BlankNode) :
+    (l.find? (·.1 == b)).map (·.2) = l.lookup b := by
+  induction l with
+  | nil => rfl
+  | cons p l ih =>
+    obtain ⟨k, v⟩ := p
+    by_cases h : k = b
+    · subst h; simp
+    · have h1 : (k == b) = false := by simpa using h
+      have h2 : (b == k) = false := by simpa using fun e => h e.symm
+      simp only [List.find?_cons, h1, List.lookup, h2]
+      exact ih
+
+/-- The instance mapping of a certificate as a function that looks blank nodes up in a hash
+map built once; equal to `Certificate.mu` (`muFast_eq`). -/
+def Certificate.muFast (c : Certificate) : BlankNode → Term :=
+  let m := Index.assocMap c.mapping
+  fun b => (m[b]?).getD (.bnode b)
+
+theorem Certificate.muFast_eq (c : Certificate) : c.muFast = c.mu := by
+  funext b
+  simp only [Certificate.muFast, Certificate.mu, Index.getElem?_assocMap, find?_map_eq_lookup]
 
 /-- The conclusions of the premise ids; each id must name an already accepted node. -/
 def premiseTriples (done : Array Triple) : List Nat → Except String (List Triple)
@@ -207,12 +231,16 @@ theorem checkB_sound {rules : List Rule} {g : Graph} {c : Certificate} {t : Trip
   · cases h
 
 /-- Check a certificate for a query graph: every triple of the query, instantiated by the
-certificate's mapping, must be an accepted conclusion. -/
+certificate's mapping, must be an accepted conclusion. The accepted conclusions are put in a
+hash set and the mapping in a hash map, once, so the check is linear in the query and the
+certificate. -/
 def checkQuery (rules : List Rule) (g q : Graph) (c : Certificate) : Except String Unit :=
   match checkCert rules g c with
   | .error e => .error e
   | .ok ts =>
-    if q.toList.all (fun t => ts.contains (t.instantiate c.mu)) then .ok ()
+    let done : Std.HashSet Triple := Std.HashSet.ofList ts.toList
+    let mu := c.muFast
+    if q.toList.all (fun t => done.contains (t.instantiate mu)) then .ok ()
     else .error "a query triple is not among the certified conclusions"
 
 theorem checkQuery_derives {rules : List Rule} {g q : Graph} {c : Certificate}
@@ -221,11 +249,14 @@ theorem checkQuery_derives {rules : List Rule} {g q : Graph} {c : Certificate}
   split at h
   · cases h
   rename_i ts hts
+  simp only at h
   split at h
   · rename_i hall
     intro t ht
     have := List.all_eq_true.1 hall t (Graph.mem_toList.2 ht)
-    exact checkCert_sound hts _ (Array.contains_iff_mem.1 this)
+    rw [Std.HashSet.contains_ofList, List.contains_iff_mem, Array.mem_toList_iff,
+      Certificate.muFast_eq] at this
+    exact checkCert_sound hts _ this
   · cases h
 
 /-- Soundness for queries: a certificate accepted for `q` under `rdfsRules` proves that `g`
