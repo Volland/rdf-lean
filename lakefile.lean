@@ -15,7 +15,10 @@ package leanrdf where
   homepage := "https://volland.github.io/rdf-lean/"
   license := "MIT OR Apache-2.0"
   licenseFiles := #["LICENSE-MIT", "LICENSE-APACHE"]
-  leanOptions := #[⟨`autoImplicit, false⟩]
+  -- Lean 4.37 compiles a `match` with a wildcard through a sparse `casesOn` whose guard
+  -- (`Nat.hasNotBit`, via `Nat.bitwise`) depends on `Classical.choice`; turning sparse cases off
+  -- keeps the axioms of the main theorems as `Tests/Core/Axioms.lean` pins them.
+  leanOptions := #[⟨`autoImplicit, false⟩, ⟨`backward.match.sparseCases, false⟩]
 
 @[default_target] lean_lib LeanRDF
 

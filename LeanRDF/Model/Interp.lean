@@ -57,7 +57,7 @@ def interp (P : Presentation) (hw : P.WellFormed) : SimpleInterp where
     cases h
     show P.irB (P.sortOfLit (normLit l)) = true
     unfold sortOfLit
-    rw [if_pos (litNormal_normLit l)]
+    rw [ite_eq_left (litNormal_normLit l)]
     cases hl : P.overrides.lookup (normLit l) with
     | some k => exact (hw.overrides _ (lookup_mem hl)).2.2
     | none =>
